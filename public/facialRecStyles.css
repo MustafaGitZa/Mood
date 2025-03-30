@@ -91,3 +91,37 @@ canvas {
     cursor: pointer;
     border-radius: 5px;
 }
+
+/* Navbar Styles */
+.navbar {
+    background-color: #9f2d2d; /* Dark red background */
+    width: 100%;
+    height: 50px; /* Reduce navbar height */
+    padding: 5px 15px; /* Slimmer padding */
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Navigation links */
+.nav-menu {
+    display: flex;
+    gap: 15px;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    font-size: 0.9em; /* Slightly smaller text */
+    padding: 8px 12px;
+}
+
+.navbar a:hover {
+    background-color: #f7c8d3;
+    color: #333;
+}
+

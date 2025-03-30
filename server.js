@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const mysql = require("mysql2");
+const multer = require("multer");
 const path = require("path");
 const { initializeModels, detectMood } = require("./detectMood.js"); // Import mood detection functions
 
@@ -11,7 +12,13 @@ const port = 3000;
 // Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "public"))); // Serve all files in the 'public' directory
+
+const session = require("express-session");
+
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, 'public')));  // Serve static files from 'public' folder
+// Serve uploaded images (Ensure the uploaded images are served from 'public/uploads')
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 app.use('/models', express.static(path.join(__dirname, "models"))); // Serve models for Face-api.js
 
 // Database Connection
@@ -22,6 +29,22 @@ const db = mysql.createConnection({
   database: "moodsync"
 });
 
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+      const uploadDir = path.join(__dirname, 'public/uploads');
+      console.log(`Uploading file to: ${uploadDir}`); // Log the upload path
+      cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+      const filename = Date.now() + path.extname(file.originalname);
+      console.log(`File saved as: ${filename}`); // Log the filename
+      cb(null, filename);
+  }
+});
+// Initialize multer with the storage configuration
+const upload = multer({ storage: storage });
+
 db.connect((err) => {
   if (err) {
     console.error("Database connection failed:", err.stack);
@@ -30,6 +53,15 @@ db.connect((err) => {
   console.log("Connected to MySQL database!");
 });
 
+
+app.use(
+  session({
+    secret: "your_secret_key", // Use a strong secret key (store in env in production)
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }, // Set `true` if using HTTPS
+  })
+);
 
 // Initialize Face-api.js Models
 initializeModels();
@@ -71,14 +103,13 @@ app.post("/facialRecogntion", async (req, res) => {
   const { moodName, moodType } = req.body;  // Mood name from the client request
 
     // Assuming the userId is passed as part of the request (you might want to fetch it from session or JWT in a real app)
-    const userId = 1;  // Set a default userId or get it from session/auth system
+    //const userId = 12;  // Set a default userId or get it from session/auth system
+    //const userId = localStorage.getItem("userId");
+    const userId = req.session.userId; // Get userId from session
 
     if (!userId || !moodName) {
         return res.status(400).json({ message: "User ID and mood are required." });
     }
-
-  
-
   const query = `
     INSERT INTO MoodLogs (user_id, mood_type, logged_mood, log_date) 
     VALUES (?, ?, ?, NOW())
@@ -114,8 +145,24 @@ app.post("/save-emoji", (req, res) => {
 });
 
 // Register Route (POST)
-app.post("/register", async (req, res) => {
+app.post("/register", upload.single("profile_picture"), async (req, res) => {
+
+  console.log("Register request received"); // Step 1: Check if request is received
+
   const { username, password, email , name, surname} = req.body;
+  console.log("Received user details:", { username, email, name, surname });
+
+  let profile_picture = null;
+
+  if (req.file) {
+    console.log("📸 Profile picture received:", req.file.filename);
+    profile_picture = `/uploads/${req.file.filename}`; // Save the file path
+    } else {
+        console.log("No profile picture uploaded");
+    }
+
+  //const profile_picture = req.file ? `/uploads/${req.file.filename}` : null; // Get the filename of the uploaded image
+
 
   if (!username || !password || !email) {
     return res.status(400).json({ message: "Username, password, and email are required." });
@@ -123,8 +170,8 @@ app.post("/register", async (req, res) => {
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const query = "INSERT INTO users (username, password, email, name, surname) VALUES (?, ?, ?, ?, ?)";
-    db.query(query, [username, hashedPassword, email, name, surname], (err, result) => {
+    const query = "INSERT INTO users (username, password, email, name, surname, profile_picture) VALUES (?, ?, ?, ?, ?, ?)";
+    db.query(query, [username, hashedPassword, email, name, surname, profile_picture], (err, result) => {
       if (err) {
         if (err.code === "ER_DUP_ENTRY") {
           res.status(400).json({ message: "Username or email already exists!" });
@@ -146,6 +193,7 @@ app.post("/register", async (req, res) => {
 app.post("/login", (req, res) => {
   console.log('Login route hit'); // This log will help us know if the route is triggered
   const { username, password } = req.body;
+  
 
   console.log("Received login request for username:", username); // Log received username
 
@@ -168,6 +216,9 @@ app.post("/login", (req, res) => {
       try {
         const isMatch = await bcrypt.compare(password, user.password);
         if (isMatch) {
+           // Store userId in session
+          req.session.userId = user.user_id;
+          req.session.username = user.username;
           console.log("Password match successful. Sending userId:", user.user_id); // Log userId being sent
           console.log('Password match successful for user:', user.username); // Log successful password match
           res.status(200).json({ message: "Login successful!", userId: user.user_id, username: user.username, redirectUrl: "/home" });
@@ -253,8 +304,76 @@ app.get("/get-username", (req, res) => {
   });
 });
 
+app.get("/getUserProfile", (req, res) => {
+  const userId = 11; // Replace with actual session user ID
+
+  db.query("SELECT profile_picture FROM users WHERE user_id = ?", [userId], (err, results) => {
+      if (err) {
+          return res.status(500).json({ message: "Database error" });
+      }
+      if (results.length > 0) {
+          // Return the image path directly as stored in the database
+          res.json({ profile_picture: results[0].profile_picture });
+      } else {
+          res.json({ profile_picture: null });
+      }
+  });
+});
+
+// Fetch mood data (mood counts) for the logged-in user to draw bar charts
+app.get("/ratings", (req, res) => {
+  if (!req.session.userId) {
+    return res.status(403).json({ message: "User not authenticated." });
+  }
+
+  const userId = req.session.userId;
+
+  // Query to count moods for each type (happy, sad, angry, excited)
+  const countMoodsQuery = `
+    SELECT 
+      SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'happy' THEN 1 ELSE 0 END) AS happy,
+      SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'sad' THEN 1 ELSE 0 END) AS sad,
+      SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'angry' THEN 1 ELSE 0 END) AS angry,
+      SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'excited' THEN 1 ELSE 0 END) AS excited,
+      SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'neutral' THEN 1 ELSE 0 END) AS neutral,
+      SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'surprised' THEN 1 ELSE 0 END) AS surprised
+    FROM moodlogs
+    WHERE user_id = ?;
+  `;
+
+  db.query(countMoodsQuery, [userId], (err, results) => {
+    if (err) {
+      console.error("Error counting moods:", err);
+      return res.status(500).json({ message: "An error occurred while counting moods." });
+    }
+
+    // Extract mood counts from the query result
+    const { happy, sad, angry, excited, neutral, surprised } = results[0];
+
+    // Return mood counts
+    res.json({
+      happy,
+      sad,
+      angry,
+      excited,
+      neutral,
+      surprised
+    });
+  });
+});
+
+app.post("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ message: "Error logging out." });
+    }
+    res.status(200).json({ message: "Logout successful!" });
+  });
+});
 
 // Start Server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
+
+

@@ -100,7 +100,7 @@ async function detectMoods() {
                         ctx.fillText("✔", box.x + box.width / 2 - 10, box.y + box.height / 2); // Adjust position for center
     
                         // Update mood label
-                        moodLabel.innerText = `Detected Mood: ${mood}`;
+                        moodLabel.innerText = `${mood}`;
     
                         // Stop webcam after detection
                         stopWebcam();
@@ -136,7 +136,7 @@ function captureMood() {
         if (!detectedMood) {
             moodLabel.innerText = "No face detected. Please try again.";
         } else {
-            moodLabel.innerText = `Detected Mood: ${detectedMood}`;
+            moodLabel.innerText = `${detectedMood}`;
         }
     }
 

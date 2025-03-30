@@ -1,18 +1,20 @@
 document.getElementById('registerForm').addEventListener('submit', async function(event) {
     event.preventDefault(); // Prevent form refresh
 
-    const name = document.getElementById('registerName').value;
-    const surname = document.getElementById('registerSurname').value;
-    const username = document.getElementById('registerUsername').value;
-    const email = document.getElementById('registerEmail').value;
-    const password = document.getElementById('registerPassword').value;
+    const formData = new FormData();
+    formData.append("name", document.getElementById('registerName').value);
+    formData.append("surname", document.getElementById('registerSurname').value);
+    formData.append("username", document.getElementById('registerUsername').value);
+    formData.append("email", document.getElementById('registerEmail').value);
+    formData.append("password", document.getElementById('registerPassword').value);
+    formData.append("profile_picture", document.getElementById('registerProfilePicture').files[0]);
 
+    console.log("Sending registration data...");
     try {
         // Send registration data to the server
         const response = await fetch('/register', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password ,email, name, surname })
+            body: formData // No need to set headers for FormData
         });
 
         const data = await response.json();
