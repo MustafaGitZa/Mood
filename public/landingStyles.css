@@ -1,0 +1,152 @@
+
+body,
+h1,
+h2,
+p,
+form,
+label {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: sans-serif;
+    /* Peach background */
+    background-color: rgb(255, 240, 220); /* Light Peach - Apply to the whole body */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+main {
+    width: 80%;
+    max-width: 600px;
+    background-color: transparent; /* White - For the main content area */
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* --- Welcome Page Styles --- */
+#welcome-section {
+    text-align: center;
+    background-color: rgb(255, 229, 180); /* Peach background color */
+    padding: 20px; /* Adjust padding as needed */
+    box-sizing: border-box; /* Include padding in the element's total width and height */
+    width: 100%; /* Ensure it fills the width of its parent */
+    margin: 0; /* Remove default margin */
+}
+
+/* Remove margin/padding from child elements */
+#welcome-section h1,
+#welcome-section p,
+#welcome-section a {
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    color: rgb(70, 130, 180);
+    margin-bottom: 20px;
+    font-size: 2.5em;
+}
+
+.welcome-text {
+    font-size: 1.1em;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    color: rgb(105, 105, 105);
+}
+.a {
+    color: purple; /* Change the link color here */
+}
+
+
+/* --- Image Styles --- */
+
+/* Welcome Page Watermark (using body background) */
+body.welcome {
+    background-image: url('assets/differentReact.jpg'); /* Correct path to your image */
+    background-repeat: repeat;
+    background-position: center;
+    background-size: cover;
+    position: relative; /* Enables positioning for any child elements */
+}
+  body.welcome::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3); /* Adjust opacity here */
+    z-index: 1; /* Place overlay behind content */
+  }
+
+  body.welcome * {
+    position: relative;
+    z-index: 2;
+  }
+
+
+/* Login Page Emoji (using background-image in input field) */
+.username-input {
+  background-repeat: no-repeat;
+  background-position: 5px center;
+  padding-left: 30px;
+}
+
+/* Background styling */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+}
+
+.gradient-background {
+    background: linear-gradient(90deg, #fbc2eb, #a6c1ee); /* Pink to blue gradient */
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Card styling */
+.dashboard-container {
+    background-color: #ffffff; /* White card */
+    border-radius: 15px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    text-align: center;
+    width: 300px;
+}
+
+/* Text styling */
+.title {
+    color: #d62828; /* Red accent for title */
+    margin-bottom: 15px;
+}
+
+.subtitle {
+    color: #444444; /* Neutral grey tone for subtitle */
+    margin-bottom: 20px;
+}
+
+/* Button styling */
+.option-button {
+    background-color: #d62828; /* Red accent for buttons */
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    margin: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.option-button:hover {
+    background-color: #f77f7f; /* Light red hover effect */
+}

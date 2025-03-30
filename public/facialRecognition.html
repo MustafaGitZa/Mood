@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facial Recognition</title>
+    <!-- Link to External CSS -->
+    <link rel="stylesheet" href="facialRecStyles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <!-- Include Face-api.js -->
+    <script src="/assets/face-api.min.js"></script>
+    <!-- Include your custom script -->
+    <script defer src="facialRecognitionScript.js"></script>
+    
+</head>
+<body>
+    <h1>Facial Recognition</h1>
+    <div class="container">
+        <video id="webcam" autoplay playsinline></video>
+        <canvas id="overlay"></canvas>
+    </div>
+    <!-- Mood Selection Modal -->
+    <div id="moodPopup" class="popup">
+        <div class="popup-content">
+            <p>Would you like to go to a music playlist or an ebook selection?</p>
+            <div class="icon-container">
+                <button id="musicButton" class="icon-btn">
+                    <i class="fa-solid fa-music"></i>
+                    <span>Music</span>
+                </button>
+                <button id="ebookButton" class="icon-btn">
+                    <i class="fa-solid fa-book"></i>
+                    <span>Ebook</span>
+                </button>
+            </div>
+            <button id="closePopup" class="close-btn">Cancel</button>
+        </div>
+    </div>
+    <br />
+    <label id="moodLabel">Detected Mood: </label>
+    <br />
+    <button id="saveMoodButton">Save Mood</button>
+    <input type="hidden" id="moodType" value="facial_recognition" />
+    <!-- Tick Icon (Initially Hidden) -->
+    <p id="moodTick"></p>
+    <script src="saveMood.js"></script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+/* General Styles */
+body {
+    font-family: 'Poppins', sans-serif; /* Clean modern font */
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #e3c1a8, #f7c8d3); /* Nude pastel gradient */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100vh; /* Full viewport height */
+    color: #333; /* Subtle dark text color for better readability */
+    transition: all 0.3s ease-in-out; /* Smooth transitions for any updates */
+}
+
+/* Navbar Styles */
+.navbar {
+    background-color: #9f2d2d; /* Dark background for the navbar */
+    overflow: hidden;
+    width: 100%;
+    padding: 10px 0;
+    position: fixed; /* Fix the navbar at the top */
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+.navbar a {
+    float: left;
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 12px 20px;
+    text-decoration: none;
+    font-size: 1.1em;
+}
+
+.navbar a:hover {
+    background-color: #f7c8d3; /* Hover effect with matching pastel color */
+    color: #333;
+}
+
+/* Log Out Link Styles */
+.logout {
+    float: right; /* Aligns the log out option to the right */
+    display: block;
+    color: rgb(76, 70, 70);
+    text-align: center;
+    padding: 12px 20px;
+    text-decoration: none;
+    font-size: 1.1em;
+}
+
+.logout:hover {
+    background-color: #f7c8d3; /* Hover effect with matching pastel color */
+    color: #333;
+}
+
+/* 4-Block Grid Layout */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Two columns by default */
+    gap: 20px; /* Space between blocks */
+    margin-top: 80px; /* Ensure it's below the navbar */
+    width: 80%; /* Set the width of the grid container */
+    max-width: 1200px; /* Max width for larger screens */
+    padding: 20px;
+}
+
+.dashboard-grid div {
+    background: #ffffff; /* Clean white background for blocks */
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for blocks */
+    text-align: center;
+}
+
+.dashboard-grid h2 {
+    font-size: 1.8em;
+    color: #333;
+}
+
+.dashboard-grid p {
+    font-size: 1.1em;
+    color: #666;
+}
+
+.dashboard-grid button {
+    background-color: #f7c8d3;
+    color: #333;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 1.1em;
+    margin-top: 15px;
+}
+
+/* Mood Tracking Section Styles */
+.mood-Room-section {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.mood-tracking-section button {
+    background-color: #f7c8d3;
+    color: #333;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 1.1em;
+    margin-top: 10px;
+}
+
+/* Responsive Design for Smaller Screens */
+@media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr; /* Stack blocks vertically on smaller screens */
+        width: 90%; /* Adjust width for smaller screens */
+    }
+}
+
+/* Additional Styles for Body and Background */
+body {
+    background: linear-gradient(135deg, #e3c1a8, #f7c8d3);
+    padding-top: 70px; /* Add space so the title is not hidden */
+}
+
+.container {
+    display: none; /* Removed the background container */
+}

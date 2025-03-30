@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <ul class="nav-menu">            
+            <a href="dashboard.html">Dashboard</a>
+            <a href="contact.html">Contact</a>
+            <a href="logout.html">Logout</a>
+        </ul>
+    </nav>
+
+    <!-- Welcome Section -->
+    <div class="welcome-container">
+        <h1 class="welcome-title">Welcome, 
+            <!-- Placeholder for username, to be filled dynamically with JavaScript or server-side rendering -->
+            <span id="username">User</span>!
+        </h1>
+        <p class="welcome-subtitle">Log your mood and track your journey.</p>
+        
+        <!-- Mood Logging Buttons -->
+        <div class="mood-buttons">
+            <button class="mood-btn" onclick="window.location.href='/facial-recognition'">Facial Recognition</button>
+            <div>
+                &nbsp;
+            </div>
+            <button class="mood-btn" onclick="window.location.href='/emoji-selector'">Emoji Selector</button>
+        </div>
+    </div>
+
+    <script src="homeScript.js"></script> <!-- Link to External JS -->
+</body>
+</html>

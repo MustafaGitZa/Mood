@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoodSync Dashboard</title>
+    <link rel="stylesheet" href="dashboardStyles.css"> <!-- Direct CSS link -->
+</head>
+<body>
+    <div class="navbar">
+        <a href="home.html">Home</a>
+        <a href="#contact-us">Contact us</a>
+        <a href="/edit-profile.html" class="navbar-btn">Profile</a> <!-- Edit Profile Button in Navbar -->
+        <a href="login.html" class="logout-btn">Logout</a>
+    </div>
+
+    <!-- 4-Block Layout -->
+    <div class="dashboard-grid">
+
+        <!-- Mood Tracking Section (added here) -->
+        <div class="mood-Room-section">
+            <h2>Mood Room Space</h2>
+            <p>Step into a sanctuary crafted for your emotions.</p>
+            <p>Personalized mood room content coming soon.</p>
+            <button onclick="window.location.href='/wellness'">Explore Mood Room</button>
+        </div>
+
+        <!-- Mood History Block -->
+        <div class="history-section">
+            <h2>Your Mood History</h2>
+            <p>Discover your mood journey and trends over time.</p>
+            <button onclick="window.location.href='/mood-history'">View History</button>
+        </div>
+
+        <!-- Music Playlist Block -->
+        <div class="music-section">
+            <h2>Your Playlists</h2>
+            <p>Music suggestions based on your moods.</p>
+            <button onclick="window.location.href='/playlists'">View Playlists</button>
+        </div>
+
+        <!-- Wellness Content Block -->
+        <div class="wellness-section">
+            <h2>Wellness Recommendations</h2>
+            <p>Personalized wellness content coming soon.</p>
+            <button onclick="window.location.href='/wellness'">Explore Wellness</button>
+        </div>
+    </div>
+
+</body>
+</html>
