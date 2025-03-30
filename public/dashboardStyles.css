@@ -14,47 +14,85 @@ body {
 
 /* Navbar Styles */
 .navbar {
-    background-color: #9f2d2d; /* Dark background for the navbar */
-    overflow: hidden;
+    background-color: #9f2d2d; /* Dark red background */
     width: 100%;
-    padding: 10px 0;
-    position: fixed; /* Fix the navbar at the top */
+    height: 50px; /* Reduce navbar height */
+    padding: 5px 15px; /* Slimmer padding */
+    position: fixed;
     top: 0;
     left: 0;
     z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Navigation links */
+.nav-menu {
+    display: flex;
+    gap: 15px;
 }
 
 .navbar a {
-    float: left;
-    display: block;
     color: white;
-    text-align: center;
-    padding: 12px 20px;
     text-decoration: none;
-    font-size: 1.1em;
+    font-size: 0.9em; /* Slightly smaller text */
+    padding: 8px 12px;
 }
 
 .navbar a:hover {
-    background-color: #f7c8d3; /* Hover effect with matching pastel color */
+    background-color: #f7c8d3;
     color: #333;
 }
 
-/* Log Out Link Styles */
-.logout {
-    float: right; /* Aligns the log out option to the right */
+/* Profile Icon Container */
+.profile-container {
+    position: absolute;
+    right: 40px; /* Adjusted positioning */
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Profile Icon */
+.profile-icon {
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    border: 2px solid white;
+    object-fit: cover;
+}
+
+/* Profile Dropdown Menu */
+.profile-menu {
+    display: none;
+    position: absolute;
+    top: 45px; /* Adjusts to appear below the icon */
+    right: 0;
+    background-color: white;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    width: 150px;
+    text-align: left;
+    padding: 5px 0;
+}
+
+/* Menu Links */
+.profile-menu a {
     display: block;
-    color: rgb(76, 70, 70);
-    text-align: center;
-    padding: 12px 20px;
+    padding: 10px 15px;
     text-decoration: none;
-    font-size: 1.1em;
+    color: black;
+    font-size: 14px;
 }
 
-.logout:hover {
-    background-color: #f7c8d3; /* Hover effect with matching pastel color */
-    color: #333;
+.profile-menu a:hover {
+    background-color: #f1f1f1;
 }
 
+/* Show menu when active */
+.profile-menu.show {
+    display: block;
+}
 /* 4-Block Grid Layout */
 .dashboard-grid {
     display: grid;

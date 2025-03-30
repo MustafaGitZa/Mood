@@ -1,3 +1,20 @@
+document.addEventListener("DOMContentLoaded", function () {
+    const profileIcon = document.getElementById("profileIcon");
+    const profileMenu = document.getElementById("profileMenu");
+
+    profileIcon.addEventListener("click", function (event) {
+        event.stopPropagation(); // Prevents closing when clicking the icon
+        profileMenu.classList.toggle("show");
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener("click", function (event) {
+        if (!profileMenu.contains(event.target) && event.target !== profileIcon) {
+            profileMenu.classList.remove("show");
+        }
+    });
+});
+
 // Facial Recognition Button Logic
 document.getElementById('facial-recognition-btn').addEventListener('click', async () => {
     const video = document.getElementById('webcam');
@@ -46,3 +63,4 @@ document.getElementById('emoji-selector-btn').addEventListener('click', () => {
     }).then(response => response.json())
       .then(data => console.log('Emoji saved:', data));
 });
+

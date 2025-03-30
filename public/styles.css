@@ -100,27 +100,108 @@ a:hover {
 
 /* Navbar Styles */
 .navbar {
-    background-color: #9f2d2d; /* Dark background for the navbar */
-    overflow: hidden;
+    background-color: #9f2d2d; /* Dark red background */
     width: 100%;
-    padding: 10px 0;
-    position: fixed; /* Fix the navbar at the top */
+    height: 50px; /* Reduce navbar height */
+    padding: 5px 15px; /* Slimmer padding */
+    position: fixed;
     top: 0;
     left: 0;
     z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Navigation links */
+.nav-menu {
+    display: flex;
+    gap: 15px;
 }
 
 .navbar a {
-    float: left;
-    display: block;
     color: white;
-    text-align: center;
-    padding: 12px 20px;
     text-decoration: none;
-    font-size: 1.1em;
+    font-size: 0.9em; /* Slightly smaller text */
+    padding: 8px 12px;
 }
 
 .navbar a:hover {
-    background-color: #f7c8d3; /* Hover effect with matching pastel color */
+    background-color: #f7c8d3;
     color: #333;
+}
+
+/* Profile Icon Container */
+.profile-container {
+    position: absolute;
+    right: 40px; /* Adjusted positioning */
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Profile Icon */
+.profile-icon {
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    border: 2px solid white;
+    object-fit: cover;
+}
+
+/* Profile Dropdown Menu */
+.profile-menu {
+    display: none;
+    position: absolute;
+    top: 45px; /* Adjusts to appear below the icon */
+    right: 0;
+    background-color: white;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    width: 150px;
+    text-align: left;
+    padding: 5px 0;
+}
+
+/* Menu Links */
+.profile-menu a {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: black;
+    font-size: 14px;
+}
+
+.profile-menu a:hover {
+    background-color: #f1f1f1;
+}
+
+/* Show menu when active */
+.profile-menu.show {
+    display: block;
+}
+
+/* Mood History Title */
+h2 {
+    text-align: center;
+    margin-top: 80px;
+    font-size: 30px;
+    color: #333;
+}
+
+/* Adjust Graph Size */
+.chart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 90%;
+    max-width: 800px;
+    margin: 0 auto; /* Centers the graph */
+    padding: 20px;
+}
+
+#moodChart {
+    width: 100% !important;
+    height: 400px !important;
+    max-width: 700px;
 }
