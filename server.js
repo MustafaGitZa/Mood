@@ -97,6 +97,12 @@ app.get("/facial-recognition", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "facialRecognition.html"));
 });
 
+// Serve Emoji Selector Page
+app.get("/emoji-selector", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "emojiSelector.html")); // Adjust the file name and path if necessary
+});
+
+
 
 // Save Mood Data Route (POST)
 app.post("/facialRecogntion", async (req, res) => {
@@ -124,25 +130,31 @@ app.post("/facialRecogntion", async (req, res) => {
 });
 
 // Save Emoji Data Route (POST)
+// Save Emoji Mood Data Route (POST)
 app.post("/save-emoji", (req, res) => {
-  const { userId, emoji } = req.body;
+  const { userId, moodName, moodType } = req.body;
 
-  if (!userId || !emoji) {
-    return res.status(400).json({ message: "User ID and emoji are required." });
+  // Debugging logs
+  console.log("Request Data Received:", req.body);
+
+  if (!userId || !moodName || !moodType) {
+      console.error("Missing Fields:", req.body);
+      return res.status(400).json({ message: "User ID, mood name, and mood type are required." });
   }
 
   const query = `
-    INSERT INTO MoodLogs (user_id, mood_type, logged_mood, log_date) 
-    VALUES (?, 'emoji', ?, NOW())
+      INSERT INTO MoodLogs (user_id, mood_type, logged_mood, log_date) 
+      VALUES (?, ?, ?, NOW())
   `;
-  db.query(query, [userId, emoji], (err, result) => {
-    if (err) {
-      console.error("Error saving emoji data:", err);
-      return res.status(500).json({ message: "Error saving emoji data. Please try again later." });
-    }
-    res.status(201).json({ message: "Emoji data saved successfully!" });
+  db.query(query, [userId, moodType, moodName], (err, result) => {
+      if (err) {
+          console.error("Database Error:", err);
+          return res.status(500).json({ message: "Error saving emoji mood data. Please try again later." });
+      }
+      res.status(201).json({ message: "Emoji mood data saved successfully!" });
   });
 });
+
 
 // Register Route (POST)
 app.post("/register", upload.single("profile_picture"), async (req, res) => {
@@ -361,6 +373,8 @@ app.get("/ratings", (req, res) => {
     });
   });
 });
+
+
 
 app.post("/logout", (req, res) => {
   req.session.destroy((err) => {

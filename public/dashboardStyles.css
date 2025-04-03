@@ -142,7 +142,7 @@ body {
 }
 
 .mood-tracking-section button {
-    background-color: #f7c8d3;
+    background-color: #ff7797;
     color: #333;
     border: none;
     border-radius: 8px;
@@ -168,3 +168,4 @@ body {
 .container {
     display: none; /* Removed the background container */
 }
+

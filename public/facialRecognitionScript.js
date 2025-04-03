@@ -159,10 +159,10 @@ function captureMood() {
     console.log("Mood and image saved:", { detectedMood, capturedImage });
 }
 
-
 // Main Function
 (async function main() {
     await startWebcam();
     await loadModels();
     await detectMoods();
 })();
+
