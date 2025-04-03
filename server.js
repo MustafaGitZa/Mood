@@ -105,34 +105,45 @@ app.get("/emoji-selector", (req, res) => {
 
 
 // Save Mood Data Route (POST)
-app.post("/facialRecogntion", async (req, res) => {
-  const { moodName, moodType } = req.body;  // Mood name from the client request
+app.post("/facialRecognition", (req, res) => {
+  const { moodName, moodType } = req.body;
+  const userId = req.session?.userId || 1; // Replace with dynamic user ID if required
 
-    // Assuming the userId is passed as part of the request (you might want to fetch it from session or JWT in a real app)
-    //const userId = 12;  // Set a default userId or get it from session/auth system
-    //const userId = localStorage.getItem("userId");
-    const userId = req.session.userId; // Get userId from session
+  // Log request data for debugging
+  console.log("Request Data Received:", req.body);
 
-    if (!userId || !moodName) {
-        return res.status(400).json({ message: "User ID and mood are required." });
-    }
+  if (!userId || !moodName || !moodType) {
+      return res.status(400).json({ message: "User ID, mood name, and mood type are required." });
+  }
+
   const query = `
-    INSERT INTO MoodLogs (user_id, mood_type, logged_mood, log_date) 
-    VALUES (?, ?, ?, NOW())
+      INSERT INTO MoodLogs (user_id, mood_type, logged_mood, log_date)
+      VALUES (?, ?, ?, NOW())
   `;
-  db.query(query, [userId, moodType ,moodName], (err, result) => {
-    if (err) {
-      console.error("Error saving mood data:", err);
-      return res.status(500).json({ message: "Error saving mood data. Please try again later." });
-    }
-    res.status(201).json({ message: "Mood data saved successfully!" });
+
+  // Execute the database query
+  db.query(query, [userId, moodType, moodName], (err, result) => {
+      if (err) {
+          console.error("Database Error:", err);
+          return res.status(500).json({ message: "Failed to save mood data. Please try again later." });
+      }
+      res.status(201).json({ message: "Facial recognition mood saved successfully!" });
   });
 });
+
 
 // Save Emoji Data Route (POST)
 // Save Emoji Mood Data Route (POST)
 app.post("/save-emoji", (req, res) => {
-  const { userId, moodName, moodType } = req.body;
+  const {  moodName, moodType } = req.body;
+
+  // Retrieve the user ID from the session
+  const userId = req.session?.userId;
+
+  // If userId isn't available, return an error
+  if (!userId) {
+    return res.status(401).json({ message: "User not logged in." });
+}
 
   // Debugging logs
   console.log("Request Data Received:", req.body);

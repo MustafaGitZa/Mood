@@ -165,4 +165,3 @@ function captureMood() {
     await loadModels();
     await detectMoods();
 })();
-
