@@ -1,30 +1,33 @@
 document.addEventListener("DOMContentLoaded", async function () {
-    const userId = localStorage.getItem("userId");
-
-    console.log("Retrieved userId from localStorage:", userId); // Debugging
-
-    if (!userId) {
-        alert("User not logged in.");
-        window.location.href = "/login.html"; // Redirect to login if userId is missing
-        return;
-    }
-
     try {
-        console.log("Fetching username for userId:", userId);
+        const userId = localStorage.getItem("userId");
+        console.log("Retrieved userId:", userId); // Debugging
+
+        if (!userId) {
+            alert("User not logged in.");
+            window.location.href = "/login.html"; // Redirect to login page
+            return;
+        }
+
         const response = await fetch(`/get-username?userId=${userId}`);
         const data = await response.json();
 
-        console.log("Fetched user data:", data); // Debugging
-
-        if (response.ok) {
-            document.getElementById("username").textContent = data.username;
+        if (response.ok && data.username) {
+            console.log("Username fetched successfully:", data.username);
+            document.getElementById("username").textContent = data.username; // Update username
+            console.log("Updated DOM with username:", document.getElementById("username").textContent);
         } else {
-            console.error("Failed to fetch username:", data.message);
+            console.error("API error:", data.message);
+            document.getElementById("username").textContent = "Guest"; // Fallback username
         }
     } catch (error) {
         console.error("Error fetching username:", error);
+        document.getElementById("username").textContent = "Guest"; // Fallback username
     }
 });
+
+
+
 
 document.addEventListener("DOMContentLoaded", function () {
     const profileIcon = document.getElementById("profileIcon");
