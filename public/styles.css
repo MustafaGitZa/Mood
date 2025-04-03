@@ -179,6 +179,19 @@ a:hover {
 .profile-menu.show {
     display: block;
 }
+/* Responsiveness for Smaller Screens */
+@media (max-width: 768px) {
+    .profile-icon {
+        width: 40px; /* Smaller icon for mobile devices */
+        height: 40px; /* Maintain square shape */
+    }
+
+    .profile-menu {
+        width: 120px; /* Compact menu */
+        font-size: 12px; /* Smaller text size */
+    }
+}
+
 
 /* Mood History Title */
 h2 {

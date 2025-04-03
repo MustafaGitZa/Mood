@@ -51,14 +51,22 @@ document.addEventListener("DOMContentLoaded", async function() {
         if (user.profile_picture) {
             console.log("Profile picture URL:", user.profile_picture);
 
-            // Make sure to prepend the base URL (your server URL) to the profile picture path
-            const baseUrl = 'http://localhost:3000'; // Replace with your server's URL if different
-            const imageUrl = baseUrl + user.profile_picture; // Full path to the image
+             // Update username dynamically
+             document.getElementById("username").textContent = user.username || "User";
+
+             // Update profile icon dynamically or use fallback
+             const profileIcon = document.getElementById("profileIcon");
+             profileIcon.src = user.profile_picture 
+                 ? `http://localhost:3000${user.profile_picture}` // Replace localhost with your server URL
+                 : "default-avatar.png"; // Use default avatar if no profile picture
 
             document.getElementById("profileIcon").src = imageUrl; // Set profile image
         }
     } catch (error) {
         console.error("Error loading profile picture:", error);
+
+         // Fallback to default avatar if any error occurs
+         document.getElementById("profileIcon").src = "default-avatar.png";
     }
 });
 
