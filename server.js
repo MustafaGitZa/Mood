@@ -117,25 +117,25 @@ app.post("/facialRecognition", (req, res) => {
   }
 
   const query = `
-      INSERT INTO MoodLogs (user_id, mood_type, logged_mood, log_date)
-      VALUES (?, ?, ?, NOW())
-  `;
-
-  // Execute the database query
-  db.query(query, [userId, moodType, moodName], (err, result) => {
-      if (err) {
-          console.error("Database Error:", err);
-          return res.status(500).json({ message: "Failed to save mood data. Please try again later." });
-      }
-      res.status(201).json({ message: "Facial recognition mood saved successfully!" });
-  });
+    INSERT INTO moodlogs (user_id, type_id, logged_mood, log_date) 
+    VALUES (?, (SELECT type_id FROM moodlog_types WHERE type_name = ?), ?, NOW())
+`;
+db.query(query, [userId, moodType, moodName], (err, result) => {
+    if (err) {
+        console.error("Database Error:", err);
+        return res.status(500).json({ message: "Error saving mood data. Please try again later." });
+    }
+    res.status(201).json({ message: "Mood data saved successfully!" });
 });
+
+});
+
 
 
 // Save Emoji Data Route (POST)
 // Save Emoji Mood Data Route (POST)
 app.post("/save-emoji", (req, res) => {
-  const {  moodName, moodType } = req.body;
+  const { moodName, moodType } = req.body;
 
   // Retrieve the user ID from the session
   const userId = req.session?.userId;
@@ -143,28 +143,32 @@ app.post("/save-emoji", (req, res) => {
   // If userId isn't available, return an error
   if (!userId) {
     return res.status(401).json({ message: "User not logged in." });
-}
+  }
 
   // Debugging logs
   console.log("Request Data Received:", req.body);
 
-  if (!userId || !moodName || !moodType) {
-      console.error("Missing Fields:", req.body);
-      return res.status(400).json({ message: "User ID, mood name, and mood type are required." });
+  if (!moodName || !moodType) {
+    console.error("Missing Fields:", req.body);
+    return res.status(400).json({ message: "Mood name and mood type are required." });
   }
 
+  // Updated query to dynamically resolve type_id from moodlog_types
   const query = `
-      INSERT INTO MoodLogs (user_id, mood_type, logged_mood, log_date) 
-      VALUES (?, ?, ?, NOW())
+      INSERT INTO moodlogs (user_id, type_id, logged_mood, log_date) 
+      VALUES (?, (SELECT type_id FROM moodlog_types WHERE type_name = ?), ?, NOW())
   `;
+
   db.query(query, [userId, moodType, moodName], (err, result) => {
-      if (err) {
-          console.error("Database Error:", err);
-          return res.status(500).json({ message: "Error saving emoji mood data. Please try again later." });
-      }
-      res.status(201).json({ message: "Emoji mood data saved successfully!" });
+    if (err) {
+      console.error("Database Error:", err);
+      return res.status(500).json({ message: "Error saving emoji mood data. Please try again later." });
+    }
+    res.status(201).json({ message: "Emoji mood data saved successfully!" });
   });
 });
+
+
 
 
 // Register Route (POST)
@@ -402,3 +406,32 @@ app.listen(port, () => {
 });
 
 
+app.post("/fetch-tips", (req, res) => {
+  const userId = req.session?.userId;
+
+  if (!userId) {
+      return res.status(401).json({ message: "User not logged in." });
+  }
+
+  const query = `
+      SELECT tips.tip_text, tips.activity_suggestion
+      FROM moodlogs
+      JOIN tips ON moodlogs.logged_mood = tips.tip_text
+      WHERE moodlogs.user_id = ?
+      ORDER BY moodlogs.log_date DESC
+      LIMIT 1
+  `;
+
+  db.query(query, [userId], (err, results) => {
+      if (err) {
+          console.error("Database Error:", err);
+          return res.status(500).json({ message: "Error fetching tips. Please try again later." });
+      }
+
+      if (results.length === 0) {
+          return res.status(404).json({ message: "No tips found for the logged mood." });
+      }
+
+      res.status(200).json({ tips: results[0] });
+  });
+});

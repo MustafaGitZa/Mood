@@ -48,25 +48,33 @@ body {
 /* Profile Icon Container */
 .profile-container {
     position: absolute;
-    right: 40px; /* Adjusted positioning */
+    right: 40px;
     top: 50%;
     transform: translateY(-50%);
 }
 
-/* Profile Icon */
 .profile-icon {
     width: 35px;
     height: 35px;
     cursor: pointer;
     border: 2px solid white;
     object-fit: cover;
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Added transition */
 }
 
-/* Profile Dropdown Menu */
+.profile-icon:hover {
+    background-color: rgba(255, 255, 255, 0.2); /* Lighten background on hover */
+    transform: scale(1.1); /* Slightly scale up on hover */
+}
+
+.profile-icon:active {
+    transform: scale(0.9); /* Slightly scale down on click */
+}
+
 .profile-menu {
     display: none;
     position: absolute;
-    top: 45px; /* Adjusts to appear below the icon */
+    top: 45px;
     right: 0;
     background-color: white;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
@@ -76,7 +84,6 @@ body {
     padding: 5px 0;
 }
 
-/* Menu Links */
 .profile-menu a {
     display: block;
     padding: 10px 15px;
@@ -89,7 +96,6 @@ body {
     background-color: #f1f1f1;
 }
 
-/* Show menu when active */
 .profile-menu.show {
     display: block;
 }
@@ -142,14 +148,25 @@ body {
 }
 
 .mood-tracking-section button {
-    background-color: #ff7797;
-    color: #333;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 15px;
-    font-size: 1.1em;
-    margin-top: 10px;
+    background-color: #f7c8d3; /* Accent color matching the theme */
+    color: #333; /* Dark text for visibility */
+    border: none; /* No border for a clean look */
+    border-radius: 8px; /* Rounded edges for the button */
+    padding: 10px 15px; /* Comfortable size for the button */
+    font-size: 1.1em; /* Balanced text size */
+    cursor: pointer; /* Pointer cursor for interactivity */
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Add hover animation */
+    margin-top: 10px; /* Keep margin top as is */
 }
+
+.mood-tracking-section button:hover {
+    background-color: #ff7797; /* Slightly brighter hover color */
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+.mood-tracking-section button:active {
+    transform: scale(0.95); /* Slight scale down on click */
+}
+
 
 /* Responsive Design for Smaller Screens */
 @media (max-width: 768px) {
@@ -169,3 +186,168 @@ body {
     display: none; /* Removed the background container */
 }
 
+/* Tips Container */
+.tips-container {
+    background: #ffffff; /* Clean white background */
+    padding: 20px; /* Spacing inside the container */
+    border-radius: 12px; /* Smooth rounded edges for modern look */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    text-align: center; /* Center-align the content */
+    margin-top: 20px; /* Add some spacing above */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Add smooth hover effects */
+}
+
+/* Tips Container Header */
+.tips-container h2 {
+    font-size: 1.8em; /* Larger, prominent title */
+    color: #333; /* Darker text for contrast */
+    margin-bottom: 15px; /* Space below the title */
+}
+
+/* Tips Container Text */
+.tips-container p {
+    font-size: 1.1em; /* Easy-to-read paragraph text */
+    color: #666; /* Softer grey for secondary text */
+    margin-bottom: 20px; /* Space below text */
+}
+
+/* Tips Container Button */
+.tips-container button {
+    background-color: #f7c8d3; /* Accent color matching the theme */
+    color: #333; /* Dark text for visibility */
+    border: none; /* No border for a clean look */
+    border-radius: 8px; /* Rounded edges for the button */
+    padding: 10px 15px; /* Comfortable size for the button */
+    font-size: 1.1em; /* Balanced text size */
+    cursor: pointer; /* Pointer cursor for interactivity */
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Add hover animation */
+}
+
+/* Button Hover Effect */
+.tips-container button:hover {
+    background-color: #ff7797; /* Slightly brighter hover color */
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+/* Blur Effect While Modal Is Active */
+body.modal-active > .dashboard-grid,
+body.modal-active > .navbar {
+    filter: blur(5px); /* Apply blur only to specific elements */
+    pointer-events: none; /* Prevent interaction with blurred elements */
+    transition: filter 0.3s ease; /* Smooth transition for blur */
+}
+
+/* Modal Background */
+/* Apply blur when modal is active */
+/* Blur Effect While Modal Is Active */
+body.modal-active > .dashboard-grid,
+body.modal-active > .navbar {
+    filter: blur(8px) brightness(0.5); /* Stronger blur and darken the background */
+    pointer-events: none; /* Disable interaction with blurred content */
+    transition: filter 0.3s ease; /* Smooth transition for blur */
+}
+
+/* Modal Background */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Center modal */
+    background-color: #ffffff; /* Clean white background */
+    padding: 25px;
+    border-radius: 12px; /* Smooth rounded corners */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); /* Darker, more pronounced shadow */
+    z-index: 1000; /* Ensure it appears above other elements */
+    width: 80%;
+    max-width: 450px; /* Control modal size for responsive design */
+    text-align: center;
+    animation: fadeIn 0.4s ease-out; /* Smooth fade-in animation */
+}
+
+/* Add fade-in animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Modal Content */
+.modal-content {
+    background: linear-gradient(145deg, #f7f9fc, #e8eff5); /* Subtle gradient for visual interest */
+    padding: 25px;
+    border-radius: 12px; /* Consistent rounded corners */
+    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft inner shadow for depth */
+    text-align: center;
+    font-family: "Arial", sans-serif; /* Clean and modern font */
+}
+
+/* Modal Title */
+.modal-content h2 {
+    font-size: 2em; /* Larger and engaging */
+    font-weight: bold;
+    color: #2a4365; /* Darker blue tone for contrast */
+    margin-bottom: 18px;
+    letter-spacing: 1px; /* Subtle spacing for elegance */
+    text-transform: uppercase; /* Bold and prominent */
+}
+
+/* Modal Text */
+.modal-content p {
+    font-size: 1.2em; /* Slightly larger for readability */
+    line-height: 1.7em; /* Better spacing for clarity */
+    color: #4a5568; /* Neutral text color */
+    margin-bottom: 25px;
+    font-style: italic; /* Add a touch of dynamism */
+}
+
+/* Call-to-Action Button */
+.modal-content button.cta-button {
+    background-color: #3182ce; /* Vibrant blue for attention */
+    color: #fff;
+    border: none;
+    border-radius: 12px; /* Smooth shape */
+    padding: 12px 25px; /* Comfortable button size */
+    font-size: 1.2em;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px; /* Spacing for readability */
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Hover State for CTA Button */
+.modal-content button.cta-button:hover {
+    background-color: #2b6cb0; /* Darker blue for hover */
+    transform: scale(1.05); /* Subtle enlargement */
+}
+
+/* Close Button */
+.close-modal {
+    background-color: #e53e3e; /* Attention-grabbing red */
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 15px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    position: absolute;
+    top: 10px;
+    right: 15px; /* Position in the top-right corner */
+}
+
+/* Hover and Active States for Close Button */
+.close-modal:hover {
+    background-color: #c53030;
+    transform: scale(1.1);
+}
+
+.close-modal:active {
+    background-color: #9b2c2c;
+    transform: scale(0.95);
+}

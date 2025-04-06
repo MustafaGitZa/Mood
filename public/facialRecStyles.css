@@ -1,27 +1,50 @@
 /* Apply gradient background */
 body {
     text-align: center;
-    background: linear-gradient(135deg, #ff9a9e, #fecfef); /* Soft peach & pink */
+    background: linear-gradient(135deg, #ff9a9e, #fecfef);
     color: white;
     font-family: Arial, sans-serif;
-    height: 100vh;  /* Ensure background fills the whole page */
-    margin: 0;  /* Remove default margin */
+    height: 100vh;
+    margin: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
 }
 
+.content-container {
+    margin-top: 60px; /* Adjust as needed to accommodate navbar */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Removed justify-content: center; */
+}
+
+h1 {
+    margin-bottom: 15px; /* Reduced margin-bottom */
+    font-size: 2em; /* Reduced font size (originally 2.5em) */
+    font-weight: bold;
+    color: transparent;
+    background: linear-gradient(135deg, #dc5776, #dc4a95);
+    -webkit-background-clip: text;
+    background-clip: text;
+    display: inline-block;
+}
+
+
+/* ... (Your existing CSS) ... */
 
 .container {
     position: relative;
     display: inline-block;
+    border-radius: 12px; /* Rounded corners for the container */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+    overflow: hidden; /* Ensures canvas and video don't overflow rounded corners */
 }
 
 video {
     width: 450px;
     height: 320px;
-    border: 1px solid black;
+    display: block; /* Ensures no extra space below video */
 }
 
 canvas {
@@ -30,20 +53,23 @@ canvas {
     left: 0;
     width: 450px;
     height: 320px;
-    pointer-events: none; /* Prevents interference with video */
+    pointer-events: none;
+    border: 3px solid #ff7797; /* Pink border */
+    border-radius: 12px; /* Rounded corners */
+    box-sizing: border-box; /* Include border within width and height */
 }
 
+/* ... (Your existing CSS) ... */
 #moodTick {
     position: absolute;
-    font-size: 24px;
+    font-size: 96px; /* Increased font size (originally 48px) */
     color: green;
-    top: 0;
-    left: 0;
-    width: 640px;
-    height: 480px;
-    pointer-events: none; /* Prevents interference with video */
+    top: 50%; /* Center vertically */
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%, -50%); /* Center perfectly */
+    pointer-events: none;
+    display: none; /* Initially hidden */
 }
-
 /* Ensure the modal appears above the overlay */
 .popup {
     display: none;
@@ -141,12 +167,35 @@ canvas {
 
 #saveMoodButton {
     background-color: #ff7797;
-    color: #333;
+    color: white;
     border: none;
-    border-radius: 8px;
-    padding: 5px 10px; /* Reduced padding */
-    font-size: 0.9em;  /* Smaller font size */
-    margin-top: 5px;   /* Reduced margin */
-    width: auto;       /* Adjusts dynamically to text size */
-    display: inline-block; /* Keeps it compact */
+    border-radius: 12px;
+    padding: 10px 20px;
+    font-size: 1em;
+    margin-top: 10px; /* Keep margin-top at 10px */
+    position: relative; /* Ensure proper stacking context */
+    z-index: 10; /* Ensure button is above other elements */
+    display: inline-block;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+#saveMoodButton:hover {
+    background-color: #ff5577;
+    transform: scale(1.05);
+}
+
+#saveMoodButton:active {
+    transform: scale(0.95);
+}
+
+#moodLabel {
+    color: transparent;
+    background: linear-gradient(135deg, #c74966, #df4594);
+    -webkit-background-clip: text; /* For WebKit-based browsers */
+    background-clip: text;        /* Standard property */
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-bottom: 10px;
 }

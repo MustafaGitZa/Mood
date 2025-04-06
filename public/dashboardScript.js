@@ -64,3 +64,45 @@ document.getElementById('emoji-selector-btn').addEventListener('click', () => {
       .then(data => console.log('Emoji saved:', data));
 });
 
+// Function to fetch and display the personalized tip
+function fetchTip() {
+    fetch("/fetch-tips", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+    .then((response) => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then((data) => {
+        if (data.tips) {
+            const modalText = document.getElementById("modalTipText");
+            modalText.innerHTML = `
+                <p><strong>Tip:</strong> ${data.tips.tip_text}</p>
+                <p><strong>Suggestion:</strong> ${data.tips.activity_suggestion || "No suggestion available."}</p>
+            `;
+
+            // Show the modal and apply blur effect
+            const modal = document.getElementById("tipModal");
+            modal.style.display = "block";
+            document.body.classList.add("modal-active");
+        } else {
+            alert("No tips found for the logged mood.");
+        }
+    })
+    .catch((error) => {
+        console.error("Error fetching tip:", error);
+        alert("An error occurred while fetching the tip.");
+    });
+}
+
+// Function to close the modal
+function closeModal() {
+    const modal = document.getElementById("tipModal");
+    modal.style.display = "none";
+    document.body.classList.remove("modal-active"); // Remove blur effect
+}
