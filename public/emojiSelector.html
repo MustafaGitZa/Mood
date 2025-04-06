@@ -4,14 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Emoji Selector</title>
-    <link rel="stylesheet" href="emojiStyles.css"> <!-- Link your CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"> <!-- For icons -->
-    <script defer src="emojiSelectorScript.js"></script> <!-- Link your JavaScript -->
+    <link rel="stylesheet" href="emojiStyles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script defer src="emojiSelectorScript.js"></script>
 </head>
 <body>
-    <!-- Navigation Bar -->
     <nav class="navbar">
-        <ul class="nav-menu">            
+        <ul class="nav-menu">
             <a href="dashboard.html">Dashboard</a>
             <a href="contact.html">Contact</a>
             <a href="home.html">Home</a>
@@ -20,22 +19,30 @@
 
     <h1>Emoji Selector</h1>
 
-    <!-- Emoji Selection Section -->
     <div id="emojiContainer">
         <div class="emoji-buttons">
-            <button class="emoji-btn" onclick="emojiClicked('Happy')">😊</button>
-            <button class="emoji-btn" onclick="emojiClicked('Excited')">😁</button>
-            <button class="emoji-btn" onclick="emojiClicked('Sad')">😓</button>
-            <button class="emoji-btn" onclick="emojiClicked('Angry')">😡</button>
-            <button class="emoji-btn" onclick="emojiClicked('Sleepy')">😴</button>
-            <button class="emoji-btn" onclick="emojiClicked('Celebrating')">🥳</button>
-            <button class="emoji-btn" onclick="emojiClicked('Surprised')">😲</button>            
+            <!-- Emoji buttons with clear event handlers -->
+            <button class="emoji-btn" data-meaning="Happy">😊</button>
+            <button class="emoji-btn" data-meaning="Excited">😁</button>
+            <button class="emoji-btn" data-meaning="Sad">😓</button>
+            <button class="emoji-btn" data-meaning="Angry">😡</button>
+            <button class="emoji-btn" data-meaning="Sleepy">😴</button>
+            <button class="emoji-btn" data-meaning="Celebrating">🥳</button>
+            <button class="emoji-btn" data-meaning="Surprised">😲</button>
         </div>
     </div>
 
-    <!-- Mood Selection Modal -->
-    <div id="emojiPopup" class="popup">
-        <div class="popup-content">
+    <div id="moodSavedModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button close-saved">&times;</span>
+            <h2 id="modalTitleSaved">Mood Saved!</h2>
+            <p id="modalTextSaved">Your mood has been logged successfully!</p>
+            <button class="ok-button ok-saved">OK</button>
+        </div>
+    </div>
+
+    <div id="emojiPopup" class="modal">
+        <div class="modal-content">
             <p>Would you like to go to a music playlist or an ebook selection?</p>
             <div class="icon-container">
                 <button id="musicButton" class="icon-btn">
@@ -47,14 +54,12 @@
                     <span>Ebook</span>
                 </button>
             </div>
-            <button id="closePopup" class="close-btn">Cancel</button>
+            <button id="closePopup" class="close-button close-ebook-music">Cancel</button>
         </div>
     </div>
 
     <label id="emojiLabel">Selected Emoji Mood: </label>
-    <input type="hidden" id="emojiType" value="emoji_selection" />
     <button id="saveEmojiButton">Save Mood</button>
     <div id="blurOverlay" style="display: none;"></div>
-    <script src="saveMood.js"></script>
 </body>
 </html>

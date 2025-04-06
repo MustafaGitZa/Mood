@@ -19,10 +19,25 @@
                     <label for="loginPassword">Password</label>
                     <input type="password" id="loginPassword" placeholder="Enter your password" required>
                 </div>
-                <button type="submit">Log In</button>
+                <button type="submit" id="loginBtn">LOG IN</button>
                 <p>Don't have an account? <a href="register.html">Register here</a></p>
             </form>
-            
+            <div id="loginSuccessModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-button">&times;</span>  
+                    <h2>Login Successful</h2>
+                    <p>Welcome! You are now logged in.</p>
+                    <button class="ok-button">OK</button>
+                </div>
+            </div>
+        </div>
+        <div id="loginFailedModal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>  
+                <h2>Login Failed</h2>
+                <p>Incorrect username or password. Please try again.</p>
+                <button class="error-ok-button">Re-try</button>
+            </div>
         </div>
     </div>
     <script src="login.js"></script>

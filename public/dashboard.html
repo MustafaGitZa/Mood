@@ -4,21 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MoodSync Dashboard</title>
-    <link rel="stylesheet" href="dashboardStyles.css"> <!-- Direct CSS link -->
+    <link rel="stylesheet" href="dashboardStyles.css">
 </head>
 <body>
     <nav class="navbar">
-        <ul class="nav-menu"> 
-            <a href="home.html">Home</a>           
+        <ul class="nav-menu">
+            <a href="home.html">Home</a>
             <a href="contact.html">Contact</a>
-
         </ul>
-         <!-- Profile Icon -->
-         <div class="profile-container">
-            <!--added a comment-->
+        <div class="profile-container">
             <img src="profile-icon.png" alt="" class="profile-icon" id="profileIcon">
-            
-            <!-- Expandable Vertical Menu Menu -->
+
             <div class="profile-menu" id="profileMenu">
                 <a href="edit-profile.html">Edit Profile</a>
                 <a href="login.html">Logout</a>
@@ -26,38 +22,39 @@
         </div>
     </nav>
 
-    <!-- 4-Block Layout -->
     <div class="dashboard-grid">
-
-        <!-- Mood Tracking Section (added here) -->
-        <div class="mood-Room-section">
-            <h2>Mood Room Space</h2>
-            <p>Step into a sanctuary crafted for your emotions.</p>
-            <p>Personalized mood room content coming soon.</p>
-            <button onclick="window.location.href='/wellness'">Explore Mood Room</button>
+        <div class="tips-container">
+            <h2>Personalized Tips</h2>
+            <p>Click below to view your tip.</p>
+            <button onclick="fetchTip()">Show Personalized Tip</button>
         </div>
 
-        <!-- Mood History Block -->
         <div class="history-section">
             <h2>Your Mood History</h2>
             <p>Discover your mood journey and trends over time.</p>
             <button onclick="window.location.href='/ratings.html'">View History</button>
         </div>
 
-        <!-- Music Playlist Block -->
-        <div class="music-section">
-            <h2>Your Playlists</h2>
-            <p>Music suggestions based on your moods.</p>
-            <button onclick="window.location.href='/playlists'">View Playlists</button>
+        <div class="mood-Room-section">
+            <h2>Mood Room Space</h2>
+        <!--<p>Step into a sanctuary crafted for your emotions.</p>--> 
+            <p>Personalized mood room content coming soon.</p>
+            <button onclick="window.location.href='/wellness'">Explore Mood Room</button>
         </div>
 
-        <!-- Wellness Content Block -->
         <div class="wellness-section">
             <h2>Wellness Recommendations</h2>
             <p>Personalized wellness content coming soon.</p>
             <button onclick="window.location.href='/wellness'">Explore Wellness</button>
         </div>
     </div>
-    <script src="dashboardScript.js"></script> <!-- Link to External JS -->
+    <script src="dashboardScript.js"></script>
+    <div id="tipModal" class="modal">
+        <div class="modal-content">
+            <h2>Personalized Tip</h2>
+            <p id="modalTipText">Your tip will appear here...</p>
+            <button class="close-modal" onclick="closeModal()">Close</button>
+        </div>
+    </div>
 </body>
 </html>

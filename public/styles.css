@@ -3,13 +3,24 @@ body {
     font-family: 'Poppins', sans-serif;
     margin: 0;
     padding: 0;
-    background: linear-gradient(135deg, #e3c1a8, #f7c8d3); /* Nude pastel gradient */
+    background: linear-gradient(135deg, #e1c3ad, #e3c7ce);
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     color: #333;
     transition: all 0.3s ease-in-out;
+    animation: gradientBackground 10s ease infinite;
+}
+
+@keyframes gradientBackground {
+    0%, 100% {
+        background: linear-gradient(135deg, #e3c1a8, #f7c8d3);
+    }
+
+    50% {
+        background: linear-gradient(135deg, #f7d4e5, #ffe7ca);
+    }
 }
 
 /* Container Styling */
@@ -36,10 +47,29 @@ body {
 h1 {
     text-align: center;
     margin-bottom: 20px;
-    color: #b35d57; /* Soft reddish-brown tone */
-    font-size: 28px;
+    color: #f167a1;
+    font-size: 3em;
     font-weight: 600;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 1s ease-in-out;
+}
+
+.welcome-subtitle {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 1.2em;
+    color: #c22265;
+    line-height: 1.6;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 /* Input Styling */
@@ -54,7 +84,8 @@ label {
     color: #555;
 }
 
-input[type="text"], input[type="password"] {
+input[type="text"],
+input[type="password"] {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
@@ -64,46 +95,87 @@ input[type="text"], input[type="password"] {
     transition: all 0.3s ease-in-out;
 }
 
-input[type="text"]:focus, input[type="password"]:focus {
+input[type="text"]:focus,
+input[type="password"]:focus {
     outline: none;
-    border-color: #b35d57; /* Focus effect with nude tone */
+    border-color: #b35d57;
 }
 
 /* Button Styling */
-button {
-    width: 100%;
-    padding: 10px;
-    background-color: #b35d57; /* Nude brown tone */
+/* Mood Buttons Container */
+.mood-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+/* Mood Buttons Styling */
+.mood-btn {
+    background: linear-gradient(135deg, #d58895, #ef7acc);
     color: white;
     border: none;
-    border-radius: 8px;
-    font-size: 16px;
+    border-radius: 12px;
+    padding: 15px 25px;
+    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     cursor: pointer;
-    transition: all 0.3s ease-in-out;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
-button:hover {
-    background-color: #8f4744;
+/* Hover Effects for Buttons */
+.mood-btn:hover {
+    transform: scale(1.05);
+    background: linear-gradient(135deg, #c7608d, #dd77a5);
 }
 
-/* Link Styling */
-a {
-    color: #b35d57;
-    text-decoration: none;
-    font-weight: 600;
+/* Active Effects for Buttons */
+.mood-btn:active {
+    transform: scale(0.95);
+    background: linear-gradient(135deg, #a84e7f, #ce7091);
 }
 
-a:hover {
-    text-decoration: underline;
+/* Button Icon Styling */
+.button-icon {
+    width: 24px;
+    height: 24px;
 }
 
+/* Ripple Effect */
+.mood-btn::after {
+    content: "";
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle, #ffffff 10%, transparent 10.01%);
+    background-repeat: no-repeat;
+    background-position: 50%;
+    transform: scale(10, 10);
+    opacity: 0;
+    transition: transform 0.5s, opacity 1s;
+}
+
+.mood-btn:active::after {
+    transform: scale(0, 0);
+    opacity: 0.3;
+    transition: 0s;
+}
 
 /* Navbar Styles */
 .navbar {
-    background-color: #9f2d2d; /* Dark red background */
+    background-color: #9f2d2d;
     width: 100%;
-    height: 50px; /* Reduce navbar height */
-    padding: 5px 15px; /* Slimmer padding */
+    height: 50px;
+    padding: 5px 15px;
     position: fixed;
     top: 0;
     left: 0;
@@ -122,7 +194,7 @@ a:hover {
 .navbar a {
     color: white;
     text-decoration: none;
-    font-size: 0.9em; /* Slightly smaller text */
+    font-size: 0.9em;
     padding: 8px 12px;
 }
 
@@ -134,7 +206,7 @@ a:hover {
 /* Profile Icon Container */
 .profile-container {
     position: absolute;
-    right: 40px; /* Adjusted positioning */
+    right: 40px;
     top: 50%;
     transform: translateY(-50%);
 }
@@ -146,13 +218,18 @@ a:hover {
     cursor: pointer;
     border: 2px solid white;
     object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.profile-icon:hover {
+    transform: scale(1.1);
 }
 
 /* Profile Dropdown Menu */
 .profile-menu {
     display: none;
     position: absolute;
-    top: 45px; /* Adjusts to appear below the icon */
+    top: 45px;
     right: 0;
     background-color: white;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
@@ -179,19 +256,19 @@ a:hover {
 .profile-menu.show {
     display: block;
 }
+
 /* Responsiveness for Smaller Screens */
 @media (max-width: 768px) {
     .profile-icon {
-        width: 40px; /* Smaller icon for mobile devices */
-        height: 40px; /* Maintain square shape */
+        width: 40px;
+        height: 40px;
     }
 
     .profile-menu {
-        width: 120px; /* Compact menu */
-        font-size: 12px; /* Smaller text size */
+        width: 120px;
+        font-size: 12px;
     }
 }
-
 
 /* Mood History Title */
 h2 {
@@ -209,7 +286,7 @@ h2 {
     flex-direction: column;
     width: 90%;
     max-width: 800px;
-    margin: 0 auto; /* Centers the graph */
+    margin: 0 auto;
     padding: 20px;
 }
 
@@ -217,4 +294,217 @@ h2 {
     width: 100% !important;
     height: 400px !important;
     max-width: 700px;
+}
+
+#loginBtn {
+    background-color: #f167a1;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 25px;
+    font-size: 1.2em;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    width: 100%;
+  }
+  
+  #loginBtn:hover {
+    background-color: #e04e89;
+    transform: scale(1.03);
+  }
+  
+  #loginBtn:active {
+    background-color: #c83772;
+    transform: scale(0.97);
+  }
+
+  #registerBtn {
+    background-color: #f167a1;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 25px;
+    font-size: 1.2em;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    width: 100%;
+  }
+  
+  #registerBtn:hover {
+    background-color: #e04e89;
+    transform: scale(1.03);
+  }
+  
+  #registerBtn:active {
+    background-color: #c83772;
+    transform: scale(0.97);
+  }
+
+  /* Styles for the modal and backdrop */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    border-radius: 10px;
+    padding: 20px;
+    width: 90%;
+    max-width: 400px;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    animation: fadeIn 0.3s;
+}
+
+/* Close button */
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: #000;
+    text-decoration: none;
+}
+
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(-50px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px); /* Add blur effect here */
+}
+
+.modal-content {
+    background-color: #f8f0fb; /* Light background */
+    border-radius: 15px; /* More rounded corners */
+    padding: 30px;
+    width: 90%;
+    max-width: 500px; /* Slightly wider */
+    position: relative;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2); /* Stronger shadow */
+    animation: fadeIn 0.3s;
+    text-align: center; /* Center align content */
+    border: 1px solid #e0e0e0;
+}
+
+/* Close button */
+.close-button {
+    /* The "X" close button is removed */
+    display: none;
+}
+
+.ok-button {
+    background-color: #f167a1;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 20px;
+    align-self: center;
+}
+
+
+.ok-button:hover {
+    background-color: #e04e89;
+    transform: scale(1.05);
+}
+
+.ok-button:active {
+    background-color: #c83772;
+    transform: scale(0.95);
+}
+
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(-50px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+h2 {
+    color: #f167a1; /* Pink heading */
+    font-size: 2.2em; /* Larger heading */
+    font-weight: bold;  /* Make it bold */
+    margin-bottom: 20px;
+}
+
+p {
+    font-size: 1.1em;  /* Increased font size for paragraph */
+    color: #555; /* Darker text */
+    line-height: 1.7; /* Improved line height for readability */
+    margin-bottom: 25px;
+}
+.ok-button, .error-ok-button {
+    background-color: #f167a1;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 20px;
+    align-self: center;
+}
+
+.ok-button:hover, .error-ok-button:hover {
+    background-color: #e04e89;
+    transform: scale(1.05);
+}
+
+.ok-button:active, .error-ok-button:active {
+    background-color: #c83772;
+    transform: scale(0.95);
+}
+
+
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(-50px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+h2 {
+    color: #f167a1;
+    font-size: 2.2em;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+p {
+    font-size: 1.1em;
+    color: #555;
+    line-height: 1.7;
+    margin-bottom: 25px;
 }

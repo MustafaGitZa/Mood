@@ -1,7 +1,7 @@
 /* Apply gradient background */
 body {
     text-align: center;
-    background: linear-gradient(135deg, #ff9a9e, #fecfef); /* Soft peach & pink */
+    background: linear-gradient(135deg, #ff9a9e, #fecfef);
     color: white;
     font-family: Arial, sans-serif;
     height: 100vh;
@@ -12,6 +12,17 @@ body {
     justify-content: center;
 }
 
+h1 {
+    margin-bottom: 20px;
+    font-size: 2.5em;
+    font-weight: bold;
+    color: transparent;
+    background: linear-gradient(135deg, #e46180, #c04987);
+    -webkit-background-clip: text;
+    background-clip: text;
+    display: inline-block;
+}
+
 /* Emoji Container */
 #emojiContainer {
     display: flex;
@@ -20,23 +31,26 @@ body {
 }
 
 /* Emoji Buttons */
-.emoji-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 20px;
-}
-
 .emoji-btn {
-    font-size: 2rem;
+    font-size: 3em;
     background: none;
     border: none;
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
+    padding: 10px;
 }
 
 .emoji-btn:hover {
     transform: scale(1.2);
+}
+
+#emojiLabel {
+    font-size: 1.2em;
+    margin-top: 30px;
+    margin-bottom: 20px;
+    color: #bc2b7b;
+    padding: 10px;
+    border-radius: 8px;
 }
 
 /* Navbar Styles */
@@ -71,31 +85,164 @@ body {
     color: #333;
 }
 
-/* Mood Popup */
+/* Modal Styles */
+/* General Modal Styles */
+.modal {
+    display: none; /* Initially hidden */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #f8f0fb;
+    border-radius: 15px;
+    padding: 30px;
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Buttons */
+.ok-button,
+.close-button {
+    background-color: #f167a1;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+
+.ok-button:hover,
+.close-button:hover {
+    background-color: #e04e89;
+    transform: scale(1.05);
+}
+
+.ok-button:active,
+.close-button:active {
+    background-color: #c83772;
+    transform: scale(0.95);
+}
+
+h2 {
+    color: #f167a1;
+    font-size: 2.2em;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+p {
+    font-size: 1.1em;
+    color: #555;
+    line-height: 1.7;
+    margin-bottom: 25px;
+}
+
+/* Blurred Background Overlay */
+#blurOverlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    z-index: 999;
+}
+
+/* Save Mood Button */
+#saveEmojiButton {
+    background-color: #ff7797;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 20px;
+    font-size: 1em;
+    min-width: 150px;
+    display: inline-block;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    margin-top: 20px;
+}
+
+#saveEmojiButton:hover {
+    background-color: #ff5577;
+    transform: scale(1.05);
+}
+
+#saveEmojiButton:active {
+    transform: scale(0.95);
+}
+
+/* Emoji Popup Styles */
 #emojiPopup {
     display: none;
     position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    background-color: white;
-    padding: 20px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-    text-align: center;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
     z-index: 1000;
+    justify-content: center; /* Center horizontally */
+    align-items: center;     /* Center vertically */
+    overflow-y: auto;
 }
 
-.popup-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+#emojiPopup .modal-content {
+    background-color: #f8f0fb;
+    border-radius: 15px;
+    padding: 30px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    animation: fadeIn 0.3s;
+    text-align: center;
+    border: 1px solid #e0e0e0;
+}
+
+
+#emojiPopup p {
+    font-size: 1.1em;
+    color: #555;
+    line-height: 1.7;
+    margin-bottom: 25px;
 }
 
 .icon-container {
     display: flex;
     gap: 20px;
     margin: 15px 0;
+    justify-content: center;
 }
 
 .icon-btn {
@@ -115,38 +262,19 @@ body {
     margin-bottom: 5px;
 }
 
-#musicButton i { color: #1DB954; } /* Green for Spotify */
-#ebookButton i { color: #007bff; } /* Blue for Ebook */
+#musicButton i {
+    color: #1DB954;
+}
 
-.close-btn {
+#ebookButton i {
+    color: #007bff;
+}
+
+.close-ebook-music {
     background-color: #ccc;
     padding: 10px;
     border: none;
     cursor: pointer;
     border-radius: 5px;
-}
-
-/* Blurred Background Overlay */
-#blurOverlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(10px);
-    z-index: 999;
-}
-
-/* Save Mood Button */
-#saveEmojiButton {
-    background-color: #ff7797;
-    color: #333;
-    border: none;
-    border-radius: 8px;
-    padding: 5px 10px;
-    font-size: 0.9em;
-    margin-top: 10px;
-    display: inline-block;
+    margin-top: 20px;
 }
