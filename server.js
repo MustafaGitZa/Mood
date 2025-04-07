@@ -9,6 +9,11 @@ const { initializeModels, detectMood } = require("./detectMood.js"); // Import m
 const app = express();
 const port = 3000;
 
+require("dotenv").config();
+
+
+
+
 // Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -435,3 +440,122 @@ app.post("/fetch-tips", (req, res) => {
       res.status(200).json({ tips: results[0] });
   });
 });
+
+app.get("/forgot-password", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "forgotPassword.html"));
+});
+
+
+const crypto = require("crypto");
+const nodemailer = require("nodemailer");
+
+app.post("/forgot-password", (req, res) => {
+  const { email } = req.body;
+
+  // Check if the email exists
+  const findUserQuery = `SELECT * FROM users WHERE email = ?`;
+  db.query(findUserQuery, [email], (err, results) => {
+    if (err) {
+      console.error("Database Error:", err);
+      return res.status(500).send("Internal server error.");
+    }
+
+    if (results.length === 0) {
+      // For security, always respond with a generic message
+      return res.status(200).send("If the email exists, a reset link has been sent.");
+    }
+
+    // Generate a secure reset token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetTokenExpiry = Date.now() + 3600000; // Token valid for 1 hour
+
+    // Save the reset token and expiry to the database
+    const saveTokenQuery = `
+      UPDATE users 
+      SET reset_token = ?, reset_token_expiry = ? 
+      WHERE email = ?
+    `;
+    db.query(saveTokenQuery, [resetToken, resetTokenExpiry, email], (err) => {
+      if (err) {
+        console.error("Database Error:", err);
+        return res.status(500).send("Internal server error.");
+      }
+
+      // Send reset link via email
+      const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: process.env.EMAIL_USER, // Accesses EMAIL_USER from the .env file
+            pass: process.env.EMAIL_PASS, // Accesses EMAIL_PASS from the .env file
+
+        },
+    });
+    console.log("Email user:", process.env.EMAIL_USER);
+    console.log("Email password:", process.env.EMAIL_PASS);
+
+
+      const mailOptions = {
+        from: "noreply@moodsync.com",
+        to: email,
+        subject: "Password Reset Request",
+        html: `<p>Click <a href="${resetLink}">here</a> to reset your password. The link will expire in 1 hour.</p>`,
+      };
+
+      transporter.sendMail(mailOptions, (err) => {
+        if (err) {
+          console.error("Email Error:", err);
+          return res.status(500).send("Error sending email.");
+        }
+        res.status(200).send("If the email exists, a reset link has been sent.");
+      });
+    });
+  });
+});
+
+app.get("/reset-password/:token", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "resetPassword.html"));
+});
+
+
+
+app.post("/reset-password", (req, res) => {
+  const { email } = req.body;
+  console.log("Email received:", email);
+
+  // Query the database to verify email exists
+  const findUserQuery = `SELECT * FROM users WHERE email = ?`;
+  db.query(findUserQuery, [email], (err, results) => {
+      if (err) {
+          console.error("Database error:", err);
+          return res.status(500).send("Internal server error.");
+      }
+      if (results.length === 0) {
+          return res.status(200).send("If the email exists, a reset link has been sent.");
+      }
+
+      // Generate a reset token and expiry
+      const resetToken = crypto.randomBytes(32).toString("hex");
+      const resetTokenExpiry = Date.now() + 3600000; // 1 hour validity
+
+      const saveTokenQuery = `
+          UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE email = ?
+      `;
+      db.query(saveTokenQuery, [resetToken, resetTokenExpiry, email], (err) => {
+          if (err) {
+              console.error("Database error:", err);
+              return res.status(500).send("Internal server error.");
+          }
+
+          // Send email logic (using nodemailer)
+          const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
+          console.log("Reset link:", resetLink);
+
+          res.status(200).send("If the email exists, a reset link has been sent.");
+      });
+  });
+});
+
+
+
+
