@@ -3,11 +3,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const profileMenu = document.getElementById("profileMenu");
 
     profileIcon.addEventListener("click", function (event) {
-        event.stopPropagation(); // Prevents closing when clicking the icon
+        event.stopPropagation(); // Prevent the click event from bubbling up to the document
         profileMenu.classList.toggle("show");
     });
 
-    // Close menu when clicking outside
+    
     document.addEventListener("click", function (event) {
         if (!profileMenu.contains(event.target) && event.target !== profileIcon) {
             profileMenu.classList.remove("show");
@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-// Facial Recognition Button Logic
+
 document.getElementById('facial-recognition-btn').addEventListener('click', async () => {
     const video = document.getElementById('webcam');
     const canvas = document.getElementById('overlay');
@@ -36,8 +36,8 @@ document.getElementById('facial-recognition-btn').addEventListener('click', asyn
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             faceapi.draw.drawFaceExpressions(canvas, detections);
 
-            console.log('Mood Analysis:', detections.expressions); // Output detected moods
-            // Optional: Send detected mood data to the backend
+            console.log('Mood Analysis:', detections.expressions); 
+            
             fetch('/save-mood', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -55,7 +55,7 @@ document.getElementById('emoji-selector-btn').addEventListener('click', () => {
     document.getElementById('selected-emoji').textContent = `Selected Emoji: ${emoji}`;
     console.log('Emoji Selected:', emoji);
 
-    // Optional: Send emoji data to the backend
+    // Save the selected emoji to the server
     fetch('/save-emoji', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -64,7 +64,7 @@ document.getElementById('emoji-selector-btn').addEventListener('click', () => {
       .then(data => console.log('Emoji saved:', data));
 });
 
-// Function to fetch and display the personalized tip
+//Function to fetch the tips
 function fetchTip() {
     fetch("/fetch-tips", {
         method: "POST",
@@ -86,7 +86,7 @@ function fetchTip() {
                 <p><strong>Suggestion:</strong> ${data.tips.activity_suggestion || "No suggestion available."}</p>
             `;
 
-            // Show the modal and apply blur effect
+            //blur effect with modal
             const modal = document.getElementById("tipModal");
             modal.style.display = "block";
             document.body.classList.add("modal-active");
@@ -104,5 +104,6 @@ function fetchTip() {
 function closeModal() {
     const modal = document.getElementById("tipModal");
     modal.style.display = "none";
-    document.body.classList.remove("modal-active"); // Remove blur effect
+    document.body.classList.remove("modal-active"); 
 }
+

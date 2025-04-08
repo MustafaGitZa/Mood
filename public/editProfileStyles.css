@@ -136,3 +136,21 @@ button:hover {
     }
 }
 
+.delete-profile-btn{
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 1.1em;
+    cursor: pointer;
+    margin-top: 15px;
+    width: 100%;
+}
+.delete-profile-btn:hover {
+    background-color: #ff1a1a;
+}
+.delete-profile-btn:active {
+    background-color: #e60000;
+}
+

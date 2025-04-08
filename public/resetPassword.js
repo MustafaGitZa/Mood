@@ -13,7 +13,7 @@ function getParameterFromUrl(paramName) {
     }
 }
 
-// Example usage: Extract the "token" parameter from the URL
+// Extract token from URL
 const token = getParameterFromUrl('token');
 if (token) {
     console.log('Extracted token:', token);
@@ -21,8 +21,9 @@ if (token) {
     console.warn('Token not found in the URL.');
 }
 
-// Validate password input before form submission
+// Validate password input and inject token before form submission
 const form = document.querySelector("form");
+
 form.addEventListener("submit", (e) => {
     const newPassword = document.getElementById("new-password").value;
     const confirmPassword = document.getElementById("confirm-password").value;
@@ -30,5 +31,15 @@ form.addEventListener("submit", (e) => {
     if (newPassword !== confirmPassword) {
         e.preventDefault();
         alert("Passwords do not match. Please try again.");
+        return;
     }
+
+    if (!token) {
+        e.preventDefault();
+        alert("Missing token. Please use the link from your email again.");
+        return;
+    }
+
+    // Inject the token into the form's action URL
+    form.action = `/reset-password?token=${token}`;
 });

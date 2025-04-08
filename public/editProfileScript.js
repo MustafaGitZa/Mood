@@ -71,5 +71,41 @@ document.getElementById("editProfileForm").addEventListener("submit", async func
     }
 });
 
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("deleteProfileBtn").addEventListener("click", async function () {
+        const userId = localStorage.getItem("userId");
 
-  
+        console.log("Attempting to delete profile for userId:", userId); // Log before sending request
+
+        if (!userId) {
+            alert("User not logged in.");
+            return;
+        }
+
+        if (!confirm("Are you sure you want to delete your profile? This action cannot be undone.")) {
+            return; // Exit if user cancels the confirmation
+        }
+
+        try {
+            const response = await fetch("/delete-profile", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId })
+            });
+
+            const data = await response.json();
+            console.log("Delete response:", data); // Log response
+
+            if (response.ok) {
+                alert(data.message); // Show success message
+                localStorage.removeItem("userId"); // Clear userId from localStorage
+                window.location.href = "/login.html"; // Redirect to login
+            } else {
+                alert(data.message); // Show error message
+            }
+        } catch (error) {
+            console.error("Error deleting profile:", error);
+            alert("An error occurred. Please try again.");
+        }
+    });
+});

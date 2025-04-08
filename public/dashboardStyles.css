@@ -111,10 +111,10 @@ body {
 }
 
 .dashboard-grid div {
-    background: #ffffff; /* Clean white background for blocks */
+    background: #ffffff; 
     padding: 20px;
     border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for blocks */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
     text-align: center;
 }
 
@@ -148,38 +148,38 @@ body {
 }
 
 .mood-tracking-section button {
-    background-color: #f7c8d3; /* Accent color matching the theme */
-    color: #333; /* Dark text for visibility */
-    border: none; /* No border for a clean look */
-    border-radius: 8px; /* Rounded edges for the button */
-    padding: 10px 15px; /* Comfortable size for the button */
-    font-size: 1.1em; /* Balanced text size */
-    cursor: pointer; /* Pointer cursor for interactivity */
-    transition: background-color 0.3s ease, transform 0.3s ease; /* Add hover animation */
-    margin-top: 10px; /* Keep margin top as is */
+    background-color: #f7c8d3; 
+    color: #333; 
+    border: none; 
+    border-radius: 8px; 
+    padding: 10px 15px; 
+    font-size: 1.1em;
+    cursor: pointer; 
+    transition: background-color 0.3s ease, transform 0.3s ease; 
+    margin-top: 10px;
 }
 
 .mood-tracking-section button:hover {
-    background-color: #ff7797; /* Slightly brighter hover color */
-    transform: scale(1.05); /* Slightly enlarge on hover */
+    background-color: #ff7797; 
+    transform: scale(1.05); 
 }
 .mood-tracking-section button:active {
-    transform: scale(0.95); /* Slight scale down on click */
+    transform: scale(0.95); 
 }
 
 
-/* Responsive Design for Smaller Screens */
+
 @media (max-width: 768px) {
     .dashboard-grid {
-        grid-template-columns: 1fr; /* Stack blocks vertically on smaller screens */
-        width: 90%; /* Adjust width for smaller screens */
+        grid-template-columns: 1fr; 
+        width: 90%; 
     }
 }
 
-/* Additional Styles for Body and Background */
+
 body {
     background: linear-gradient(135deg, #e3c1a8, #f7c8d3);
-    padding-top: 70px; /* Add space so the title is not hidden */
+    padding-top: 70px; 
 }
 
 .container {
@@ -299,11 +299,11 @@ body.modal-active > .navbar {
 
 /* Modal Text */
 .modal-content p {
-    font-size: 1.2em; /* Slightly larger for readability */
-    line-height: 1.7em; /* Better spacing for clarity */
-    color: #4a5568; /* Neutral text color */
+    font-size: 1.2em;
+    line-height: 1.7em; 
+    color: #4a5568; 
     margin-bottom: 25px;
-    font-style: italic; /* Add a touch of dynamism */
+    font-style: italic; 
 }
 
 /* Call-to-Action Button */
@@ -351,3 +351,4 @@ body.modal-active > .navbar {
     background-color: #9b2c2c;
     transform: scale(0.95);
 }
+

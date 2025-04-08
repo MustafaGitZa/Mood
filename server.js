@@ -4,14 +4,20 @@ const bcrypt = require("bcrypt");
 const mysql = require("mysql2");
 const multer = require("multer");
 const path = require("path");
-const { initializeModels, detectMood } = require("./detectMood.js"); // Import mood detection functions
+const { initializeModels, detectMood } = require("./detectMood.js");
+const nodemailer = require("nodemailer"); // Add this line
+const crypto = require("crypto"); // Add this line
+const router = express.Router();
+
+const resetTokens = {}; // { token: email }
+// ... your existing code ...
 
 const app = express();
 const port = 3000;
 
 require("dotenv").config();
 
-
+app.use(express.json());
 
 
 // Middleware
@@ -28,10 +34,10 @@ app.use('/models', express.static(path.join(__dirname, "models"))); // Serve mod
 
 // Database Connection
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "Astroworld@24",
-  database: "moodsync"
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
 
 // Configure multer for file uploads
@@ -61,7 +67,7 @@ db.connect((err) => {
 
 app.use(
   session({
-    secret: "your_secret_key", // Use a strong secret key (store in env in production)
+    secret: "your_secret_key", 
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false }, // Set `true` if using HTTPS
@@ -352,6 +358,30 @@ app.get("/getUserProfile", (req, res) => {
   });
 });
 
+app.delete("/delete-profile", (req, res) => {
+  const userId = req.body.userId; // Read userId from request body
+
+  console.log("userId received on server:", userId); // Log received userId
+
+  if (!userId) {
+      return res.status(400).json({ message: "User ID is required." });
+  }
+
+  const query = "DELETE FROM users WHERE user_id = ?";
+  db.query(query, [userId], (err, result) => {
+      if (err) {
+          console.error("Error deleting profile:", err);
+          return res.status(500).json({ message: "Error deleting profile." });
+      }
+
+      if (result.affectedRows === 0) {
+          return res.status(404).json({ message: "User not found." });
+      }
+
+      res.json({ message: "Profile deleted successfully!" });
+  });
+});
+
 // Fetch mood data (mood counts) for the logged-in user to draw bar charts
 app.get("/ratings", (req, res) => {
   if (!req.session.userId) {
@@ -441,121 +471,91 @@ app.post("/fetch-tips", (req, res) => {
   });
 });
 
-app.get("/forgot-password", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "forgotPassword.html"));
+
+const transporter = nodemailer.createTransport({
+  host: process.env.MAILTRAP_HOST,
+  port: process.env.MAILTRAP_PORT,
+  auth: {
+    user: process.env.MAILTRAP_USER,
+    pass: process.env.MAILTRAP_PASS,
+  }
 });
 
+// Example email sending function
+async function sendEmail(to, subject, text) {
+    try {
+        const info = await transporter.sendMail({
+          from: `"MoodSync 👋" <${process.env.MAILTRAP_FROM_EMAIL}>`,
+          to: to, // List of receivers
+          subject: subject, // Subject line
+          text: text, // Plain text body
+        });
 
-const crypto = require("crypto");
-const nodemailer = require("nodemailer");
+        console.log('Message sent: %s', info.messageId);
+    } catch (error) {
+        console.error('Error sending email:', error);
+    }
+}
 
-app.post("/forgot-password", (req, res) => {
+const { v4: uuidv4 } = require('uuid'); // for generating unique tokens
+
+
+app.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
+  const resetToken = uuidv4();
+  const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
 
-  // Check if the email exists
-  const findUserQuery = `SELECT * FROM users WHERE email = ?`;
-  db.query(findUserQuery, [email], (err, results) => {
+  try {
+    await sendEmail(
+      email,
+      'Password Reset Request',
+      `Click the link below to reset your password:\n\n${resetLink}`
+    );
+
+    res.status(200).json({ message: 'Password reset link sent successfully!' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error sending password reset email' });
+  }
+});
+
+app.get('/reset-password', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'resetPassword.html'));
+});
+
+app.post('/reset-password', async (req, res) => {
+  const { token } = req.query;
+  const { newPassword } = req.body;
+
+  if (!token || !newPassword) {
+    return res.status(400).json({ message: 'Token and new password are required.' });
+  }
+  const findUserQuery = 'SELECT * FROM users WHERE reset_token = ?';
+  db.query(findUserQuery, [token], async (err, results) => {
     if (err) {
-      console.error("Database Error:", err);
-      return res.status(500).send("Internal server error.");
+      console.error('Error fetching token:', err);
+      return res.status(500).json({ message: 'Server error.' });
     }
 
     if (results.length === 0) {
-      // For security, always respond with a generic message
-      return res.status(200).send("If the email exists, a reset link has been sent.");
+      return res.status(400).json({ message: 'Invalid or expired token.' });
     }
 
-    // Generate a secure reset token
-    const resetToken = crypto.randomBytes(32).toString("hex");
-    const resetTokenExpiry = Date.now() + 3600000; // Token valid for 1 hour
+  // For demonstration, we'll just log it and send a success response
+  console.log(`Resetting password for token: ${token}`);
+  console.log(`New password: ${newPassword}`);
 
-    // Save the reset token and expiry to the database
-    const saveTokenQuery = `
-      UPDATE users 
-      SET reset_token = ?, reset_token_expiry = ? 
-      WHERE email = ?
-    `;
-    db.query(saveTokenQuery, [resetToken, resetTokenExpiry, email], (err) => {
-      if (err) {
-        console.error("Database Error:", err);
-        return res.status(500).send("Internal server error.");
-      }
+  // Hash the new password before saving it to the database
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-      // Send reset link via email
-      const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-            user: process.env.EMAIL_USER, // Accesses EMAIL_USER from the .env file
-            pass: process.env.EMAIL_PASS, // Accesses EMAIL_PASS from the .env file
+ 
+  db.query(updateQuery, [hashedPassword, token], (err, result) => {
+    if (err) {
+      console.error('Error updating password:', err);
+      return res.status(500).json({ message: 'Error updating password.' });
+    }
 
-        },
-    });
-    console.log("Email user:", process.env.EMAIL_USER);
-    console.log("Email password:", process.env.EMAIL_PASS);
-
-
-      const mailOptions = {
-        from: "noreply@moodsync.com",
-        to: email,
-        subject: "Password Reset Request",
-        html: `<p>Click <a href="${resetLink}">here</a> to reset your password. The link will expire in 1 hour.</p>`,
-      };
-
-      transporter.sendMail(mailOptions, (err) => {
-        if (err) {
-          console.error("Email Error:", err);
-          return res.status(500).send("Error sending email.");
-        }
-        res.status(200).send("If the email exists, a reset link has been sent.");
-      });
-    });
+    res.status(200).json({ message: 'Password reset successfully!' });
   });
 });
-
-app.get("/reset-password/:token", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "resetPassword.html"));
 });
-
-
-
-app.post("/reset-password", (req, res) => {
-  const { email } = req.body;
-  console.log("Email received:", email);
-
-  // Query the database to verify email exists
-  const findUserQuery = `SELECT * FROM users WHERE email = ?`;
-  db.query(findUserQuery, [email], (err, results) => {
-      if (err) {
-          console.error("Database error:", err);
-          return res.status(500).send("Internal server error.");
-      }
-      if (results.length === 0) {
-          return res.status(200).send("If the email exists, a reset link has been sent.");
-      }
-
-      // Generate a reset token and expiry
-      const resetToken = crypto.randomBytes(32).toString("hex");
-      const resetTokenExpiry = Date.now() + 3600000; // 1 hour validity
-
-      const saveTokenQuery = `
-          UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE email = ?
-      `;
-      db.query(saveTokenQuery, [resetToken, resetTokenExpiry, email], (err) => {
-          if (err) {
-              console.error("Database error:", err);
-              return res.status(500).send("Internal server error.");
-          }
-
-          // Send email logic (using nodemailer)
-          const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
-          console.log("Reset link:", resetLink);
-
-          res.status(200).send("If the email exists, a reset link has been sent.");
-      });
-  });
-});
-
-
-
-
