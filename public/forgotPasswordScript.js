@@ -1,6 +1,7 @@
 document.getElementById('sendResetLinkBtn').addEventListener('click', async (e) => {
     e.preventDefault();
     const email = document.getElementById('email').value;
+    
 
     try {
         const response = await fetch('/forgot-password', {

@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
-const mysql = require("mysql2");
+const mysql = require('mysql2');
 const multer = require("multer");
 const path = require("path");
 const { initializeModels, detectMood } = require("./detectMood.js");
@@ -32,7 +32,6 @@ app.use(express.static(path.join(__dirname, 'public')));  // Serve static files 
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 app.use('/models', express.static(path.join(__dirname, "models"))); // Serve models for Face-api.js
 
-// Database Connection
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -501,61 +500,75 @@ const { v4: uuidv4 } = require('uuid'); // for generating unique tokens
 
 
 app.post('/forgot-password', async (req, res) => {
-  const { email } = req.body;
-  const resetToken = uuidv4();
-  const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
-
-  try {
-    await sendEmail(
-      email,
-      'Password Reset Request',
-      `Click the link below to reset your password:\n\n${resetLink}`
-    );
-
-    res.status(200).json({ message: 'Password reset link sent successfully!' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Error sending password reset email' });
-  }
-});
-
-app.get('/reset-password', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'resetPassword.html'));
+    const { email } = req.body;
+  
+    
+    // Get the user ID from the database
+   db.query("SELECT user_id FROM users WHERE email = ?", [email], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Error querying the database' });
+    }
+    
+     // Check if result is empty (i.e., no rows were returned)
+     if (!result || result.length === 0) {
+      return res.status(404).redirect('/notFound.html'); 
+      // res.status(404).json({ message: 'No user found with this email.' });
+    }
+  
+        // Get the user_id directly
+      const userId = result[0].user_id;
+      const resetToken = uuidv4();
+      const resetLink = `http://localhost:3000/resetPassword.html?token=${resetToken}&userId=${userId}`;
+  
+      // Send the email
+      sendEmail(
+        email,
+        'Password Reset Request',
+        `Click the link below to reset your password:\n\n${resetLink}`
+      );
+  
+      //res.status(200).json({ message: 'Password reset link sent successfully!' });
+  // Redirect to a success page
+      res.status(200).redirect('/success.html');
+  });
+  });
+  
+  app.get('/reset-password', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'resetPassword.html'));
 });
 
 app.post('/reset-password', async (req, res) => {
-  const { token } = req.query;
+  const { token, userId } = req.query;
   const { newPassword } = req.body;
 
-  if (!token || !newPassword) {
-    return res.status(400).json({ message: 'Token and new password are required.' });
+  if (!token || !userId || !newPassword) {
+    return res.status(400).json({ message: 'Token, user ID, and new password are required.' });
   }
-  const findUserQuery = 'SELECT * FROM users WHERE reset_token = ?';
-  db.query(findUserQuery, [token], async (err, results) => {
-    if (err) {
-      console.error('Error fetching token:', err);
-      return res.status(500).json({ message: 'Server error.' });
-    }
 
-    if (results.length === 0) {
-      return res.status(400).json({ message: 'Invalid or expired token.' });
-    }
+  try {
+    // (Optional) You can validate the token further here
 
-  // For demonstration, we'll just log it and send a success response
-  console.log(`Resetting password for token: ${token}`);
-  console.log(`New password: ${newPassword}`);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-  // Hash the new password before saving it to the database
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const updateQuery = 'UPDATE users SET password = ? WHERE user_id = ?';
 
- 
-  db.query(updateQuery, [hashedPassword, token], (err, result) => {
-    if (err) {
-      console.error('Error updating password:', err);
-      return res.status(500).json({ message: 'Error updating password.' });
-    }
+    db.query(updateQuery, [hashedPassword, userId], (err, result) => {
+      if (err) {
+        console.error('Error updating password:', err);
+        return res.status(500).json({ message: 'Error updating password.' });
+      }
 
-    res.status(200).json({ message: 'Password reset successfully!' });
-  });
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: 'User not found or token is invalid.' });
+      }
+
+      //res.status(200).json({ message: 'Password reset successfully!' });
+      res.status(200).redirect('/passwordResetSuccess.html');
+    });
+  } catch (error) {
+    console.error('Server error:', error);
+    res.status(500).json({ message: 'Server error while resetting password.' });
+  }
 });
-});
+  

@@ -6,22 +6,16 @@
 function getParameterFromUrl(paramName) {
     try {
         const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(paramName); // Returns the value or null
+        return urlParams.get(paramName);
     } catch (error) {
         console.error("Error extracting URL parameter:", error);
-        return null; // Return null if something goes wrong
+        return null;
     }
 }
 
-// Extract token from URL
 const token = getParameterFromUrl('token');
-if (token) {
-    console.log('Extracted token:', token);
-} else {
-    console.warn('Token not found in the URL.');
-}
+const userId = getParameterFromUrl('userId');
 
-// Validate password input and inject token before form submission
 const form = document.querySelector("form");
 
 form.addEventListener("submit", (e) => {
@@ -34,12 +28,12 @@ form.addEventListener("submit", (e) => {
         return;
     }
 
-    if (!token) {
+    if (!token || !userId) {
         e.preventDefault();
-        alert("Missing token. Please use the link from your email again.");
+        alert("Missing token or userId. Please use the link from your email again.");
         return;
     }
 
-    // Inject the token into the form's action URL
-    form.action = `/reset-password?token=${token}`;
+    // Dynamically update form action
+    form.action = `/reset-password?token=${token}&userId=${userId}`;
 });
