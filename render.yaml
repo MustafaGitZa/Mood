@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: moodify
+    env: node
+    plan: free
+    buildCommand: npm install --build-from-source
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
