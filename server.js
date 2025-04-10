@@ -245,7 +245,7 @@ app.post("/login", (req, res) => {
       console.error("Error during login:", err);
       res.status(500).json({ message: "Error during login. Please try again later." });
     } else if (results.length === 0) {
-      onsole.log('No user found with username:', username); // Log when no user is found
+      console.log('No user found with username:', username); // Log when no user is found
       res.status(401).json({ message: "Invalid username or password." });
     } else {
       const user = results[0];
@@ -448,13 +448,13 @@ app.post("/fetch-tips", (req, res) => {
   }
 
   const query = `
-      SELECT tips.tip_text, tips.activity_suggestion
-      FROM moodlogs
-      JOIN tips ON moodlogs.logged_mood = tips.tip_text
-      WHERE moodlogs.user_id = ?
-      ORDER BY moodlogs.log_date DESC
-      LIMIT 1
-  `;
+        SELECT tips.tip_text
+        FROM moodlogs
+        JOIN tips ON moodlogs.logged_mood = tips.mood_name
+        WHERE moodlogs.user_id = ?
+        ORDER BY moodlogs.log_date DESC
+        LIMIT 1
+    `;
 
   db.query(query, [userId], (err, results) => {
       if (err) {
@@ -466,7 +466,8 @@ app.post("/fetch-tips", (req, res) => {
           return res.status(404).json({ message: "No tips found for the logged mood." });
       }
 
-      res.status(200).json({ tips: results[0] });
+      res.status(200).json({ tip_text: results[0].tip_text });
+
   });
 });
 
@@ -572,3 +573,24 @@ app.post('/reset-password', async (req, res) => {
   }
 });
   
+app.get("/get-profile", (req, res) => {
+  const userId = req.query.userId;
+
+  if (!userId) {
+    return res.status(400).json({ message: "User ID is required." });
+  }
+
+  const query = "SELECT name, surname, email, username FROM users WHERE user_id = ?";
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error("Error fetching profile:", err);
+      return res.status(500).json({ message: "Error fetching profile." });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    res.json(results[0]);
+  });
+});

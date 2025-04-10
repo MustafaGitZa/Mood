@@ -79,14 +79,13 @@ function fetchTip() {
         return response.json();
     })
     .then((data) => {
-        if (data.tips) {
+        if (data.tip_text) {
             const modalText = document.getElementById("modalTipText");
             modalText.innerHTML = `
-                <p><strong>Tip:</strong> ${data.tips.tip_text}</p>
-                <p><strong>Suggestion:</strong> ${data.tips.activity_suggestion || "No suggestion available."}</p>
+                <p><strong>Tip:</strong> ${data.tip_text}</p>
             `;
 
-            //blur effect with modal
+            // blur effect with modal
             const modal = document.getElementById("tipModal");
             modal.style.display = "block";
             document.body.classList.add("modal-active");
@@ -99,6 +98,7 @@ function fetchTip() {
         alert("An error occurred while fetching the tip.");
     });
 }
+
 
 // Function to close the modal
 function closeModal() {
