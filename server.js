@@ -607,3 +607,7 @@ app.get("/get-profile", (req, res) => {
     res.json(results[0]);
   });
 });
+
+app.listen(3000, () => {
+  console.log("Server is running on port 3000");
+});
