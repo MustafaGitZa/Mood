@@ -564,6 +564,8 @@ app.post('/reset-password', checkDbConnection, async (req, res) => {
     return res.status(400).json({ message: 'Token, user ID, and new password are required.' });
   }
 
+  //Hash the new password
+
   try {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     const updateQuery = 'UPDATE users SET password = ? WHERE user_id = ?';
