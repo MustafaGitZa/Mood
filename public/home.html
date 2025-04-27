@@ -14,10 +14,24 @@
             <a href="contact.html">Contact</a>
         </ul>
         <div class="profile-container">
-            <img src="profile-icon.png" alt="" class="profile-icon" id="profileIcon">
-            <div class="profile-menu" id="profileMenu">
-                <a href="edit-profile.html">My Profile</a>
-                <a href="login.html">Logout</a>
+            <div class="profile-icon" id="profileIcon">
+                <img id="defaultProfileIcon" src="/assets/boy.png" alt="Default User" style="display: none;">
+                <img id="navProfileAvatar" src="" alt="User Avatar" style="display: none;">
+            </div>
+            <div class="profile-expanded-menu" id="profileExpandedMenu">
+                <div class="avatar-section">
+                    <div class="avatar-placeholder">
+                        <div class="profile-initials" id="profileInitials"></div>
+                        <img src="default-avatar.png" alt="User Avatar" class="profile-avatar" id="profileAvatar">
+                    </div>
+                    <div class="user-info">
+                        <span id="userFullName"></span>
+                    </div>
+                </div>
+                <div class="menu-options">
+                    <a href="edit-profile.html">Edit Profile</a>
+                    <a href="login.html">Logout</a>
+                </div>
             </div>
         </div>
     </nav>
@@ -37,5 +51,6 @@
         </div>
     </div>
 
-    <script src="homeScript.js"></script> </body>
+    <script src="homeScript.js"></script>
+</body>
 </html>

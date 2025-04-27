@@ -24,6 +24,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const session = require("express-session");
 
+// Serve static files from the 'assets' directory
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
+
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));  // Serve static files from 'public' folder
 // Serve uploaded images (Ensure the uploaded images are served from 'public/uploads')
@@ -211,34 +214,36 @@ app.post("/register", checkDbConnection, upload.single("profile_picture"), async
   let profile_picture = null;
 
   if (req.file) {
-    console.log("📸 Profile picture received:", req.file.filename);
-    profile_picture = `/uploads/${req.file.filename}`;
-  } else {
-    console.log("No profile picture uploaded");
+      console.log("📸 Profile picture received:", req.file.filename);
+      profile_picture = `/uploads/${req.file.filename}`;
+  } else if (req.body.avatar_path) {
+      console.log("Avatar path received:", req.body.avatar_path);
+      profile_picture = req.body.avatar_path;
   }
+  // If neither a file nor a pre-selected avatar path exists, profile_picture remains null.
 
   if (!username || !password || !email) {
-    return res.status(400).json({ message: "Username, password, and email are required." });
+      return res.status(400).json({ message: "Username, password, and email are required." });
   }
 
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const query = "INSERT INTO users (username, password, email, name, surname, profile_picture) VALUES (?, ?, ?, ?, ?, ?)";
-    db.query(query, [username, hashedPassword, email, name, surname, profile_picture], (err, result) => {
-      if (err) {
-        if (err.code === "ER_DUP_ENTRY") {
-          res.status(400).json({ message: "Username or email already exists!" });
-        } else {
-          console.error("Error during registration:", err);
-          res.status(500).json({ message: "Error during registration. Please try again later." });
-        }
-      } else {
-        res.status(201).json({ message: "User registered successfully!" + name });
-      }
-    });
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const query = "INSERT INTO users (username, password, email, name, surname, profile_picture) VALUES (?, ?, ?, ?, ?, ?)";
+      db.query(query, [username, hashedPassword, email, name, surname, profile_picture], (err, result) => {
+          if (err) {
+              if (err.code === "ER_DUP_ENTRY") {
+                  res.status(400).json({ message: "Username or email already exists!" });
+              } else {
+                  console.error("Error during registration:", err);
+                  res.status(500).json({ message: "Error during registration. Please try again later." });
+              }
+          } else {
+              res.status(201).json({ message: "User registered successfully!" + name });
+          }
+      });
   } catch (error) {
-    console.error("Error hashing password:", error);
-    res.status(500).json({ message: "Internal server error." });
+      console.error("Error hashing password:", error);
+      res.status(500).json({ message: "Internal server error." });
   }
 });
 
@@ -310,8 +315,9 @@ app.get("/get-profile", checkDbConnection, (req, res) => {
 });
 
 // Update Profile - with DB check
-app.post("/update-profile", checkDbConnection, (req, res) => {
+app.post("/update-profile", checkDbConnection, upload.single('profile_picture'), (req, res) => {
   const { userId, name, surname, email, username } = req.body;
+  const profilePicture = req.file ? `/uploads/${req.file.filename}` : req.body.profile_picture || null; // Use file or avatar path
 
   console.log("Received update request for userId:", userId);
 
@@ -319,17 +325,28 @@ app.post("/update-profile", checkDbConnection, (req, res) => {
       return res.status(400).json({ message: "User ID is required." });
   }
 
-  const query = "UPDATE users SET name = ?, surname = ?, email = ?, username = ? WHERE user_id = ?";
-  db.query(query, [name, surname, email, username, userId], (err, result) => {
-      if (err) {
-          console.error("Error updating profile:", err);
-          return res.status(500).json({ message: "Error updating profile." });
-      }
+  const query = `
+      UPDATE users 
+      SET name = ?, surname = ?, email = ?, username = ?, 
+          profile_picture = COALESCE(?, profile_picture) 
+      WHERE user_id = ?
+  `;
 
-      console.log("Profile updated successfully for userId:", userId);
-      res.json({ message: "Profile updated successfully!", redirectUrl: "/dashboard" });
-  });
+  db.query(
+      query, 
+      [name, surname, email, username, profilePicture, userId], 
+      (err, result) => {
+          if (err) {
+              console.error("Error updating profile:", err);
+              return res.status(500).json({ message: "Error updating profile." });
+          }
+
+          console.log("Profile updated successfully for userId:", userId);
+          res.json({ message: "Profile updated successfully!", redirectUrl: "/dashboard" });
+      }
+  );
 });
+
 
 // Get Username - with DB check
 app.get("/get-username", checkDbConnection, (req, res) => {
@@ -359,12 +376,18 @@ app.get("/get-username", checkDbConnection, (req, res) => {
 });
 
 // Get User Profile - with DB check
+// Get User Profile - with DB check
 app.get("/getUserProfile", checkDbConnection, (req, res) => {
-  const userId = 11; // Replace with actual session user ID
+  const userId = req.session?.userId; // Get the userId from the session
+
+  if (!userId) {
+      return res.status(401).json({ message: "User not authenticated." });
+  }
 
   db.query("SELECT profile_picture FROM users WHERE user_id = ?", [userId], (err, results) => {
       if (err) {
-          return res.status(500).json({ message: "Database error" });
+          console.error("Error fetching user profile:", err);
+          return res.status(500).json({ message: "Database error fetching user profile." });
       }
       if (results.length > 0) {
           res.json({ profile_picture: results[0].profile_picture });
@@ -609,6 +632,153 @@ app.get("/get-profile", (req, res) => {
     res.json(results[0]);
   });
 });
+
+app.get("/get-mood-logs", checkDbConnection, (req, res) => {
+  const userId = req.query.userId; // Retrieve the user ID from query parameters
+
+  if (!userId) {
+      return res.status(400).json({ message: "User ID is required." });
+  }
+
+  const query = `
+      SELECT m.log_id, m.logged_mood, m.log_date, 
+          (SELECT COUNT(*) FROM reactions WHERE log_id = m.log_id AND reaction = '❤️') AS love_reactions,
+          (SELECT COUNT(*) FROM reactions WHERE log_id = m.log_id AND reaction = '👍') AS thumbs_up_reactions,
+          (SELECT COUNT(*) FROM reactions WHERE log_id = m.log_id AND reaction = '😢') AS sad_reactions,
+          (SELECT COUNT(*) FROM reactions WHERE log_id = m.log_id AND reaction = '🧡') AS orange_heart_reactions
+      FROM moodlogs m
+      WHERE m.user_id = ?
+      ORDER BY m.log_date DESC
+  `;
+
+  db.query(query, [userId], (err, results) => {
+      if (err) {
+          console.error("Error fetching mood logs:", err);
+          return res.status(500).json({ message: "Error fetching mood logs." });
+      }
+
+      res.json(results); // Return mood logs with reaction counts
+  });
+});
+
+app.post("/add-reaction", checkDbConnection, (req, res) => {
+  const { logId, reaction, userId } = req.body;
+
+  if (!logId || !reaction || !userId) {
+      return res.status(400).json({ message: "Log ID, reaction, and user ID are required." });
+  }
+
+  const query = `
+      INSERT INTO reactions (log_id, reaction, user_id)
+      VALUES (?, ?, ?)
+      ON DUPLICATE KEY UPDATE reaction_date = CURRENT_TIMESTAMP
+  `;
+
+  db.query(query, [logId, reaction, userId], (err, result) => {
+      if (err) {
+          console.error("Error adding reaction:", err);
+          return res.status(500).json({ message: "Error adding reaction." });
+      }
+
+      res.json({ message: "Reaction added successfully!" });
+  });
+});
+
+app.post("/share-mood", checkDbConnection, (req, res) => {
+  const { logId } = req.body; // Get mood log ID from request body
+
+  if (!logId) {
+      return res.status(400).json({ message: "Log ID is required." });
+  }
+
+  const query = `
+      INSERT INTO community_wall (log_id)
+      VALUES (?)
+  `;
+
+  db.query(query, [logId], (err) => {
+      if (err) {
+          console.error("Error sharing mood:", err);
+          return res.status(500).json({ message: "Failed to share mood." });
+      }
+
+      res.json({ message: "Mood shared successfully!" });
+  });
+});
+
+app.get("/community-moods", checkDbConnection, (req, res) => {
+  const query = `
+      SELECT m.logged_mood, m.log_date, c.reaction_count
+      FROM moodlogs m
+      JOIN community_wall c ON m.log_id = c.log_id
+      ORDER BY m.log_date DESC
+  `;
+
+  db.query(query, (err, results) => {
+      if (err) {
+          console.error("Error fetching community moods:", err);
+          return res.status(500).json({ message: "Failed to fetch community moods." });
+      }
+
+      res.json(results); // Return shared moods with reaction counts
+  });
+});
+
+app.post("/send-message", (req, res) => {
+  const { communityId, message } = req.body;
+  const query = `INSERT INTO community_comments (community_id, message) VALUES (?, ?)`;
+  db.query(query, [communityId, message], (err) => {
+      if (err) return res.status(500).send("Error sending message.");
+      res.send("Message sent.");
+  });
+});
+ 
+
+app.get("/fetch-comments/:communityId", (req, res) => {
+  const communityId = req.params.communityId;
+
+  const query = `
+      SELECT message, comment_date
+      FROM community_comments
+      WHERE community_id = ?
+      ORDER BY comment_date DESC
+  `;
+
+  db.query(query, [communityId], (err, results) => {
+      if (err) {
+          console.error("Error fetching comments:", err);
+          return res.status(500).json({ message: "Failed to fetch comments." });
+      }
+      res.json(results);
+  });
+});
+
+app.post("/add-reaction", (req, res) => {
+  const { communityId } = req.body;
+  const query = `UPDATE community_wall SET reaction_count = reaction_count + 1 WHERE community_id = ?`;
+  db.query(query, [communityId], (err) => {
+      if (err) return res.status(500).send("Error adding reaction.");
+      res.send("Reaction added.");
+  });
+});
+
+app.post("/repost-mood", (req, res) => {
+  const { communityId } = req.body;
+
+  const query = `
+      INSERT INTO community_wall (log_id, reaction_count)
+      SELECT log_id, 0 FROM community_wall WHERE community_id = ?
+  `;
+
+  db.query(query, [communityId], (err) => {
+      if (err) {
+          console.error("Error reposting mood:", err);
+          return res.status(500).json({ message: "Failed to repost mood." });
+      }
+      res.json({ message: "Mood reposted successfully!" });
+  });
+});
+
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");

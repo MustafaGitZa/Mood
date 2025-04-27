@@ -53,51 +53,163 @@ body {
     transform: translateY(-50%);
 }
 
+/* Profile Container - Adjusted for initials and expanded menu */
+.profile-container {
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    display: flex; /* To control icon and menu */
+    align-items: center;
+}
+
+/* Profile Icon (Small icon/initial shown) */
 .profile-icon {
     width: 35px;
     height: 35px;
     cursor: pointer;
-    border: 2px solid white;
+    border-radius: 50%;
+    /* Use a color that aligns with the general styling */
+    background-color: #f167a1; /* Primary app color */
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     object-fit: cover;
-    transition: background-color 0.3s ease, transform 0.2s ease; /* Added transition */
+    transition: transform 0.3s ease;
+    border: 1px solid #e04e89; /* Slightly darker border */
 }
 
-.profile-icon:hover {
-    background-color: rgba(255, 255, 255, 0.2); /* Lighten background on hover */
-    transform: scale(1.1); /* Slightly scale up on hover */
+.profile-container:hover .profile-icon {
+    transform: scale(1.1);
 }
 
-.profile-icon:active {
-    transform: scale(0.9); /* Slightly scale down on click */
+/* Profile Initials (Hidden when not expanded) */
+.profile-initials {
+    display: none; /* Initially hidden */
 }
 
-.profile-menu {
+/* Expanded Menu */
+.profile-expanded-menu {
     display: none;
     position: absolute;
-    top: 45px;
+    top: 100%; /* Position below the icon */
     right: 0;
-    background-color: white;
+    /* Use a light background that complements the app */
+    background-color: #f8f0fb; /* Light pinkish background */
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
     border-radius: 5px;
-    width: 150px;
-    text-align: left;
-    padding: 5px 0;
+    width: 180px; /* Adjust width as needed */
+    text-align: center;
+    padding: 15px;
+    z-index: 10;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+    border: 1px solid #e0e0e0; /* Light border */
 }
 
-.profile-menu a {
+.profile-container:hover .profile-expanded-menu {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.avatar-placeholder {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+    border: 1px solid #ddd;
+}
+
+.expanded-initials {
+    font-size: 24px;
+    font-weight: bold;
+    color: #f167a1; /* Use primary app color for initials */
+}
+
+.profile-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.user-info {
+    font-size: 14px;
+    color: #555;
+    font-weight: bold;
+}
+
+.menu-options {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    margin-top: 10px; /* Add some spacing */
+}
+
+.menu-options a {
     display: block;
     padding: 10px 15px;
     text-decoration: none;
-    color: black;
+    color: #333;
     font-size: 14px;
+    text-align: left;
+    transition: background-color 0.3s ease;
 }
 
-.profile-menu a:hover {
-    background-color: #f1f1f1;
+.menu-options a:hover {
+    background-color: #f7c8d3; /* Light hover color */
+    color: #333;
 }
 
-.profile-menu.show {
-    display: block;
+/* Hide the original .profile-menu */
+.profile-menu {
+    display: none !important;
+}
+
+/* Responsiveness for Smaller Screens */
+@media (max-width: 768px) {
+    .profile-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+
+    .avatar-placeholder {
+        width: 50px;
+        height: 50px;
+    }
+
+    .expanded-initials {
+        font-size: 20px;
+    }
+
+    .profile-expanded-menu {
+        width: 150px;
+        font-size: 12px;
+    }
 }
 /* 4-Block Grid Layout */
 .dashboard-grid {
@@ -247,23 +359,62 @@ body.modal-active > .navbar {
     transition: filter 0.3s ease; /* Smooth transition for blur */
 }
 
+.hover-trigger {
+    background-color: #3182ce; /* Vibrant theme color */
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.hover-trigger:hover {
+    background-color: #2b6cb0; /* Darker blue for hover */
+    transform: scale(1.05); /* Subtle enlargement */
+}
+
 /* Modal Background */
+.mood-Room-section:hover .modal {
+    display: block; /* Show modal on hover */
+}
+
+/* Modal Styling - Blurred Background */
 .modal {
-    display: none; /* Hidden by default */
+    display: none; /* Initially hidden */
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); /* Center modal */
-    background-color: #ffffff; /* Clean white background */
+    transform: translate(-50%, -50%);
+    background-color: #ffffff; /* Modal background */
     padding: 25px;
     border-radius: 12px; /* Smooth rounded corners */
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); /* Darker, more pronounced shadow */
-    z-index: 1000; /* Ensure it appears above other elements */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); /* Slight shadow for depth */
+    z-index: 1000; /* Ensure modal appears above all other elements */
     width: 80%;
-    max-width: 450px; /* Control modal size for responsive design */
+    max-width: 450px;
     text-align: center;
     animation: fadeIn 0.4s ease-out; /* Smooth fade-in animation */
 }
+
+/* Blurred background effect */
+body.modal-active {
+    overflow: hidden; /* Prevent scrolling when modal is active */
+}
+
+body.modal-active::before {
+    content: ""; /* Pseudo-element for overlay */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4); /* Semi-transparent dark overlay */
+    backdrop-filter: blur(8px); /* Blur the background */
+    z-index: 999; /* Place overlay below modal but above other elements */
+}
+
 
 /* Add fade-in animation */
 @keyframes fadeIn {
@@ -352,3 +503,462 @@ body.modal-active > .navbar {
     transform: scale(0.95);
 }
 
+.mood-room-container {
+    padding: 80px 20px 20px;
+    max-width: 800px;
+    margin: auto;
+    text-align: center;
+}
+
+.mood-room-container h1 {
+    font-size: 2.5em;
+    color: #9f2d2d;
+    margin-bottom: 20px;
+}
+
+.mood-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    margin-top: 40px;
+    align-items: center;
+}
+
+.mood-wall-container, .playlist-container {
+    max-width: 700px;
+    width: 100%;
+    background: #ffffffc7;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    text-align: left;
+}
+
+.mood-wall-container h2, .playlist-container h2 {
+    margin-bottom: 15px;
+    color: #104c90;
+}
+
+.mood-wall-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.mood-wall-form input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+}
+
+.mood-wall-form button {
+    padding: 10px 20px;
+    background: #cc4555;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.mood-wall-form button:hover {
+    background: #bb4d91;
+}
+
+.mood-posts {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.mood-post {
+    padding: 12px 16px;
+    background: #f0f0f0;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.mood-emoji {
+    font-size: 2em;
+    margin-right: 10px;
+}
+
+.mood-text {
+    font-size: 1.2em;
+    margin: 10px 0;
+}
+
+.timestamp {
+    font-size: 0.9em;
+    color: #777;
+}
+
+.mood-reactions {
+    margin-top: 10px;
+}
+
+.reaction-btn {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin: 0 5px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 1.1em;
+}
+
+.reaction-btn:hover {
+    background-color: #f7f7f7;
+}
+
+.reaction-count {
+    font-weight: bold;
+}
+
+.supportive-quote {
+    font-style: italic;
+    color: #555;
+    margin-top: 10px;
+}
+
+.track-item {
+    margin-bottom: 20px;
+}
+
+.mood-room-container button {
+    padding: 12px 25px;
+    background-color: #f167a1;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+    margin-top: 50px;
+}
+
+.mood-room-container button:hover {
+    background-color: #9f2d2d;
+}
+
+.playlist-tracks {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+  .track-icon {
+    font-size: 1.8em;
+  }
+
+.track-details {
+    display: flex;
+    flex-direction: column;
+}
+  
+.track-artist {
+    font-size: 0.9em;
+    color: #777;
+}
+
+.play-button {
+    background-color: #f167a1;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 0.95em;
+    transition: background-color 0.3s ease;
+}
+
+.play-button:hover {
+    background-color: #9f2d2d;
+}
+
+  /* Preview playlist container */
+.playlist-preview {
+    background: #fefefe;
+    padding: 12px 16px;
+    border-radius: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    transition: max-height 0.4s ease, padding 0.3s ease;
+    overflow: hidden;
+    max-height: 60px;
+    cursor: pointer;
+    position: relative;
+  }
+  
+  /* When expanded */
+  .playlist-preview.expanded {
+    max-height: 1000px; /* enough space for the iframe videos */
+    padding-bottom: 20px;
+  }
+  
+  /* Preview header info */
+  .playlist-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .playlist-header .track-icon {
+    font-size: 1.8em;
+  }
+  
+  .playlist-header .preview-title {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #104c90;
+  }
+  
+  /* Track card inside preview */
+  .track-card {
+    background: #ffffffc7;
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin: 14px 0;
+    animation: fadeInUp 0.6s ease forwards;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  
+  .track-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  
+  .track-title {
+    font-weight: 600;
+    font-size: 1em;
+    color: #333;
+  }
+  
+  .video-embed iframe {
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+/* Mood Wall Styling */
+/* Container for mood wall preview */
+.mood-preview {
+    background: #fefefe; /* Light background for preview */
+    padding: 12px 16px; /* Padding for content */
+    border-radius: 14px; /* Rounded edges */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); /* Subtle shadow */
+    transition: height 0.4s ease, padding-bottom 0.3s ease; /* Smooth transition */
+    overflow: hidden; /* Prevent content overflow */
+    height: 60px; /* Initial height for collapsed state */
+    cursor: pointer; /* Indicate interactivity */
+    position: relative; /* Ensure expanded content doesn’t overlap */
+    margin-bottom: 20px; /* Space below preview */
+}
+
+/* Expanded view styling */
+.mood-preview.expanded {
+    height: auto; /* Dynamically adjust height based on content */
+    padding-bottom: 20px; /* Extra padding for expansion */
+}
+
+/* Header for the preview */
+.mood-preview-header {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Space between icon and title */
+    margin-bottom: 10px; /* Spacing below header */
+}
+
+.mood-preview-header .mood-icon {
+    font-size: 2em; /* Large icon for mood preview */
+}
+
+.mood-preview-header .preview-title {
+    font-weight: bold; /* Bold title */
+    font-size: 1.1em; /* Slightly larger text */
+    color: #104c90; /* Blue color for consistency */
+}
+
+/* Individual mood card styling */
+.mood-card {
+    background: #ffffffc7; /* Semi-transparent background */
+    padding: 12px; /* Padding for content */
+    border-radius: 12px; /* Rounded edges */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    margin: 14px 0; /* Space between cards */
+    animation: fadeInUp 0.6s ease forwards; /* Fade-in animation */
+    opacity: 0; /* Initially hidden */
+    transform: translateY(20px); /* Initial position for animation */
+}
+
+.mood-info {
+    display: flex;
+    align-items: center; /* Align mood icon and details */
+    gap: 10px; /* Space between icon and details */
+    margin-bottom: 8px; /* Space below */
+}
+
+.mood-icon {
+    font-size: 1.8em; /* Slightly smaller mood icon for cards */
+}
+
+.mood-date {
+    font-size: 0.9em; /* Smaller text for timestamp */
+    color: #777; /* Neutral color */
+}
+
+/* Animation for mood cards */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Reactions styling */
+.mood-reactions {
+    margin-top: 10px; /* Space above reactions */
+}
+
+.reaction-btn {
+    background-color: #f0f0f0; /* Neutral button background */
+    border: 1px solid #ddd; /* Subtle border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 5px 10px; /* Button padding */
+    margin: 0 5px; /* Space between reaction buttons */
+    cursor: pointer; /* Indicate interactivity */
+    display: inline-flex; /* Align content horizontally */
+    align-items: center; /* Center button content */
+    gap: 5px; /* Space between emoji and count */
+    font-size: 1.1em; /* Slightly larger text */
+}
+
+.reaction-btn:hover {
+    background-color: #f7f7f7; /* Highlight on hover */
+}
+
+.reaction-count {
+    font-weight: bold; /* Emphasize reaction count */
+}
+
+.supportive-quote {
+    font-style: italic; /* Italicize text */
+    color: #555; /* Neutral color */
+    margin-top: 10px; /* Space above */
+}
+
+/* Shared Moods Section */
+.community-wall-container {
+    background: #ffffffc7;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 800px; /* Adapt to screen sizes */
+    margin: 0 auto; /* Center container */
+    transition: all 0.3s ease-in-out; /* Smooth expansion */
+}
+
+.shared-moods {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Space between cards */
+    max-width: 100%; /* Ensure cards fit inside */
+}
+
+/* Mood Card Styling */
+.mood-card {
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-family: 'Arial', sans-serif;
+    transition: all 0.3s ease-in-out; /* Smooth expansion on card resize */
+}
+
+/* Horizontal Alignment for Icons */
+.mood-actions {
+    display: flex; /* Align icons horizontally */
+    justify-content: space-around; /* Distribute icons evenly */
+    align-items: center; /* Center vertically */
+    gap: 10px; /* Space between icons */
+    margin-top: 10px;
+}
+
+.mood-actions button {
+    background: none; /* Remove default button styling */
+    border: none;
+    cursor: pointer;
+    font-size: 1.5em; /* Icon size */
+    transition: transform 0.2s ease; /* Add hover effect */
+}
+
+.mood-actions button:hover {
+    transform: scale(1.2); /* Slight zoom on hover */
+}
+
+/* Comment Section */
+.comment-section {
+    display: none; /* Hidden by default */
+    background: #f7f7f7;
+    padding: 20px; /* Wider padding for better readability */
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
+    width: 100%; /* Stretch comment section to container width */
+    transition: all 0.3s ease-in-out; /* Smooth opening animation */
+}
+.message-section button {
+    background: #f167a1;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    padding: 8px 12px;
+    margin-right: 5px;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease;
+}
+
+.message-section button:hover {
+    background: #9f2d2d;
+}
+
+
+.reaction-section {
+    font-size: 1.2em;
+    color: #cc4555;
+}
+
+@media (max-width: 768px) {
+    .community-wall-container {
+        padding: 15px;
+        max-width: 100%; /* Stretch to fit smaller screens */
+    }
+
+    .mood-card {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+
+    .comment-section {
+        padding: 15px; /* Reduce padding for smaller screens */
+    }
+}

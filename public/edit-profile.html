@@ -14,11 +14,19 @@
     <div class="edit-profile-container">
         <h1>Edit Profile</h1>
         <form id="editProfileForm">
-            <div class="profile-pic-section">
-                <img id="profile-preview" src="profile-placeholder.png" alt="Profile Picture" class="profile-pic">
-                <label for="profilePic" class="upload-btn">Change Profile Picture</label>
-                <input type="file" name="profilePic" id="profilePic" accept="image/*" onchange="previewImage(event)">
+           
+            <div class="avatar-selection">
+                <label id="chooseAvatarLabel">Choose an Avatar (Optional)</label><br>
+                <img id="selectedAvatarDisplay" src="" alt="Selected Avatar" style="display:none;">
+                <div class="avatar-options-container">
+                    <img src="/assets/lady.png" alt="Avatar Lady" class="avatar-option" data-avatar="/assets/lady.png">
+                    <img src="/assets/girl.png" alt="Avatar Girl" class="avatar-option" data-avatar="/assets/girl.png">
+                    <img src="/assets/boy.png" alt="Avatar Boy" class="avatar-option" data-avatar="/assets/boy.png">
+                    <img src="/assets/gentleman.png" alt="Avatar Gentleman" class="avatar-option" data-avatar="/assets/gentleman.png">
+                </div>
+                <input type="hidden" id="selectedAvatar" name="selectedAvatar" value="">
             </div>
+            
             <label for="name">Name:</label>
             <input type="text" id="name" name="name" required>
             <label for="surname">Surname:</label>

@@ -172,7 +172,7 @@ input[type="password"]:focus {
 
 /* Navbar Styles */
 .navbar {
-    background-color: #9f2d2d;
+    background-color: #9f2d2d; /* Keep the top navbar color */
     width: 100%;
     height: 50px;
     padding: 5px 15px;
@@ -203,58 +203,206 @@ input[type="password"]:focus {
     color: #333;
 }
 
-/* Profile Icon Container */
+/* Profile Container - Adjusted for initials and expanded menu */
 .profile-container {
     position: absolute;
     right: 40px;
     top: 50%;
     transform: translateY(-50%);
+    cursor: pointer;
+    display: flex; /* To control icon and menu */
+    align-items: center;
 }
 
-/* Profile Icon */
 .profile-icon {
     width: 35px;
     height: 35px;
     cursor: pointer;
-    border: 2px solid white;
-    object-fit: cover;
+    border-radius: 50%;
+    background-color: transparent; /* Ensure image is visible */
+    color: white; /* Fallback text color */
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* Clip content to circle */
     transition: transform 0.3s ease;
+    border: 1px solid #e04e89; /* Border */
 }
 
-.profile-icon:hover {
+.profile-icon img#defaultProfileIcon,
+.profile-icon img#navProfileAvatar {
+    display: none; /* Initially hidden, controlled by JS */
+    width: 100%; /* Fill the profile-icon */
+    height: 100%;
+    object-fit: cover; /* Cover the circle */
+    border-radius: 50%; /* Make it circular */
+    position: absolute; /* Position within the profile-icon */
+    top: 0;
+    left: 0;
+}
+
+.profile-container:hover .profile-icon {
     transform: scale(1.1);
 }
 
-/* Profile Dropdown Menu */
-.profile-menu {
-    display: none;
-    position: absolute;
-    top: 45px;
-    right: 0;
-    background-color: white;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    border-radius: 5px;
-    width: 150px;
-    text-align: left;
-    padding: 5px 0;
+.profile-icon {
+    /* ... other styles ... */
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* ... other styles ... */
 }
 
-/* Menu Links */
-.profile-menu a {
+/* Expanded Menu */
+.profile-expanded-menu {
+    display: none;
+    position: absolute;
+    top: 100%; /* Position below the icon */
+    right: 0;
+    /* Use a light background that complements the app */
+    background-color: #f8f0fb; /* Light pinkish background */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    width: 180px; /* Adjust width as needed */
+    text-align: center;
+    padding: 15px;
+    z-index: 10;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+    border: 1px solid #e0e0e0; /* Light border */
+}
+
+.profile-container:hover .profile-expanded-menu {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.avatar-selection {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#chooseAvatarLabel {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #555;
+}
+
+#selectedAvatarDisplay {
+    width: 80px; /* Adjust size as needed */
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 2px solid #f167a1; /* Highlight selected avatar */
+    display: none; /* Hidden by default */
+}
+
+.avatar-options-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Spacing between avatar options */
+    margin-top: 10px;
+}
+
+.avatar-option {
+    width: 50px; /* Adjust size of options */
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border: 1px solid #ddd;
+}
+
+.avatar-option:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.avatar-option.selected {
+    border: 2px solid #e04e89; /* Indicate selection */
+    transform: scale(1.15);
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+}
+
+.avatar-placeholder {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+    border: 1px solid #ddd;
+}
+
+.expanded-initials {
+    font-size: 24px;
+    font-weight: bold;
+    color: #f167a1; /* Use primary app color for initials */
+}
+
+.profile-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.user-info {
+    font-size: 14px;
+    color: #555;
+    font-weight: bold;
+}
+
+.menu-options {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    margin-top: 10px; /* Add some spacing */
+}
+
+.menu-options a {
     display: block;
     padding: 10px 15px;
     text-decoration: none;
-    color: black;
+    color: #333;
     font-size: 14px;
+    text-align: left;
+    transition: background-color 0.3s ease;
 }
 
-.profile-menu a:hover {
-    background-color: #f1f1f1;
+.menu-options a:hover {
+    background-color: #f7c8d3; /* Light hover color */
+    color: #333;
 }
 
-/* Show menu when active */
-.profile-menu.show {
-    display: block;
+/* Hide the original .profile-menu */
+.profile-menu {
+    display: none !important;
 }
 
 /* Responsiveness for Smaller Screens */
@@ -262,14 +410,23 @@ input[type="password"]:focus {
     .profile-icon {
         width: 40px;
         height: 40px;
+        font-size: 18px;
     }
 
-    .profile-menu {
-        width: 120px;
+    .avatar-placeholder {
+        width: 50px;
+        height: 50px;
+    }
+
+    .expanded-initials {
+        font-size: 20px;
+    }
+
+    .profile-expanded-menu {
+        width: 150px;
         font-size: 12px;
     }
 }
-
 /* Mood History Title */
 h2 {
     text-align: center;
@@ -307,19 +464,19 @@ h2 {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     transition: background-color 0.3s ease, transform 0.3s ease;
     width: 100%;
-  }
-  
-  #loginBtn:hover {
+}
+
+#loginBtn:hover {
     background-color: #e04e89;
     transform: scale(1.03);
-  }
-  
-  #loginBtn:active {
+}
+
+#loginBtn:active {
     background-color: #c83772;
     transform: scale(0.97);
-  }
+}
 
-  #registerBtn {
+#registerBtn {
     background-color: #f167a1;
     color: white;
     border: none;
@@ -330,19 +487,19 @@ h2 {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     transition: background-color 0.3s ease, transform 0.3s ease;
     width: 100%;
-  }
-  
-  #registerBtn:hover {
+}
+
+#registerBtn:hover {
     background-color: #e04e89;
     transform: scale(1.03);
-  }
-  
-  #registerBtn:active {
+}
+
+#registerBtn:active {
     background-color: #c83772;
     transform: scale(0.97);
-  }
+}
 
-  /* Styles for the modal and backdrop */
+/* Styles for the modal and backdrop */
 .modal {
     display: none;
     position: fixed;
@@ -430,138 +587,6 @@ h2 {
     border: none;
     border-radius: 8px;
     padding: 10px 20px;
-    font-size: 1.1em;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    margin-top: 20px;
-    align-self: center;
+    font-size: 1.1em
 }
 
-
-.ok-button:hover {
-    background-color: #e04e89;
-    transform: scale(1.05);
-}
-
-.ok-button:active {
-    background-color: #c83772;
-    transform: scale(0.95);
-}
-
-@keyframes fadeIn {
-    from {opacity: 0; transform: translateY(-50px);}
-    to {opacity: 1; transform: translateY(0);}
-}
-
-h2 {
-    color: #f167a1; /* Pink heading */
-    font-size: 2.2em; /* Larger heading */
-    font-weight: bold;  /* Make it bold */
-    margin-bottom: 20px;
-}
-
-p {
-    font-size: 1.1em;  /* Increased font size for paragraph */
-    color: #555; /* Darker text */
-    line-height: 1.7; /* Improved line height for readability */
-    margin-bottom: 25px;
-}
-.ok-button, .error-ok-button {
-    background-color: #f167a1;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 20px;
-    font-size: 1.1em;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    margin-top: 20px;
-    align-self: center;
-}
-
-.ok-button:hover, .error-ok-button:hover {
-    background-color: #e04e89;
-    transform: scale(1.05);
-}
-
-.ok-button:active, .error-ok-button:active {
-    background-color: #c83772;
-    transform: scale(0.95);
-}
-
-
-@keyframes fadeIn {
-    from {opacity: 0; transform: translateY(-50px);}
-    to {opacity: 1; transform: translateY(0);}
-}
-
-h2 {
-    color: #f167a1;
-    font-size: 2.2em;
-    font-weight: bold;
-    margin-bottom: 20px;
-}
-
-p {
-    font-size: 1.1em;
-    color: #555;
-    line-height: 1.7;
-    margin-bottom: 25px;
-}
-
-.message {
-    font-size: 1.5em;
-    color: #f167a1;
-    font-weight: 600;
-    margin: 0;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-.login-button {
-    display: inline-block;
-    padding: 12px 24px; /* Slightly bigger button for visibility */
-    color: #fff;
-    background-color: #f167a1;
-    border: none;
-    border-radius: 8px; /* Smooth edges for a modern look */
-    font-family: 'Poppins', sans-serif;
-    font-size: 1em;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for a 3D effect */
-    transition: all 0.3s ease-in-out; /* Smooth transitions for hover effects */
-}
-
-.login-button:hover {
-    background-color: #c22265; 
-    transform: translateY(-2px); 
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); 
-}
-
-.login-button:active {
-    transform: translateY(1px); 
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-}
-
-
-
-.login-message {
-    text-align: center;
-    font-size: 1.2em;
-    color: #333;
-    margin-top: 0; 
-    margin-bottom: 20px; 
-    line-height: 1.6; 
-    font-weight: 500; 
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}

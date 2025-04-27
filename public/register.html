@@ -27,11 +27,23 @@
                     <label for="registerEmail">Email</label>
                     <input type="text" id="registerEmail" placeholder="Enter your email" required>
                 </div>
+                <div class="avatar-selection">
+                    <label id="chooseAvatarLabel">Choose an Avatar (Optional)</label><br>
+                    <img id="selectedAvatarDisplay" src="" alt="Selected Avatar">
+                    <div class="avatar-options-container">
+                        <img src="/assets/lady.png" alt="Avatar Lady" class="avatar-option" data-avatar="/assets/lady.png">
+                        <img src="/assets/girl.png" alt="Avatar Girl" class="avatar-option" data-avatar="/assets/girl.png">
+                        <img src="/assets/boy.png" alt="Avatar Boy" class="avatar-option" data-avatar="/assets/boy.png">
+                        <img src="/assets/gentleman.png" alt="Avatar Gentleman" class="avatar-option" data-avatar="/assets/gentleman.png">
+                    </div>
+                    <input type="hidden" id="selectedAvatar" name="selectedAvatar" value="">
+                </div>
+
                 <div class="form-group">
-                    <label for="registerProfilePicture">Profile Picture</label>
+                    <label for="registerProfilePicture">Or Upload Your Own Profile Picture (Optional)</label>
                     <input type="file" id="registerProfilePicture" accept="image/*">
                 </div>
-                
+
                 <div class="form-group">
                     <label for="registerPassword">Password</label>
                     <input type="password" id="registerPassword" placeholder="Enter your password" required>

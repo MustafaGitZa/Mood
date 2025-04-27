@@ -13,11 +13,23 @@
             <a href="contact.html">Contact</a>
         </ul>
         <div class="profile-container">
-            <img src="profile-icon.png" alt="" class="profile-icon" id="profileIcon">
-
-            <div class="profile-menu" id="profileMenu">
-                <a href="edit-profile.html">Edit Profile</a>
-                <a href="login.html">Logout</a>
+            <div class="profile-icon" id="profileIcon">
+                <img id="navProfileAvatar" src="" alt="User Avatar" style="display: none;">
+            </div>
+            <div class="profile-expanded-menu" id="profileExpandedMenu">
+                <div class="avatar-section">
+                    <div class="avatar-placeholder">
+                        <div class="profile-initials" id="profileInitials"></div>
+                        <img src="default-avatar.png" alt="User Avatar" class="profile-avatar" id="profileAvatar">
+                    </div>
+                    <div class="user-info">
+                        <span id="userFullName"></span>
+                    </div>
+                </div>
+                <div class="menu-options">
+                    <a href="edit-profile.html">Edit Profile</a>
+                    <a href="login.html">Logout</a>
+                </div>
             </div>
         </div>
     </nav>
@@ -37,8 +49,15 @@
 
         <div class="mood-Room-section">
             <h2>Mood Room</h2>
-            <p>content coming soon.</p>
-            <button onclick="window.location.href='/wellness'">Expand Mood Room</button>
+            <p>Unravel a whole new world with the Mood Room</p>
+            <div class="modal" id="moodRoomModal">
+                <div class="modal-content">
+                    <h2>Mood Room</h2>
+                    <p>Explore your emotions and connect with others.</p>
+                    <button class="cta-button" onclick="window.location.href='moodRoom.html'">Explore Mood Room</button>
+                    <button class="close-modal" onclick="closeMoodModal()">Close</button>
+                </div>
+            </div>
         </div>
 
         <div class="wellness-section">
@@ -55,6 +74,6 @@
             <button class="close-modal" onclick="closeModal()">Close</button>
         </div>
     </div>
-    
-    </body>
+
+</body>
 </html>
