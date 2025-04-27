@@ -1,4 +1,3 @@
-
 document.addEventListener("DOMContentLoaded", async function () {
     const userId = localStorage.getItem("userId");
     console.log("Retrieved userId from localStorage:", userId); // Log userId from storage
@@ -19,11 +18,15 @@ document.addEventListener("DOMContentLoaded", async function () {
             document.getElementById("surname").value = data.surname;
             document.getElementById("email").value = data.email;
             document.getElementById("username").value = data.username;
-            
-            // If the user has a profile picture, update the preview
-            // if (data.profilePic) {
-            //     document.getElementById("profile-preview").src = data.profilePic;
-            // }
+
+            // Load avatar or profile picture if available
+            if (data.profile_picture) {
+                document.getElementById("selectedAvatar").value = data.profile_picture;
+                document.getElementById("selectedAvatarDisplay").src = data.profile_picture;
+                document.getElementById("selectedAvatarDisplay").style.display = "block";
+                document.querySelector(".avatar-options-container").style.display = "none"; // Hide avatar options
+                document.getElementById("chooseAvatarLabel").textContent = "Selected Avatar:";
+            }
         } else {
             alert("Failed to load profile details.");
         }
@@ -31,10 +34,48 @@ document.addEventListener("DOMContentLoaded", async function () {
         console.error("Error fetching profile:", error);
         alert("An error occurred while loading profile details.");
     }
+
+    // Avatar selection logic
+    const avatarOptions = document.querySelectorAll(".avatar-option");
+    const selectedAvatarInput = document.getElementById("selectedAvatar");
+    const selectedAvatarDisplay = document.getElementById("selectedAvatarDisplay");
+    const avatarOptionsContainer = document.querySelector(".avatar-options-container");
+    const chooseAvatarLabel = document.getElementById("chooseAvatarLabel");
+    const fileInput = document.getElementById("profilePicture");
+
+    function resetAvatarSelection() {
+        avatarOptions.forEach(opt => opt.classList.remove("selected")); // Clear previous selections
+        selectedAvatarInput.value = ""; // Clear avatar path input
+        selectedAvatarDisplay.style.display = "none"; // Hide avatar preview
+        avatarOptionsContainer.style.display = "flex"; // Re-display avatar options
+        chooseAvatarLabel.textContent = "Choose an Avatar (Optional)";
+    }
+
+    avatarOptions.forEach(avatar => {
+        avatar.addEventListener("click", function () {
+            avatarOptions.forEach(opt => opt.classList.remove("selected")); // Clear selections
+            this.classList.add("selected");
+            selectedAvatarInput.value = this.dataset.avatar; // Store selected avatar
+            selectedAvatarDisplay.src = this.src; // Update preview
+            selectedAvatarDisplay.style.display = "block";
+            avatarOptionsContainer.style.display = "none"; // Hide avatar options
+            chooseAvatarLabel.textContent = "Selected Avatar:";
+            fileInput.value = ""; // Clear file input if an avatar is selected
+        });
+    });
+
+    // Add event listener to allow re-selecting an avatar by clicking on the displayed avatar
+    selectedAvatarDisplay.addEventListener("click", () => {
+        resetAvatarSelection(); // Reset avatar selection and re-display options
+    });
+
+    // Clear selected avatar if a file is chosen
+    fileInput.addEventListener("change", () => {
+        resetAvatarSelection();
+    });
 });
 
-document.getElementById("editProfileForm").addEventListener("submit", async function () {
-
+document.getElementById("editProfileForm").addEventListener("submit", async function (event) {
     event.preventDefault();
     const userId = localStorage.getItem("userId");
 
@@ -44,16 +85,28 @@ document.getElementById("editProfileForm").addEventListener("submit", async func
         return;
     }
 
-    const name = document.getElementById("name").value;
-    const surname = document.getElementById("surname").value;
-    const username = document.getElementById("username").value; // Uncomment if needed
-    const email = document.getElementById("email").value;
+    const formData = new FormData();
+    formData.append("userId", userId);
+    formData.append("name", document.getElementById("name").value);
+    formData.append("surname", document.getElementById("surname").value);
+    formData.append("username", document.getElementById("username").value);
+    formData.append("email", document.getElementById("email").value);
+
+    const selectedAvatarPath = document.getElementById("selectedAvatar").value;
+    const fileInput = document.getElementById("profilePicture");
+    const uploadedFile = fileInput && fileInput.files.length > 0 ? fileInput.files[0] : null;
+
+    // Add avatar or profile picture to the form data
+    if (uploadedFile) {
+        formData.append("profile_picture", uploadedFile); // Add uploaded profile picture
+    } else if (selectedAvatarPath) {
+        formData.append("profile_picture", selectedAvatarPath); // Use avatar for profile_picture field
+    }
 
     try {
         const response = await fetch("/update-profile", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({userId, name, surname,username, email })
+            body: formData,
         });
 
         const data = await response.json();
@@ -61,7 +114,7 @@ document.getElementById("editProfileForm").addEventListener("submit", async func
 
         if (response.ok) {
             alert(data.message); // Show success message
-            window.location.href = "/dashboard"; // Redirect to dashboard or profile page
+            window.location.href = "/dashboard"; // Redirect to dashboard
         } else {
             alert(data.message); // Show error message
         }
@@ -71,7 +124,7 @@ document.getElementById("editProfileForm").addEventListener("submit", async func
     }
 });
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("deleteProfileBtn").addEventListener("click", async function () {
         const userId = localStorage.getItem("userId");
 
@@ -90,7 +143,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const response = await fetch("/delete-profile", {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId })
+                body: JSON.stringify({ userId }),
             });
 
             const data = await response.json();

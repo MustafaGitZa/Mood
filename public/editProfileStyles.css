@@ -154,3 +154,73 @@ button:hover {
     background-color: #e60000;
 }
 
+.avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.avatar-selection {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#chooseAvatarLabel {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #555;
+}
+
+#selectedAvatarDisplay {
+    width: 80px; /* Adjust size as needed */
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 2px solid #f167a1; /* Highlight selected avatar */
+    display: none; /* Hidden by default */
+}
+
+.avatar-options-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Spacing between avatar options */
+    margin-top: 10px;
+}
+
+.avatar-option {
+    width: 50px; /* Adjust size of options */
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border: 1px solid #ddd;
+}
+
+.avatar-option:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.avatar-option.selected {
+    border: 2px solid #e04e89; /* Indicate selection */
+    transform: scale(1.15);
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+}
+
+.avatar-placeholder {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+    border: 1px solid #ddd;
+}

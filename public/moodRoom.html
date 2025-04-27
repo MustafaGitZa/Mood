@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mood Room | MoodSync</title>
+    <link rel="stylesheet" href="dashboardStyles.css">
+</head>
+<body>
+    <!-- Reuse your existing navbar -->
+    <nav class="navbar">
+        <ul class="nav-menu">
+            <a href="home.html">Home</a>
+            <a href="contact.html">Contact</a>
+        </ul>
+        <div class="profile-container">
+            <div class="profile-icon" id="profileIcon">
+                <img id="navProfileAvatar" src="" alt="User Avatar" style="display: none;">
+            </div>
+            <div class="profile-expanded-menu" id="profileExpandedMenu">
+                <div class="avatar-section">
+                    <div class="avatar-placeholder">
+                        <div class="profile-initials" id="profileInitials"></div>
+                        <img src="default-avatar.png" alt="User Avatar" class="profile-avatar" id="profileAvatar">
+                    </div>
+                    <div class="user-info">
+                        <span id="userFullName"></span>
+                    </div>
+                </div>
+                <div class="menu-options">
+                    <a href="edit-profile.html">Edit Profile</a>
+                    <a href="login.html">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mood-room-container">
+        <h1>Welcome to Your Mood Room</h1>
+        <p>Relax, reflect, and elevate your mood with personalized content.</p>
+    
+        <div class="mood-sections">
+            <!-- Mood Wall Section -->
+            <div class="mood-wall-container">
+                <h2>🖼️ Virtual Mood Wall</h2>
+                <div id="currentMood" class="mood-posts"></div>
+            </div>
+    
+            <!-- Playlist Section -->
+            <div class="playlist-container">
+                <h2>🎶 Interactive Mood Playlist</h2>
+                <div id="moodPlaylist" class="playlist-tracks"></div>
+            </div>
+    
+            <!-- Community Mood Wall Section -->
+            <div class="community-wall-container">
+                <h2>🌈 Community Mood Wall</h2>
+                <div id="sharedMoods" class="shared-moods">
+                    <!-- Shared moods will be dynamically populated here -->
+                </div>
+            </div>
+        </div>
+    
+        <button onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+    </div>
+    
+    
+
+    <script src="dashboardScript.js"></script>
+</body>
+</html>
