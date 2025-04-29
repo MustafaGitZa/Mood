@@ -37,6 +37,13 @@
     <div class="mood-room-container">
         <h1>Welcome to Your Mood Room</h1>
         <p>Relax, reflect, and elevate your mood with personalized content.</p>
+
+        <div class="uplift-mood-container">
+            <h2>✨ Need a Boost? Try This! ✨</h2>
+            <p>Feeling a bit low? Spin the wheel to get a wellness activity that can help uplift your mood.</p>
+            <button id="upliftMoodButton" onclick="window.location.href='moodWheel.html'">🌟 Uplift My Mood</button>
+        </div>
+        
     
         <div class="mood-sections">
             <!-- Mood Wall Section -->
@@ -45,19 +52,21 @@
                 <div id="currentMood" class="mood-posts"></div>
             </div>
     
-            <!-- Playlist Section -->
             <div class="playlist-container">
                 <h2>🎶 Interactive Mood Playlist</h2>
-                <div id="moodPlaylist" class="playlist-tracks"></div>
+                <button id="showPlaylistButton" class="playlist-toggle-btn">🌟 Show Mood Playlist</button>
+                <div id="moodPlaylist" class="playlist-tracks" style="display: none;"></div>
+                <button id="backToMoodRoom" class="playlist-toggle-btn" style="display: none;">⬅️ Back to Mood Room</button>
             </div>
-    
-            <!-- Community Mood Wall Section -->
+            
             <div class="community-wall-container">
                 <h2>🌈 Community Mood Wall</h2>
                 <div id="sharedMoods" class="shared-moods">
                     <!-- Shared moods will be dynamically populated here -->
                 </div>
+                <button id="showMoreMoods" class="show-more-btn">🔍 Show More Moods</button>
             </div>
+            
         </div>
     
         <button onclick="window.location.href='dashboard.html'">Back to Dashboard</button>

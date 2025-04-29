@@ -471,6 +471,34 @@ app.post("/logout", (req, res) => {
   });
 });
 
+app.get('/moodlogs/:date', checkDbConnection, async (req, res) => {
+  if (!req.session.userId) {
+    return res.status(403).json({ message: "User not authenticated." });
+  }
+
+  const userId = req.session.userId;
+  const date = req.params.date; // <-- you need this!
+
+  try {
+    const [rows] = await db.promise().query(
+      `
+      SELECT ml.logged_mood, mlt.type_name, ml.log_date
+      FROM moodlogs ml
+      JOIN moodlog_types mlt ON ml.type_id = mlt.type_id
+      WHERE ml.user_id = ? AND DATE(ml.log_date) = ?
+      ORDER BY ml.log_date DESC
+      `,
+      [userId, date]
+    );
+
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching moods:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 // Fetch tips - with DB check
 app.post("/fetch-tips", checkDbConnection, (req, res) => {
   const userId = req.session?.userId;
@@ -500,6 +528,117 @@ app.post("/fetch-tips", checkDbConnection, (req, res) => {
 
       res.status(200).json({ tip_text: results[0].tip_text });
 
+  });
+});
+
+const moodPlaylists = {
+  "Happy": "https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC",  // Happy Hits
+  "Sad": "https://open.spotify.com/playlist/37i9dQZF1DX7qK8ma5wgG1",    // Sad Songs
+  "Angry": "https://open.spotify.com/playlist/37i9dQZF1DWYxwmBaMqxsl",  // Rage Beats
+  "Calm": "https://open.spotify.com/playlist/37i9dQZF1DX3PIPIT6lEg5",   // Calm Vibes
+  "Energetic": "https://open.spotify.com/playlist/37i9dQZF1DX8tZsk68tuDw" // Workout Motivation
+};
+
+app.post("/send-report", checkDbConnection, async (req, res) => {
+  const userId = req.session?.userId; // Get the logged-in user's ID from the session
+
+  if (!userId) {
+    return res.status(403).json({ message: "User not authenticated." });
+  }
+
+  // Fetch the user's email from the database
+  const getEmailQuery = "SELECT email FROM users WHERE user_id = ?";
+  db.query(getEmailQuery, [userId], async (err, results) => {
+    if (err) {
+      console.error("Error fetching user email:", err);
+      return res.status(500).json({ message: "Error fetching user email." });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const email = results[0].email; // Get the user's email
+    const { moods } = req.body;
+
+    if (!moods || moods.length === 0) {
+      return res.status(400).json({ message: "Mood data is required." });
+    }
+
+    const date = new Date().toISOString().split("T")[0]; // Get current date in YYYY-MM-DD format
+
+    const moodTable = moods
+      .map((mood) => {
+        const playlistUrl = moodPlaylists[mood.logged_mood] || "https://open.spotify.com";
+        return `
+          <tr>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${mood.logged_mood}</td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${mood.type_name}</td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${new Date(mood.log_date).toLocaleString()}</td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
+              <a href="${playlistUrl}" target="_blank">Playlist</a>
+            </td>
+          </tr>`;
+      })
+      .join("");
+
+    const emailContent = `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+        <div style="background-color: #4CAF50; color: white; padding: 20px; text-align: center;">
+          <h1 style="margin: 0;">Your Mood Report</h1>
+          <p style="margin: 0;">Date: ${date}</p>
+        </div>
+        <div style="padding: 20px;">
+          <p>Hello,</p>
+          <p>Here is your mood report for the selected date:</p>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead>
+              <tr style="background-color: #f2f2f2;">
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Mood</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Type</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Logged At</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Playlist</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${moodTable}
+            </tbody>
+          </table>
+          <p style="margin-top: 20px;">Thank you for using Moodify!</p>
+        </div>
+        <div style="background-color: #f9f9f9; color: #555; padding: 10px; text-align: center; font-size: 0.9em;">
+          <p style="margin: 0;">Moodify &copy; 2025. All rights reserved.</p>
+        </div>
+      </div>
+    `;
+
+    try {
+      const transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587, // Use 465 for SSL or 587 for TLS
+        secure: false, // Set to true if using port 465
+        auth: {
+          user: process.env.APP_USER, // Your Gmail address
+          pass: process.env.APP_PASSWORD, // Your Gmail app password
+        },
+        tls: {
+          rejectUnauthorized: false, // Allow self-signed certificates
+        },
+      });
+
+      const info = await transporter.sendMail({
+        from: process.env.APP_USER, // Sender address
+        to: email, // Recipient's email
+        subject: "Your Mood Report ✔", // Subject line
+        html: emailContent, // HTML body
+      });
+
+      console.log("Message sent: %s", info.messageId);
+      res.status(200).json({ message: "Mood report sent successfully!" });
+    } catch (error) {
+      console.error("Error sending email:", error);
+      res.status(500).json({ message: "Failed to send mood report. Please try again later." });
+    }
   });
 });
 

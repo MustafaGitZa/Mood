@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mood Report</title>
+  <link rel="stylesheet" href="report.css" />
+</head>
+<body>
+    <nav class="navbar">
+        <ul class="nav-menu">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="contact.html">Contact</a>
+        </ul>
+        <div class="profile-container">
+            <div class="profile-icon" id="profileIcon">
+                <img id="defaultProfileIcon" src="/assets/boy.png" alt="Default User" style="display: none;">
+                <img id="navProfileAvatar" src="" alt="User Avatar" style="display: none;">
+            </div>
+            <div class="profile-expanded-menu" id="profileExpandedMenu">
+                <div class="avatar-section">
+                    <div class="avatar-placeholder">
+                        <div class="profile-initials" id="profileInitials"></div>
+                        <img src="default-avatar.png" alt="User Avatar" class="profile-avatar" id="profileAvatar">
+                    </div>
+                    <div class="user-info">
+                        <span id="userFullName"></span>
+                    </div>
+                </div>
+                <div class="menu-options">
+                    <a href="edit-profile.html">Edit Profile</a>
+                    <a href="login.html">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+  <div class="container">
+    <h1>Your Mood Report</h1>
+    <button id="toggleCalendarBtn">Show Calendar</button>
+
+    <div id="calendarContainer" style="display: none;">
+      <div id="calendarControls" style="margin-bottom: 10px; text-align: center;">
+   
+      </div>
+
+      <div id="calendarHeader" style="text-align: center; font-size: 1.5em; margin-bottom: 10px;"></div>
+
+      <div id="calendar"></div>
+    </div>
+
+    <div id="moodDetails" style="margin-top: 20px;">
+      <h2>Moods for Selected Date</h2>
+      <div id="moodList"></div> <!-- changed from <ul> to <div> for flexibility -->
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+  <script src="report.js"></script>
+</body>
+</html>
+

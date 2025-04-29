@@ -874,6 +874,7 @@ body.modal-active::before {
     max-width: 800px; /* Adapt to screen sizes */
     margin: 0 auto; /* Center container */
     transition: all 0.3s ease-in-out; /* Smooth expansion */
+    text-align: center;
 }
 
 .shared-moods {
@@ -961,4 +962,26 @@ body.modal-active::before {
     .comment-section {
         padding: 15px; /* Reduce padding for smaller screens */
     }
+}
+
+.uplift-mood-container {
+    background: #ffe0f0; /* Soft pastel tone */
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    margin: auto;
+}
+
+.uplift-mood-container h2 {
+    font-size: 22px;
+    color: #ff5f7e;
+    margin-bottom: 10px;
+}
+
+.uplift-mood-container p {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 15px;
 }

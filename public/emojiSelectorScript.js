@@ -18,6 +18,15 @@ const blurOverlay = document.getElementById("blurOverlay"); // Overlay for backg
 // Variables for storing selected mood
 let selectedEmojiMood = "";
 
+// Mapping moods to actual Spotify playlists
+const moodPlaylists = {
+    "Happy": "https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC",  // Happy Hits
+    "Sad": "https://open.spotify.com/playlist/37i9dQZF1DX7qK8ma5wgG1",    // Sad Songs
+    "Angry": "https://open.spotify.com/playlist/37i9dQZF1DWYxwmBaMqxsl",  // Rage Beats
+    "Calm": "https://open.spotify.com/playlist/37i9dQZF1DX3PIPIT6lEg5",   // Calm Vibes
+    "Energetic": "https://open.spotify.com/playlist/37i9dQZF1DX8tZsk68tuDw" // Workout Motivation
+};
+
 // Handle emoji button clicks
 emojiButtons.forEach(button => {
     button.addEventListener("click", function () {
@@ -77,8 +86,14 @@ okSavedButton.addEventListener("click", () => {
 
 // Handle music button click
 musicButton.onclick = function () {
-    const spotifySearchUrl = `https://open.spotify.com/search/${encodeURIComponent(selectedEmojiMood)}`;
-    window.open(spotifySearchUrl, "_blank");
+    let playlistUrl = moodPlaylists[selectedEmojiMood];
+
+    if (!playlistUrl) {
+        // If no direct playlist found, fallback to search
+        playlistUrl = `https://open.spotify.com/search/${encodeURIComponent(selectedEmojiMood)}`;
+    }
+
+    window.open(playlistUrl, "_blank");
 };
 
 // Handle ebook button click
@@ -92,3 +107,4 @@ closeEbookMusicButton.onclick = function () {
     emojiPopup.style.display = "none";
     blurOverlay.style.display = "none";
 };
+

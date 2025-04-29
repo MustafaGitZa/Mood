@@ -207,9 +207,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Function to populate the mood wall preview
     async function populateMoodWall() {
+        const moodWallContainer = document.getElementById("currentMood");
         const recentMoods = await fetchRecentMoods();
     
-        if (recentMoods.length === 0) {
+        if (!recentMoods.length) {
             moodWallContainer.innerHTML = "<p>No recent moods to display.</p>";
             return;
         }
@@ -228,11 +229,15 @@ document.addEventListener("DOMContentLoaded", async function () {
         `;
         previewContainer.appendChild(previewHeader);
     
-        // Add the last 3 moods (hidden initially via CSS)
-        recentMoods.forEach((mood, index) => {
+        // Hidden container for older moods
+        const olderMoodsContainer = document.createElement("div");
+        olderMoodsContainer.className = "older-moods";
+        olderMoodsContainer.style.display = "none"; 
+    
+        // Add the last 3 moods inside hidden container
+        recentMoods.slice(1).forEach((mood) => {
             const moodCard = document.createElement("div");
-            moodCard.className = "mood-card";
-            moodCard.style.animationDelay = `${index * 0.1}s`;
+            moodCard.className = "mood-post";
             moodCard.innerHTML = `
                 <div class="mood-info">
                     <span class="mood-icon">${mood.logged_mood}</span>
@@ -246,20 +251,26 @@ document.addEventListener("DOMContentLoaded", async function () {
                 </div>
                 <button class="share-btn" data-log-id="${mood.log_id}">Share to Community</button>
             `;
-            previewContainer.appendChild(moodCard);
+            olderMoodsContainer.appendChild(moodCard);
         });
     
-        // Expand mood cards on hover
-        previewContainer.addEventListener("mouseenter", () => {
-            previewContainer.classList.add("expanded");
-        });
-        previewContainer.addEventListener("mouseleave", () => {
-            previewContainer.classList.remove("expanded");
-        });
-    
-        // Add the preview container to the mood wall
         moodWallContainer.innerHTML = ""; // Clear existing content
         moodWallContainer.appendChild(previewContainer);
+        moodWallContainer.appendChild(olderMoodsContainer);
+    
+        // Show More button
+        if (recentMoods.length > 1) {
+            const showMoreBtn = document.createElement("button");
+            showMoreBtn.className = "show-more-btn";
+            showMoreBtn.innerText = "🔍 Show More Moods";
+    
+            showMoreBtn.addEventListener("click", () => {
+                olderMoodsContainer.style.display = "block";
+                showMoreBtn.style.display = "none"; // Hide button after clicking
+            });
+    
+            moodWallContainer.appendChild(showMoreBtn);
+        }
     }
     
     // Populate the mood wall
@@ -320,78 +331,65 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
   
-  document.addEventListener('DOMContentLoaded', () => {
-    const currentMood = 'happy';
+document.addEventListener("DOMContentLoaded", () => {
+    const playlistContainer = document.getElementById("moodPlaylist");
+    const showPlaylistButton = document.getElementById("showPlaylistButton");
+    const backToMoodRoomButton = document.getElementById("backToMoodRoom");
 
-    const playlists = {
-        happy: [
-            { title: 'Pharrell Williams - Happy', url: 'https://www.youtube.com/embed/ZbZSe6N_BXs' },
-            { title: 'Justin Timberlake - Can’t Stop The Feeling', url: 'https://www.youtube.com/embed/ru0K8uYEZWw' }
-        ],
-        sad: [
-            { title: 'Lewis Capaldi - Someone You Loved', url: 'https://www.youtube.com/embed/bCuhuePlP8o' },
-            { title: 'Adele - Easy On Me', url: 'https://www.youtube.com/embed/U3ASj1L6_sY' }
-        ],
-        relaxed: [
-            { title: 'Lo-fi Chill Beats', url: 'https://www.youtube.com/embed/jfKfPfyJRdk' },
-            { title: 'Chillhop Essentials', url: 'https://www.youtube.com/embed/7NOSDKb0HlU' }
-        ]
-    };
+    showPlaylistButton.addEventListener("click", () => {
+        const currentMood = "happy"; // Replace with actual mood logic
 
-    const playlistContainer = document.getElementById('moodPlaylist');
-    playlistContainer.innerHTML = ''; // Clear existing content
+        const playlists = {
+            happy: [
+                { title: "Pharrell Williams - Happy", url: "https://www.youtube.com/embed/ZbZSe6N_BXs" },
+                { title: "Justin Timberlake - Can’t Stop The Feeling", url: "https://www.youtube.com/embed/ru0K8uYEZWw" }
+            ],
+            sad: [
+                { title: "Lewis Capaldi - Someone You Loved", url: "https://www.youtube.com/embed/bCuhuePlP8o" },
+                { title: "Adele - Easy On Me", url: "https://www.youtube.com/embed/U3ASj1L6_sY" }
+            ],
+            relaxed: [
+                { title: "Lo-fi Chill Beats", url: "https://www.youtube.com/embed/jfKfPfyJRdk" },
+                { title: "Chillhop Essentials", url: "https://www.youtube.com/embed/7NOSDKb0HlU" }
+            ]
+        };
 
-    if (playlists[currentMood]) {
-        // Create preview container
-        const previewContainer = document.createElement('div');
-        previewContainer.className = 'playlist-preview';
+        showPlaylistButton.style.display = "none"; // Hide button
+        backToMoodRoomButton.style.display = "block"; // Show back button
+        playlistContainer.style.display = "block"; // Show playlist tracks
 
-        // Preview header (first track icon & title)
-        const firstTrack = playlists[currentMood][0];
-        const header = document.createElement('div');
-        header.className = 'playlist-header';
-        header.innerHTML = `
-            <span class="track-icon">🎵</span>
-            <span class="preview-title">Mood Playlist: ${currentMood.toUpperCase()}</span>
-        `;
+        playlistContainer.innerHTML = ""; // Clear previous content
 
-        previewContainer.appendChild(header);
+        if (playlists[currentMood]) {
+            playlists[currentMood].forEach((track) => {
+                const trackCard = document.createElement("div");
+                trackCard.className = "track-card";
+                trackCard.innerHTML = `
+                    <div class="track-info">
+                        <span class="track-icon">🎵</span>
+                        <span class="track-title">${track.title}</span>
+                    </div>
+                    <div class="video-embed">
+                        <iframe width="300" height="169" src="${track.url}" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                `;
+                playlistContainer.appendChild(trackCard);
+            });
+        } else {
+            playlistContainer.innerHTML = "<p>No playlist available for your mood.</p>";
+        }
+    });
 
-        // Add track cards (hidden initially via CSS)
-        playlists[currentMood].forEach((track, index) => {
-            const trackCard = document.createElement('div');
-            trackCard.className = 'track-card';
-            trackCard.style.animationDelay = `${index * 0.1}s`;
-            trackCard.innerHTML = `
-                <div class="track-info">
-                    <span class="track-icon">🎵</span>
-                    <span class="track-title">${track.title}</span>
-                </div>
-                <div class="video-embed">
-                    <iframe width="300" height="169" src="${track.url}" frameborder="0" allowfullscreen></iframe>
-                </div>
-            `;
-            previewContainer.appendChild(trackCard);
-        });
-
-        // Expand on hover
-        previewContainer.addEventListener('mouseenter', () => {
-            previewContainer.classList.add('expanded');
-        });
-        previewContainer.addEventListener('mouseleave', () => {
-            previewContainer.classList.remove('expanded');
-        });
-
-        // Add to DOM
-        playlistContainer.appendChild(previewContainer);
-
-    } else {
-        playlistContainer.innerHTML = '<p>No playlist available for your mood.</p>';
-    }
+    backToMoodRoomButton.addEventListener("click", () => {
+        playlistContainer.style.display = "none"; // Hide playlist
+        showPlaylistButton.style.display = "block"; // Show the button again
+        backToMoodRoomButton.style.display = "none"; // Hide back button
+    });
 });
 
 async function loadCommunityWall() {
     const sharedMoodsContainer = document.getElementById("sharedMoods");
+    const showMoreBtn = document.getElementById("showMoreMoods");
 
     try {
         // Fetch shared moods from the API
@@ -400,30 +398,57 @@ async function loadCommunityWall() {
 
         if (!response.ok || sharedMoods.length === 0) {
             sharedMoodsContainer.innerHTML = "<p>No shared moods to display.</p>";
+            showMoreBtn.style.display = "none"; // Hide button if no moods exist
             return;
         }
 
         // Clear existing content
         sharedMoodsContainer.innerHTML = "";
 
-        // Render each shared mood
-        sharedMoods.forEach((mood) => {
+        // Render the latest mood first
+        const latestMood = sharedMoods[0];
+        const latestMoodCard = document.createElement("div");
+        latestMoodCard.className = "mood-card";
+        latestMoodCard.innerHTML = `
+            <div class="mood-content">
+                <div class="mood-icon">${latestMood.logged_mood}</div>
+                <p class="mood-date">${new Date(latestMood.log_date).toLocaleString()}</p>
+            </div>
+            <div class="mood-actions">
+                <button class="like-btn" data-community-id="${latestMood.community_id}">❤️</button>
+                <button class="comment-toggle-btn" data-community-id="${latestMood.community_id}">💬</button>
+                <button class="repost-btn" data-community-id="${latestMood.community_id}">🔁</button>
+            </div>
+            <div class="comment-section" id="comments-${latestMood.community_id}" style="display: none;">
+                <div class="message-section">
+                    <button class="message-btn" data-community-id="${latestMood.community_id}" data-message="Stay strong!">Stay strong!</button>
+                    <button class="message-btn" data-community-id="${latestMood.community_id}" data-message="You're amazing!">You're amazing!</button>
+                    <button class="message-btn" data-community-id="${latestMood.community_id}" data-message="I can relate!">I can relate!</button>
+                </div>
+                <div class="comment-list"></div>
+            </div>
+        `;
+        sharedMoodsContainer.appendChild(latestMoodCard);
+
+        // Create a container for older moods, initially hidden
+        const olderMoodsContainer = document.createElement("div");
+        olderMoodsContainer.className = "older-moods";
+        olderMoodsContainer.style.display = "none";
+
+        // Add the rest of the moods inside the hidden container
+        sharedMoods.slice(1).forEach((mood) => {
             const moodCard = document.createElement("div");
             moodCard.className = "mood-card";
-
-            // Add mood details
             moodCard.innerHTML = `
                 <div class="mood-content">
                     <div class="mood-icon">${mood.logged_mood}</div>
                     <p class="mood-date">${new Date(mood.log_date).toLocaleString()}</p>
                 </div>
-                <!-- Horizontal action icons -->
                 <div class="mood-actions">
                     <button class="like-btn" data-community-id="${mood.community_id}">❤️</button>
                     <button class="comment-toggle-btn" data-community-id="${mood.community_id}">💬</button>
                     <button class="repost-btn" data-community-id="${mood.community_id}">🔁</button>
                 </div>
-                <!-- Expandable comment section -->
                 <div class="comment-section" id="comments-${mood.community_id}" style="display: none;">
                     <div class="message-section">
                         <button class="message-btn" data-community-id="${mood.community_id}" data-message="Stay strong!">Stay strong!</button>
@@ -433,13 +458,30 @@ async function loadCommunityWall() {
                     <div class="comment-list"></div>
                 </div>
             `;
-            sharedMoodsContainer.appendChild(moodCard);
+            olderMoodsContainer.appendChild(moodCard);
         });
+
+        sharedMoodsContainer.appendChild(olderMoodsContainer);
+
+        // Ensure "Show More" button remains visible if there are older moods
+        if (sharedMoods.length > 1) {
+            showMoreBtn.style.display = "block"; // Ensure it's visible
+
+            showMoreBtn.addEventListener("click", () => {
+                olderMoodsContainer.style.display = "block";
+                showMoreBtn.style.display = "none"; // Hide button after clicking
+            });
+        } else {
+            showMoreBtn.style.display = "none"; // Hide button if only one mood exists
+        }
+
     } catch (error) {
         console.error("Error loading community wall:", error);
         sharedMoodsContainer.innerHTML = "<p>An error occurred while loading the Community Mood Wall.</p>";
+        showMoreBtn.style.display = "none"; // Hide button in case of failure
     }
 }
+
 
 
 // Call this function to load moods when the page is ready

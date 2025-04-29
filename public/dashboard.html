@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MoodSync Dashboard</title>
     <link rel="stylesheet" href="dashboardStyles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 </head>
 <body>
     <nav class="navbar">
@@ -35,36 +37,32 @@
     </nav>
 
     <div class="dashboard-grid">
-        <div class="tips-container">
-            <h2>Tips personified</h2>
-            <p>Below are your tips based on your mood.</p>
-            <button onclick="fetchTip()">Show Personalized Tip</button>
-        </div>
+        
 
         <div class="history-section">
-            <h2>Your Mood Cycle</h2>
-            <p>Unpack your mood trends over a peiod of time.</p>
+            <h2><i class="fas fa-history"></i> Your Mood Cycle</h2>
+            <p>Unpack your mood trends over a period of time.</p>
             <button onclick="window.location.href='/ratings.html'">View History</button>
         </div>
-
+        
         <div class="mood-Room-section">
-            <h2>Mood Room</h2>
-            <p>Unravel a whole new world with the Mood Room</p>
-            <div class="modal" id="moodRoomModal">
-                <div class="modal-content">
-                    <h2>Mood Room</h2>
-                    <p>Explore your emotions and connect with others.</p>
-                    <button class="cta-button" onclick="window.location.href='moodRoom.html'">Explore Mood Room</button>
-                    <button class="close-modal" onclick="closeMoodModal()">Close</button>
-                </div>
-            </div>
+            <h2><i class="fas fa-comments"></i> Mood Room</h2>
+            <p>Explore your emotions and connect with others.</p>
+            <button class="cta-button" onclick="window.location.href='moodRoom.html'">Explore Mood Room</button>
         </div>
-
+        
+        <div class="report-section">
+            <h2><i class="fas fa-chart-line"></i> Your Mood Report</h2>
+            <p>Overall moods over a period of time.</p>
+            <button onclick="window.location.href='/report.html'">View History</button>
+        </div>
+        
         <div class="wellness-section">
-            <h2>Wellness Content</h2>
-            <p> wellness content coming soon.</p>
+            <h2><i class="fas fa-leaf"></i> Wellness Content</h2>
+            <p>Wellness content coming soon.</p>
             <button onclick="window.location.href='/wellness'">Explore Wellness</button>
         </div>
+        
     </div>
     <script src="dashboardScript.js"></script>
     <div id="tipModal" class="modal">

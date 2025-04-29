@@ -1,0 +1,291 @@
+body {
+    font-family: 'Poppins', sans-serif; /* Clean modern font */
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #e3c1a8, #f7c8d3); /* Nude pastel gradient */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100vh; /* Full viewport height */
+    color: #333; /* Subtle dark text color for better readability */
+    transition: all 0.3s ease-in-out; /* Smooth transitions for any updates */
+    text-align: center;
+}
+.navbar {
+    background-color: #9f2d2d; /* Dark red background */
+    width: 100%;
+    height: 50px; /* Reduce navbar height */
+    padding: 5px 15px; /* Slimmer padding */
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Navigation links */
+.nav-menu {
+    display: flex;
+    gap: 15px;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    font-size: 0.9em; /* Slightly smaller text */
+    padding: 8px 12px;
+}
+
+.navbar a:hover {
+    background-color: #f7c8d3;
+    color: #333;
+}
+
+/* Profile Icon Container */
+.profile-container {
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Profile Container - Adjusted for initials and expanded menu */
+.profile-container {
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    display: flex; /* To control icon and menu */
+    align-items: center;
+}
+
+/* Profile Icon (Small icon/initial shown) */
+.profile-icon {
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    border-radius: 50%;
+    /* Use a color that aligns with the general styling */
+    background-color: #f167a1; /* Primary app color */
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    border: 1px solid #e04e89; /* Slightly darker border */
+}
+
+.profile-container:hover .profile-icon {
+    transform: scale(1.1);
+}
+
+/* Profile Initials (Hidden when not expanded) */
+.profile-initials {
+    display: none; /* Initially hidden */
+}
+
+/* Expanded Menu */
+.profile-expanded-menu {
+    display: none;
+    position: absolute;
+    top: 100%; /* Position below the icon */
+    right: 0;
+    /* Use a light background that complements the app */
+    background-color: #f8f0fb; /* Light pinkish background */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    width: 180px; /* Adjust width as needed */
+    text-align: center;
+    padding: 15px;
+    z-index: 10;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+    border: 1px solid #e0e0e0; /* Light border */
+}
+
+.profile-container:hover .profile-expanded-menu {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.avatar-placeholder {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+    border: 1px solid #ddd;
+}
+
+.expanded-initials {
+    font-size: 24px;
+    font-weight: bold;
+    color: #f167a1; /* Use primary app color for initials */
+}
+
+.profile-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.user-info {
+    font-size: 14px;
+    color: #555;
+    font-weight: bold;
+}
+
+.menu-options {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    margin-top: 10px; /* Add some spacing */
+}
+
+.menu-options a {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+    text-align: left;
+    transition: background-color 0.3s ease;
+}
+
+.menu-options a:hover {
+    background-color: #f7c8d3; /* Light hover color */
+    color: #333;
+}
+
+/* Hide the original .profile-menu */
+.profile-menu {
+    display: none !important;
+}
+
+/* Responsiveness for Smaller Screens */
+@media (max-width: 768px) {
+    .profile-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+
+    .avatar-placeholder {
+        width: 50px;
+        height: 50px;
+    }
+
+    .expanded-initials {
+        font-size: 20px;
+    }
+
+    .profile-expanded-menu {
+        width: 150px;
+        font-size: 12px;
+    }
+}
+  
+  .mood-wheel-container {
+    max-width: 420px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.3);
+    padding: 20px;
+    border-radius: 25px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+  
+  h1, p {
+    color: #4a2c2a;
+  }
+  
+  .mood-wheel {
+    position: relative;
+    width: 320px;
+    height: 320px;
+    border: 8px solid #fff;
+    border-radius: 50%;
+    margin: 30px auto;
+    overflow: hidden;
+    background: linear-gradient(45deg, #ffecd2, #fcb69f);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+  }
+  
+  .wheel-options {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform: rotate(0deg);
+    transition: transform 3s ease-out;
+  }
+  
+  .wheel-section {
+    position: absolute;
+    width: 50%;
+    height: 50%;
+    top: 50%;
+    left: 50%;
+    transform-origin: 0% 0%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding-left: 15px;
+    font-size: 14px;
+    color: #4a2c2a;
+    font-weight: bold;
+  }
+  
+  /* Position each section at an angle (360 / 6 = 60 degrees per slice) */
+  .wheel-section:nth-child(1) { transform: rotate(0deg) translate(-50%, -50%); }
+  .wheel-section:nth-child(2) { transform: rotate(60deg) translate(-50%, -50%); }
+  .wheel-section:nth-child(3) { transform: rotate(120deg) translate(-50%, -50%); }
+  .wheel-section:nth-child(4) { transform: rotate(180deg) translate(-50%, -50%); }
+  .wheel-section:nth-child(5) { transform: rotate(240deg) translate(-50%, -50%); }
+  .wheel-section:nth-child(6) { transform: rotate(300deg) translate(-50%, -50%); }
+  
+  button {
+    background: #c26488;
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    margin: 10px;
+    border-radius: 50px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  button:hover {
+    background: #993010;
+  }
+  
+  #selectedActivity, #progressStatus {
+    color: #4a2c2a;
+    font-weight: 600;
+    margin-top: 10px;
+  }
+  
