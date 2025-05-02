@@ -18,9 +18,53 @@
             </ul>
             
         </nav>
-        <div class="chart-container">
-            <h2>Your Mood History</h2>
-            <canvas id="moodChart"></canvas>
-          </div>
+        <!-- Mood Chart Container -->
+    <div class="chart-container">
+        <h2>Your Mood History</h2>
+
+        <!-- Date Range Filter Form -->
+        <form id="dateFilterForm" style="margin-bottom: 20px; display: flex; justify-content: flex-start; align-items: center;">
+            <label for="startDate" style="margin-right: 10px;">From:</label>
+            <input type="date" id="startDate" name="startDate"
+                style="padding: 8px 12px; margin-right: 15px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;" required>
+
+            <label for="endDate" style="margin-right: 10px;">To:</label>
+            <input type="date" id="endDate" name="endDate"
+                style="padding: 8px 12px; margin-right: 15px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;" required>
+
+            <button type="submit"
+                style="background-color: #4CAF50; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s ease;">
+                Filter
+            </button>
+        </form>
+
+        <!-- Mood Chart Canvas -->
+        <canvas id="moodChart"></canvas>
+
+    </div>
+
+    <!-- Mood History Table (Initially Hidden) -->
+    <div id="moodTableContainer" style="margin-top: 30px; display: none;">
+        <h3>Mood History Table</h3>
+        <table id="moodTable" border="1" cellpadding="10" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Date Range</th>
+                    <th>Mood</th>
+                    <th>Time Stamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Table rows will be inserted dynamically -->
+            </tbody>
+        </table>
+
+        <!-- Back to Chart Button -->
+        <div style="text-align: center; margin-top: 20px;">
+            <button id="backToChartButton" style="display: none; padding: 10px 20px; font-size: 16px; border-radius: 4px; background-color: #4CAF50; color: white; cursor: pointer;">
+                Back to Chart
+            </button>
+        </div>
+    </div>
     </body>
 </html>

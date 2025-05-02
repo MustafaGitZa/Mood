@@ -34,28 +34,40 @@
             </div>
         </div>
     </nav>
-  <div class="container">
-    <h1>Your Mood Report</h1>
-    <button id="toggleCalendarBtn">Show Calendar</button>
-
-    <div id="calendarContainer" style="display: none;">
-      <div id="calendarControls" style="margin-bottom: 10px; text-align: center;">
-   
+    <div class="container">
+      <h1>Your Mood Report</h1>
+      <button id="toggleCalendarBtn">Show Calendar</button>
+  
+      <div id="calendarContainer" style="display: none;">
+        <div id="calendarControls" style="margin-bottom: 10px; text-align: center;">
+     
+        </div>
+  
+        <div id="calendarHeader" style="text-align: center; font-size: 1.5em; margin-bottom: 10px;"></div>
+  
+        <div id="calendar"></div>
       </div>
-
-      <div id="calendarHeader" style="text-align: center; font-size: 1.5em; margin-bottom: 10px;"></div>
-
-      <div id="calendar"></div>
-    </div>
-
-    <div id="moodDetails" style="margin-top: 20px;">
-      <h2>Moods for Selected Date</h2>
-      <div id="moodList"></div> <!-- changed from <ul> to <div> for flexibility -->
-    </div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
-  <script src="report.js"></script>
+  
+      <div class="chart-container">
+        <canvas id="moodChart"></canvas>
+      </div>
+      
+      <!-- Table Section -->
+      <div id="moodTableContainer" style="display: none;">
+        <button id="backToChartButton" style="display: none;">Back to Chart</button>
+        <table id="moodTable">
+          <thead>
+            <tr><th>Date</th><th>Mood</th><th>Time</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+  
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <!-- Include Chart.js in your HTML if not already -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+    <script src="report.js"></script>
 </body>
 </html>
 

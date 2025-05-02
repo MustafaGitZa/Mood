@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Mood Room | MoodSync</title>
-    <link rel="stylesheet" href="dashboardStyles.css">
+  <meta charset="UTF-8">
+  <title>Select a Script</title>
+  <link rel="stylesheet" href="report.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
-    <!-- Reuse your existing navbar -->
     <nav class="navbar">
         <ul class="nav-menu">
             <a href="dashboard.html">Dashboard</a>
@@ -35,23 +35,28 @@
         </div>
     </nav>
 
-    <div class="mood-room-container">
-        <h1>Welcome to Your Mood Room</h1>
-        <p>Relax, reflect, and elevate your mood with personalized content.</p>
+  <div class="container">
+    <h1>Select a Report Type</h1>
 
-        <div class="uplift-mood-container">
-            <img src="https://img.icons8.com/color/96/happy--v1.png" alt="Uplifting Icon" class="uplift-icon">
-            <h2>Need a Boost?</h2>
-            <p>Feeling a little off? Spin the wellness wheel and get a fresh pick-me-up activity!</p>
-            <button class="primary-btn" onclick="window.location.href='moodWheel.html'">Uplift My Mood</button>
-        </div>
-        
-    
-        <button class="back-to-dashboard-btn" onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+    <div class="card-container">
+
+      <!-- Calendar Report -->
+      <div class="card">
+        <h2><i class="fas fa-calendar-alt"></i> Mood Calendar</h2>
+        <p>Select a specific day when you logged your mood and view your detailed mood data for that day.</p>
+        <button onclick="location.href='report.html'">Open Calendar</button>
+      </div>
+
+      <!-- Mood History Graph -->
+      <div class="card">
+        <h2><i class="fas fa-chart-line"></i> Mood History Graph</h2>
+        <p>View your mood rating trends in a graph. You can choose a date range to see how your moods varied over time.</p>
+        <button onclick="location.href='ratings.html'">View Graph</button>
+      </div>
+
     </div>
-    
-    
 
-    <script src="dashboardScript.js"></script>
+  </div>
+  <script src="report.js"></script>
 </body>
 </html>
