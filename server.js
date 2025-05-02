@@ -471,6 +471,61 @@ app.post("/logout", (req, res) => {
   });
 });
 
+app.get('/moodlogs/:date', checkDbConnection, async (req, res) => {
+  if (!req.session.userId) {
+    return res.status(403).json({ message: "User not authenticated." });
+  }
+
+  const userId = req.session.userId;
+  const date = new Date(req.params.date).toISOString().split('T')[0];
+
+  try {
+    const [moodLogs] = await db.promise().query(
+      `
+      SELECT ml.logged_mood, mlt.type_name, ml.log_date
+      FROM moodlogs ml
+      JOIN moodlog_types mlt ON ml.type_id = mlt.type_id
+      WHERE ml.user_id = ? AND DATE(ml.log_date) = ?
+      ORDER BY ml.log_date DESC
+      `,
+      [userId, date]
+    );
+
+    const [moodCounts] = await db.promise().query(
+      `
+      SELECT 
+        SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'happy' THEN 1 ELSE 0 END) AS happy,
+        SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'sad' THEN 1 ELSE 0 END) AS sad,
+        SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'angry' THEN 1 ELSE 0 END) AS angry,
+        SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'excited' THEN 1 ELSE 0 END) AS excited,
+        SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'neutral' THEN 1 ELSE 0 END) AS neutral,
+        SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'surprised' THEN 1 ELSE 0 END) AS surprised
+      FROM moodlogs
+      WHERE user_id = ?
+      `,
+      [userId]
+    );
+
+    const [individualMoods] = await db.promise().query(
+      `
+      SELECT 
+        log_date AS dateTime, 
+        logged_mood AS emotion
+      FROM moodlogs
+      WHERE user_id = ?
+      ORDER BY log_date DESC
+      `,
+      [userId]
+    );
+
+    res.json({ moodLogs, moodCounts: moodCounts[0], individualMoods });
+  } catch (error) {
+    console.error('Error in mood report fetch:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 // Fetch tips - with DB check
 app.post("/fetch-tips", checkDbConnection, (req, res) => {
   const userId = req.session?.userId;
@@ -500,6 +555,117 @@ app.post("/fetch-tips", checkDbConnection, (req, res) => {
 
       res.status(200).json({ tip_text: results[0].tip_text });
 
+  });
+});
+
+const moodPlaylists = {
+  "Happy": "https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC",  // Happy Hits
+  "Sad": "https://open.spotify.com/playlist/37i9dQZF1DX7qK8ma5wgG1",    // Sad Songs
+  "Angry": "https://open.spotify.com/playlist/37i9dQZF1DWYxwmBaMqxsl",  // Rage Beats
+  "Calm": "https://open.spotify.com/playlist/37i9dQZF1DX3PIPIT6lEg5",   // Calm Vibes
+  "Energetic": "https://open.spotify.com/playlist/37i9dQZF1DX8tZsk68tuDw" // Workout Motivation
+};
+
+app.post("/send-report", checkDbConnection, async (req, res) => {
+  const userId = req.session?.userId; // Get the logged-in user's ID from the session
+
+  if (!userId) {
+    return res.status(403).json({ message: "User not authenticated." });
+  }
+
+  // Fetch the user's email from the database
+  const getEmailQuery = "SELECT email FROM users WHERE user_id = ?";
+  db.query(getEmailQuery, [userId], async (err, results) => {
+    if (err) {
+      console.error("Error fetching user email:", err);
+      return res.status(500).json({ message: "Error fetching user email." });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const email = results[0].email; // Get the user's email
+    const { moods } = req.body;
+
+    if (!moods || moods.length === 0) {
+      return res.status(400).json({ message: "Mood data is required." });
+    }
+
+    const date = new Date().toISOString().split("T")[0]; // Get current date in YYYY-MM-DD format
+
+    const moodTable = moods
+      .map((mood) => {
+        const playlistUrl = moodPlaylists[mood.logged_mood] || "https://open.spotify.com";
+        return `
+          <tr>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${mood.logged_mood}</td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${mood.type_name}</td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${new Date(mood.log_date).toLocaleString()}</td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
+              <a href="${playlistUrl}" target="_blank">Playlist</a>
+            </td>
+          </tr>`;
+      })
+      .join("");
+
+    const emailContent = `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+        <div style="background-color: #4CAF50; color: white; padding: 20px; text-align: center;">
+          <h1 style="margin: 0;">Your Mood Report</h1>
+          <p style="margin: 0;">Date: ${date}</p>
+        </div>
+        <div style="padding: 20px;">
+          <p>Hello,</p>
+          <p>Here is your mood report for the selected date:</p>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead>
+              <tr style="background-color: #f2f2f2;">
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Mood</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Type</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Logged At</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Playlist</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${moodTable}
+            </tbody>
+          </table>
+          <p style="margin-top: 20px;">Thank you for using Moodify!</p>
+        </div>
+        <div style="background-color: #f9f9f9; color: #555; padding: 10px; text-align: center; font-size: 0.9em;">
+          <p style="margin: 0;">Moodify &copy; 2025. All rights reserved.</p>
+        </div>
+      </div>
+    `;
+
+    try {
+      const transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587, // Use 465 for SSL or 587 for TLS
+        secure: false, // Set to true if using port 465
+        auth: {
+          user: process.env.APP_USER, // Your Gmail address
+          pass: process.env.APP_PASSWORD, // Your Gmail app password
+        },
+        tls: {
+          rejectUnauthorized: false, // Allow self-signed certificates
+        },
+      });
+
+      const info = await transporter.sendMail({
+        from: process.env.APP_USER, // Sender address
+        to: "xnhlapo.nhlapo@gmail.com", // Recipient's email
+        subject: "Your Mood Report ✔", // Subject line
+        html: emailContent, // HTML body
+      });
+
+      console.log("Message sent: %s", info.messageId);
+      res.status(200).json({ message: "Mood report sent successfully!" });
+    } catch (error) {
+      console.error("Error sending email:", error);
+      res.status(500).json({ message: "Failed to send mood report. Please try again later." });
+    }
   });
 });
 
@@ -633,151 +799,6 @@ app.get("/get-profile", (req, res) => {
   });
 });
 
-app.get("/get-mood-logs", checkDbConnection, (req, res) => {
-  const userId = req.query.userId; // Retrieve the user ID from query parameters
-
-  if (!userId) {
-      return res.status(400).json({ message: "User ID is required." });
-  }
-
-  const query = `
-      SELECT m.log_id, m.logged_mood, m.log_date, 
-          (SELECT COUNT(*) FROM reactions WHERE log_id = m.log_id AND reaction = '❤️') AS love_reactions,
-          (SELECT COUNT(*) FROM reactions WHERE log_id = m.log_id AND reaction = '👍') AS thumbs_up_reactions,
-          (SELECT COUNT(*) FROM reactions WHERE log_id = m.log_id AND reaction = '😢') AS sad_reactions,
-          (SELECT COUNT(*) FROM reactions WHERE log_id = m.log_id AND reaction = '🧡') AS orange_heart_reactions
-      FROM moodlogs m
-      WHERE m.user_id = ?
-      ORDER BY m.log_date DESC
-  `;
-
-  db.query(query, [userId], (err, results) => {
-      if (err) {
-          console.error("Error fetching mood logs:", err);
-          return res.status(500).json({ message: "Error fetching mood logs." });
-      }
-
-      res.json(results); // Return mood logs with reaction counts
-  });
-});
-
-app.post("/add-reaction", checkDbConnection, (req, res) => {
-  const { logId, reaction, userId } = req.body;
-
-  if (!logId || !reaction || !userId) {
-      return res.status(400).json({ message: "Log ID, reaction, and user ID are required." });
-  }
-
-  const query = `
-      INSERT INTO reactions (log_id, reaction, user_id)
-      VALUES (?, ?, ?)
-      ON DUPLICATE KEY UPDATE reaction_date = CURRENT_TIMESTAMP
-  `;
-
-  db.query(query, [logId, reaction, userId], (err, result) => {
-      if (err) {
-          console.error("Error adding reaction:", err);
-          return res.status(500).json({ message: "Error adding reaction." });
-      }
-
-      res.json({ message: "Reaction added successfully!" });
-  });
-});
-
-app.post("/share-mood", checkDbConnection, (req, res) => {
-  const { logId } = req.body; // Get mood log ID from request body
-
-  if (!logId) {
-      return res.status(400).json({ message: "Log ID is required." });
-  }
-
-  const query = `
-      INSERT INTO community_wall (log_id)
-      VALUES (?)
-  `;
-
-  db.query(query, [logId], (err) => {
-      if (err) {
-          console.error("Error sharing mood:", err);
-          return res.status(500).json({ message: "Failed to share mood." });
-      }
-
-      res.json({ message: "Mood shared successfully!" });
-  });
-});
-
-app.get("/community-moods", checkDbConnection, (req, res) => {
-  const query = `
-      SELECT m.logged_mood, m.log_date, c.reaction_count
-      FROM moodlogs m
-      JOIN community_wall c ON m.log_id = c.log_id
-      ORDER BY m.log_date DESC
-  `;
-
-  db.query(query, (err, results) => {
-      if (err) {
-          console.error("Error fetching community moods:", err);
-          return res.status(500).json({ message: "Failed to fetch community moods." });
-      }
-
-      res.json(results); // Return shared moods with reaction counts
-  });
-});
-
-app.post("/send-message", (req, res) => {
-  const { communityId, message } = req.body;
-  const query = `INSERT INTO community_comments (community_id, message) VALUES (?, ?)`;
-  db.query(query, [communityId, message], (err) => {
-      if (err) return res.status(500).send("Error sending message.");
-      res.send("Message sent.");
-  });
-});
- 
-
-app.get("/fetch-comments/:communityId", (req, res) => {
-  const communityId = req.params.communityId;
-
-  const query = `
-      SELECT message, comment_date
-      FROM community_comments
-      WHERE community_id = ?
-      ORDER BY comment_date DESC
-  `;
-
-  db.query(query, [communityId], (err, results) => {
-      if (err) {
-          console.error("Error fetching comments:", err);
-          return res.status(500).json({ message: "Failed to fetch comments." });
-      }
-      res.json(results);
-  });
-});
-
-app.post("/add-reaction", (req, res) => {
-  const { communityId } = req.body;
-  const query = `UPDATE community_wall SET reaction_count = reaction_count + 1 WHERE community_id = ?`;
-  db.query(query, [communityId], (err) => {
-      if (err) return res.status(500).send("Error adding reaction.");
-      res.send("Reaction added.");
-  });
-});
-
-app.post("/repost-mood", (req, res) => {
-  const { communityId } = req.body;
-
-  const query = `
-      INSERT INTO community_wall (log_id, reaction_count)
-      SELECT log_id, 0 FROM community_wall WHERE community_id = ?
-  `;
-
-  db.query(query, [communityId], (err) => {
-      if (err) {
-          console.error("Error reposting mood:", err);
-          return res.status(500).json({ message: "Failed to repost mood." });
-      }
-      res.json({ message: "Mood reposted successfully!" });
-  });
-});
 
 
 app.listen(3000, () => {

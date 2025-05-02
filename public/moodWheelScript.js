@@ -1,3 +1,5 @@
+
+
 document.addEventListener("DOMContentLoaded", async function () {
     const profileIcon = document.getElementById("profileIcon");
     const profileExpandedMenu = document.getElementById("profileExpandedMenu");
@@ -131,47 +133,74 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     });
 });
+// Initialize localStorage values if not set
+if (!localStorage.getItem("completedActivities")) {
+    localStorage.setItem("completedActivities", JSON.stringify([]));
+}
+if (!localStorage.getItem("spinCount")) {
+    localStorage.setItem("spinCount", 0);
+}
 
-function fetchTip() {
-    fetch("/fetch-tips", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-    })
-    .then((response) => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+let currentActivity = "";
+
+const wheelContainer = document.querySelector(".wheel-options");
+const activities = [
+    "🌬️ Deep Breathing",
+    "💪 Stretch Routine",
+    "🕺 Dance for 1 Song",
+    "🎨 Draw for 3 Min",
+    "🌳 Step Outside & Breathe",
+    "💌 Write 3 Wins Today"
+];
+
+// Position sections around the wheel
+activities.forEach((activity, index) => {
+    const section = document.createElement("span");
+    section.className = "wheel-section";
+    section.innerHTML = activity;
+    const rotate = index * (360 / activities.length);
+    section.style.transform = `rotate(${rotate}deg) translate(0, -150px) rotate(${-rotate}deg)`;
+    wheelContainer.appendChild(section);
+});
+
+document.getElementById("spinWheelButton").addEventListener("click", () => {
+    let spinCount = parseInt(localStorage.getItem("spinCount")) + 1;
+    localStorage.setItem("spinCount", spinCount);
+
+    const randomAngle = Math.floor(Math.random() * 360) + 720;
+    wheelContainer.style.transform = `rotate(${randomAngle}deg)`;
+
+    setTimeout(() => {
+        const selectedIndex = Math.floor(Math.random() * activities.length);
+        currentActivity = activities[selectedIndex];
+        document.getElementById("selectedActivity").textContent = `🎯 Your activity: ${currentActivity}!`;
+        document.getElementById("completeActivityButton").style.display = "inline-block";
+    }, 3000);
+
+    setTimeout(() => {
+        if (spinCount >= 3) {
+            let completedActivities = JSON.parse(localStorage.getItem("completedActivities"));
+            if (completedActivities.length < 2) {
+                if (confirm("😞 Still not feeling better? Would you like to talk to a professional?")) {
+                    window.location.href = "helpResources.html";
+                }
+            }
         }
-        return response.json();
-    })
-    .then((data) => {
-        if (data.tip_text) {
-            const modalText = document.getElementById("modalTipText");
-            modalText.textContent = data.tip_text;
-            const modal = document.getElementById("tipModal");
-            modal.style.display = "block";
-        } else {
-            alert("No tips found for the logged mood.");
-        }
-    })
-    .catch((error) => {
-        console.error("Error fetching tip:", error);
-        alert("An error occurred while fetching the tip.");
-    });
-}
+    }, 3500);
+});
 
+document.getElementById("completeActivityButton").addEventListener("click", () => {
+    let completedActivities = JSON.parse(localStorage.getItem("completedActivities"));
+    if (!completedActivities.includes(currentActivity)) {
+        completedActivities.push(currentActivity);
+        localStorage.setItem("completedActivities", JSON.stringify(completedActivities));
+    }
+    document.getElementById("progressStatus").textContent = `✅ Completed: ${completedActivities.length}/6 activities`;
+    document.getElementById("completeActivityButton").style.display = "none";
 
-
-function closeModal() {
-    const modal = document.getElementById("tipModal");
-    modal.style.display = "none";
-}
-
-// Define the closeMoodModal function
-function closeMoodModal() {
-    const moodRoomModal = document.getElementById("moodRoomModal"); // Locate the modal element
-    moodRoomModal.style.display = "none"; // Hide the modal
-}
-
-
+    if (completedActivities.length === 6) {
+        alert("🏅 Congrats! You've earned a 'Mood Champion' badge!");
+        localStorage.removeItem("completedActivities");
+        localStorage.setItem("spinCount", 0);
+    }
+});

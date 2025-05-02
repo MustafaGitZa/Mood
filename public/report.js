@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", async function () {
     const profileIcon = document.getElementById("profileIcon");
     const profileExpandedMenu = document.getElementById("profileExpandedMenu");
@@ -120,6 +121,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
+
     profileIcon.addEventListener("click", function (event) {
         event.stopPropagation();
         profileExpandedMenu.classList.toggle("show");
@@ -132,46 +134,160 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
 });
 
-function fetchTip() {
-    fetch("/fetch-tips", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-    })
-    .then((response) => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then((data) => {
-        if (data.tip_text) {
-            const modalText = document.getElementById("modalTipText");
-            modalText.textContent = data.tip_text;
-            const modal = document.getElementById("tipModal");
-            modal.style.display = "block";
-        } else {
-            alert("No tips found for the logged mood.");
-        }
-    })
-    .catch((error) => {
-        console.error("Error fetching tip:", error);
-        alert("An error occurred while fetching the tip.");
+let chartInstance = null;
+
+document.getElementById("toggleCalendarBtn").addEventListener("click", () => {
+  const container = document.getElementById("calendarContainer");
+  container.style.display = container.style.display === "none" ? "block" : "none";
+  if (container.style.display === "block") generateCalendar();
+});
+
+async function generateCalendar() {
+  const calendar = document.getElementById("calendar");
+  calendar.innerHTML = "";
+
+  const today = dayjs();
+  const daysInMonth = today.daysInMonth();
+  const year = today.year();
+  const month = today.month(); // 0-indexed
+
+  const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const headerRow = document.createElement("div");
+  headerRow.classList.add("calendar-row");
+  daysOfWeek.forEach(day => {
+    const dayHeader = document.createElement("div");
+    dayHeader.classList.add("calendar-header");
+    dayHeader.textContent = day;
+    headerRow.appendChild(dayHeader);
+  });
+  calendar.appendChild(headerRow);
+
+  const firstDayOfMonth = today.startOf('month').day();
+
+  let dayRow = document.createElement("div");
+  dayRow.classList.add("calendar-row");
+
+  for (let i = 0; i < firstDayOfMonth; i++) {
+    const emptyCell = document.createElement("div");
+    emptyCell.classList.add("calendar-day", "empty");
+    dayRow.appendChild(emptyCell);
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    const dayDiv = document.createElement("div");
+    dayDiv.classList.add("calendar-day");
+    dayDiv.textContent = day;
+    dayDiv.dataset.date = dateStr;
+
+    dayDiv.addEventListener("click", () => {
+      const formattedDate = dayDiv.dataset.date;
+      console.log("📅 Fetching moods for:", formattedDate);
+      individualMood(formattedDate);
     });
+
+    dayRow.appendChild(dayDiv);
+
+    if ((day + firstDayOfMonth) % 7 === 0) {
+      calendar.appendChild(dayRow);
+      dayRow = document.createElement("div");
+      dayRow.classList.add("calendar-row");
+    }
+  }
+
+  if (dayRow.children.length > 0) {
+    calendar.appendChild(dayRow);
+  }
+}
+
+// 🎯 Fetch mood data and update chart + table
+async function individualMood(date) {
+  try {
+    const response = await fetch(`/moodlogs/${date}`);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+    const result = await response.json();
+
+    console.log("✅ Mood data received:", result);
+
+    if (!Array.isArray(result.moodLogs) || result.moodLogs.length === 0) {
+      alert(`No mood logs found for ${date}`);
+      return;
+    }
+
+    // Build mood count only from moods actually logged on that day
+    const moodCounts = {};
+    result.moodLogs.forEach(log => {
+      const mood = log.logged_mood || log.emotion;
+      if (mood) {
+        moodCounts[mood] = (moodCounts[mood] || 0) + 1;
+      }
+    });
+
+    initializeChart(moodCounts);
+    populateMoodTable(result.moodLogs);
+
+  } catch (error) {
+    console.error("Error in individualMood():", error);
+    alert("Failed to load mood data.");
+  }
 }
 
 
+// 📊 Initialize chart with moodCounts
+function initializeChart(moodCounts) {
+  const ctx = document.getElementById("moodChart").getContext("2d");
 
-function closeModal() {
-    const modal = document.getElementById("tipModal");
-    modal.style.display = "none";
+  const data = {
+    labels: Object.keys(moodCounts),
+    datasets: [{
+      label: 'Mood Count',
+      data: Object.values(moodCounts).map(Number),
+      backgroundColor: [
+        '#FFD700', // happy
+        '#1E90FF', // sad
+        '#FF6347', // angry
+        '#32CD32', // excited
+        '#D3D3D3', // neutral
+        '#800080'  // surprised
+      ],
+      borderWidth: 1
+    }]
+  };
+
+  const config = {
+    type: 'bar',
+    data: data,
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  };
+
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(ctx, config);
 }
 
-// Define the closeMoodModal function
-function closeMoodModal() {
-    const moodRoomModal = document.getElementById("moodRoomModal"); // Locate the modal element
-    moodRoomModal.style.display = "none"; // Hide the modal
+// 📝 Populate mood table
+function populateMoodTable(moodLogs) {
+  const table = document.getElementById("moodTableBody");
+  if (!table) return;
+
+  table.innerHTML = ""; // Clear existing rows
+  moodLogs.forEach(log => {
+    const row = document.createElement("tr");
+    const moodCell = document.createElement("td");
+    const dateCell = document.createElement("td");
+
+    moodCell.textContent = log.logged_mood || log.emotion;
+    dateCell.textContent = new Date(log.log_date || log.dateTime).toLocaleString();
+
+    row.appendChild(moodCell);
+    row.appendChild(dateCell);
+    table.appendChild(row);
+  });
 }
-
-

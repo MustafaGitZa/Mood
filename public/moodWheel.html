@@ -1,15 +1,14 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Mood Room | MoodSync</title>
-    <link rel="stylesheet" href="dashboardStyles.css">
+    <title>Mood Wheel | MoodSync</title>
+    <link rel="stylesheet" href="moodWheelStyles.css">
 </head>
 <body>
-    <!-- Reuse your existing navbar -->
     <nav class="navbar">
         <ul class="nav-menu">
-            <a href="dashboard.html">Dashboard</a>
             <a href="home.html">Home</a>
             <a href="contact.html">Contact</a>
         </ul>
@@ -35,23 +34,31 @@
         </div>
     </nav>
 
-    <div class="mood-room-container">
-        <h1>Welcome to Your Mood Room</h1>
-        <p>Relax, reflect, and elevate your mood with personalized content.</p>
 
-        <div class="uplift-mood-container">
-            <img src="https://img.icons8.com/color/96/happy--v1.png" alt="Uplifting Icon" class="uplift-icon">
-            <h2>Need a Boost?</h2>
-            <p>Feeling a little off? Spin the wellness wheel and get a fresh pick-me-up activity!</p>
-            <button class="primary-btn" onclick="window.location.href='moodWheel.html'">Uplift My Mood</button>
+    <div class="mood-wheel-container">
+        <h1>🎡 Spin to Boost Your Mood!</h1>
+        <p>Let the wheel choose an uplifting activity for you.</p>
+
+        <div class="mood-wheel">
+            <div class="wheel-options">
+                <span class="wheel-section">🌬️ Deep Breathing</span>
+                <span class="wheel-section">💪 Stretch Routine</span>
+                <span class="wheel-section">🕺 Dance for 1 Song</span>
+                <span class="wheel-section">🎨 Draw for 3 Min</span>
+                <span class="wheel-section">🌳 Step Outside & Breathe</span>
+                <span class="wheel-section">💌 Write 3 Wins Today</span>
+			</div>
         </div>
-        
-    
-        <button class="back-to-dashboard-btn" onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
-    </div>
-    
-    
 
-    <script src="dashboardScript.js"></script>
+        <button id="spinWheelButton">🔄 Spin the Wheel!</button>
+        <p id="selectedActivity"></p>
+
+        <button id="completeActivityButton" style="display:none;">✅ I did it!</button>
+        <p id="progressStatus"></p>
+
+        <button onclick="window.location.href='dashboard.html'">⬅️ Back to Dashboard</button>
+    </div>
+
+    <script src="moodWheelScript.js"></script>
 </body>
 </html>
