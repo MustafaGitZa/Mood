@@ -9,6 +9,33 @@
 </head>
 <body>
 
+    <nav class="navbar">
+        <ul class="nav-menu">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="contact.html">Contact</a>
+        </ul>
+        <div class="profile-container">
+            <div class="profile-icon" id="profileIcon">
+                <img id="defaultProfileIcon" src="/assets/boy.png" alt="Default User" style="display: none;">
+                <img id="navProfileAvatar" src="" alt="User Avatar" style="display: none;">
+            </div>
+            <div class="profile-expanded-menu" id="profileExpandedMenu">
+                <div class="avatar-section">
+                    <div class="avatar-placeholder">
+                        <div class="profile-initials" id="profileInitials"></div>
+                        <img src="default-avatar.png" alt="User Avatar" class="profile-avatar" id="profileAvatar">
+                    </div>
+                    <div class="user-info">
+                        <span id="userFullName"></span>
+                    </div>
+                </div>
+                <div class="menu-options">
+                    <a href="edit-profile.html">Edit Profile</a>
+                    <a href="login.html">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
     <h2 id="pageTitle">Select an Ebook/Audio Platform</h2>
 
     <div class="container">

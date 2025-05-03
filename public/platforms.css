@@ -16,10 +16,10 @@ body {
 }
 
 .navbar {
-    background-color: #9f2d2d; /* Dark red background */
+    background-color: #9f2d2d; /* Keep the top navbar color */
     width: 100%;
-    height: 50px; /* Reduce navbar height */
-    padding: 5px 15px; /* Slimmer padding */
+    height: 50px;
+    padding: 5px 15px;
     position: fixed;
     top: 0;
     left: 0;
@@ -38,21 +38,13 @@ body {
 .navbar a {
     color: white;
     text-decoration: none;
-    font-size: 0.9em; /* Slightly smaller text */
+    font-size: 0.9em;
     padding: 8px 12px;
 }
 
 .navbar a:hover {
     background-color: #f7c8d3;
     color: #333;
-}
-
-/* Profile Icon Container */
-.profile-container {
-    position: absolute;
-    right: 40px;
-    top: 50%;
-    transform: translateY(-50%);
 }
 
 /* Profile Container - Adjusted for initials and expanded menu */
@@ -66,32 +58,48 @@ body {
     align-items: center;
 }
 
-/* Profile Icon (Small icon/initial shown) */
 .profile-icon {
     width: 35px;
     height: 35px;
     cursor: pointer;
     border-radius: 50%;
-    /* Use a color that aligns with the general styling */
-    background-color: #f167a1; /* Primary app color */
-    color: white;
+    background-color: transparent; /* Ensure image is visible */
+    color: white; /* Fallback text color */
     font-size: 16px;
     font-weight: bold;
     display: flex;
     justify-content: center;
     align-items: center;
-    object-fit: cover;
+    overflow: hidden; /* Clip content to circle */
     transition: transform 0.3s ease;
-    border: 1px solid #e04e89; /* Slightly darker border */
+    border: 1px solid #e04e89; /* Border */
+}
+
+.profile-icon img#defaultProfileIcon,
+.profile-icon img#navProfileAvatar {
+    display: none; /* Initially hidden, controlled by JS */
+    width: 100%; /* Fill the profile-icon */
+    height: 100%;
+    object-fit: cover; /* Cover the circle */
+    border-radius: 50%; /* Make it circular */
+    position: absolute; /* Position within the profile-icon */
+    top: 0;
+    left: 0;
 }
 
 .profile-container:hover .profile-icon {
     transform: scale(1.1);
 }
 
-/* Profile Initials (Hidden when not expanded) */
-.profile-initials {
-    display: none; /* Initially hidden */
+.profile-icon {
+    /* ... other styles ... */
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* ... other styles ... */
 }
 
 /* Expanded Menu */
@@ -127,6 +135,56 @@ body {
     flex-direction: column;
     align-items: center;
     margin-bottom: 10px;
+}
+.avatar-selection {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#chooseAvatarLabel {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #555;
+}
+
+#selectedAvatarDisplay {
+    width: 80px; /* Adjust size as needed */
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 2px solid #f167a1; /* Highlight selected avatar */
+    display: none; /* Hidden by default */
+}
+
+.avatar-options-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Spacing between avatar options */
+    margin-top: 10px;
+}
+
+.avatar-option {
+    width: 50px; /* Adjust size of options */
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border: 1px solid #ddd;
+}
+
+.avatar-option:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.avatar-option.selected {
+    border: 2px solid #e04e89; /* Indicate selection */
+    transform: scale(1.15);
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
 }
 
 .avatar-placeholder {
