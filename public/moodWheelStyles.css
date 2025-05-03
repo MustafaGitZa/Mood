@@ -168,10 +168,29 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
-/* Text inside Mood Wheel Section */
-h1, p, #selectedActivity, #progressStatus {
-    color: #4a2c2a;
-    font-weight: 600;
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background: #fefefe;
+    padding: 2rem;
+}
+
+.wheel-wrapper {
+    position: relative;
+    width: 350px;
+    margin: 2rem 0;
+}
+
+.wheel-arrow {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-bottom: 20px solid #f167a1;
 }
 
 /* Mood Wheel Wheel Layout */
@@ -197,26 +216,37 @@ h1, p, #selectedActivity, #progressStatus {
 
 .wheel-section {
     position: absolute;
-    width: 50%;
-    height: 50%;
-    top: 50%;
-    left: 50%;
-    transform-origin: 0% 0%;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    padding-left: 15px;
-    font-size: 14px;
-    color: #4a2c2a;
+    width: 100px;
+    height: 36px;
+    background-color: #f167a1;
+    color: white;
+    font-size: 11px;
     font-weight: bold;
+    text-align: center;
+    line-height: 1.2;
+    padding: 6px;
+    border-radius: 8px;
+    transform: translate(-70%, -60%);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    top: 70%;
+    left: 60%;
+}
+.wheel-section:hover {
+    transform: scale(1.1);
+    transition: 0.3s ease-in-out;
 }
 
-.wheel-section:nth-child(1) { transform: rotate(0deg) translate(-50%, -50%); }
-.wheel-section:nth-child(2) { transform: rotate(60deg) translate(-50%, -50%); }
-.wheel-section:nth-child(3) { transform: rotate(120deg) translate(-50%, -50%); }
-.wheel-section:nth-child(4) { transform: rotate(180deg) translate(-50%, -50%); }
-.wheel-section:nth-child(5) { transform: rotate(240deg) translate(-50%, -50%); }
-.wheel-section:nth-child(6) { transform: rotate(300deg) translate(-50%, -50%); }
+.wheel-pointer {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
+
+    width: 10;
+        height: 0;
+        
+  }
 
 /* Buttons Styling */
 button {
