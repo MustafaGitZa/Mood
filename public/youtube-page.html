@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>YouTube Results</title>
+    <link rel="stylesheet" href="platforms.css">
+</head>
+<body>
+    <h2 id="pageTitle">Suggested YouTube results for your mood</h2>
+
+    <div class="container">
+        <div class="results-container">
+            <p>Links for your mood-based playlists and podcasts will appear here (fetched from the database).</p>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const mood = urlParams.get("mood") || "your mood";
+        document.getElementById("pageTitle").textContent = `YouTube results for ${mood}`;
+    </script>
+</body>
+</html>
