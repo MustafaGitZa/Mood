@@ -156,114 +156,90 @@ body {
     display: none !important;
 }
 
-/* Mood Wheel Unified Card Container */
-.mood-wheel-container {
-    max-width: 450px;
-    margin: 90px auto 20px auto;
-    background: rgba(255, 255, 255, 0.6);
-    padding: 25px 30px;
-    border-radius: 25px;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background: #fefefe;
+    padding: 2rem;
 }
 
-/* Text inside Mood Wheel Section */
-h1, p, #selectedActivity, #progressStatus {
-    color: #4a2c2a;
-    font-weight: 600;
-}
-
-/* Mood Wheel Wheel Layout */
-.mood-wheel {
+.wheel-wrapper {
     position: relative;
-    width: 320px;
-    height: 320px;
-    border: 8px solid #fff;
+    width: 350px;
+    margin: 2rem 0;
+}
+
+.wheel-arrow {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-bottom: 20px solid #f167a1;
+}
+
+.mood-wheel {
+    display: flex;
+    width: 300px;
+    height: 300px;
+    justify-content: center;
+  align-items: center;
     border-radius: 50%;
-    margin: 30px auto;
-    overflow: hidden;
-    background: linear-gradient(45deg, #ffecd2, #fcb69f);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+    border: 5px solid #f167a1;
+    margin: 2rem auto;
+    position: relative;
+    overflow: visible;
+    background: #fff;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
 }
 
 .wheel-options {
     position: relative;
-    width: 100%;
-    height: 100%;
-    transform: rotate(0deg);
+    width: 300px;
+    height: 300px;
+    margin: auto;
+    border-radius: 50%;
+    border: 5px solid #f167a1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     transition: transform 3s ease-out;
+    overflow: visible;
 }
 
 .wheel-section {
     position: absolute;
-    width: 50%;
-    height: 50%;
-    top: 50%;
-    left: 50%;
-    transform-origin: 0% 0%;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    padding-left: 15px;
-    font-size: 14px;
-    color: #4a2c2a;
+    width: 100px;
+    height: 36px;
+    background-color: #f167a1;
+    color: white;
+    font-size: 11px;
     font-weight: bold;
+    text-align: center;
+    line-height: 1.2;
+    padding: 6px;
+    border-radius: 8px;
+    transform: translate(-70%, -60%);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    top: 70%;
+    left: 60%;
+}
+.wheel-section:hover {
+    transform: scale(1.1);
+    transition: 0.3s ease-in-out;
 }
 
-.wheel-section:nth-child(1) { transform: rotate(0deg) translate(-50%, -50%); }
-.wheel-section:nth-child(2) { transform: rotate(60deg) translate(-50%, -50%); }
-.wheel-section:nth-child(3) { transform: rotate(120deg) translate(-50%, -50%); }
-.wheel-section:nth-child(4) { transform: rotate(180deg) translate(-50%, -50%); }
-.wheel-section:nth-child(5) { transform: rotate(240deg) translate(-50%, -50%); }
-.wheel-section:nth-child(6) { transform: rotate(300deg) translate(-50%, -50%); }
+.wheel-pointer {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
 
-/* Buttons Styling */
-button {
-    background: #c26488;
-    color: #fff;
-    border: none;
-    padding: 12px 24px;
-    margin: 10px;
-    border-radius: 50px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-button:hover {
-    background: #993010;
-}
-
-/* Responsive Styling */
-@media (max-width: 768px) {
-    .profile-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 18px;
-    }
-
-    .avatar-placeholder {
-        width: 50px;
-        height: 50px;
-    }
-
-    .expanded-initials {
-        font-size: 20px;
-    }
-
-    .profile-expanded-menu {
-        width: 150px;
-        font-size: 12px;
-    }
-
-    .mood-wheel {
-        width: 260px;
-        height: 260px;
-    }
-
-    .mood-wheel-container {
-        max-width: 350px;
-        padding: 20px;
-    }
-}
+    width: 10;
+        height: 0;
+        
+  }

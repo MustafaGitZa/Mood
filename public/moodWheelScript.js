@@ -133,7 +133,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     });
 });
-// Initialize localStorage values if not set
 if (!localStorage.getItem("completedActivities")) {
     localStorage.setItem("completedActivities", JSON.stringify([]));
 }
@@ -152,14 +151,26 @@ const activities = [
     "🌳 Step Outside & Breathe",
     "💌 Write 3 Wins Today"
 ];
+wheelContainer.innerHTML = "";
 
-// Position sections around the wheel
+
+const radius = 70;
 activities.forEach((activity, index) => {
     const section = document.createElement("span");
     section.className = "wheel-section";
     section.innerHTML = activity;
-    const rotate = index * (360 / activities.length);
-    section.style.transform = `rotate(${rotate}deg) translate(0, -150px) rotate(${-rotate}deg)`;
+
+    const angle = (index * 360) / activities.length;
+    const rad = (angle * Math.PI) / 180;
+    const x = Math.cos(rad) * radius;
+    const y = Math.sin(rad) * radius;
+
+    section.style.position = "absolute";
+    section.style.left = "30%";
+    section.style.top = "40%";
+    section.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
+    section.style.transformOrigin = "center";
+
     wheelContainer.appendChild(section);
 });
 
@@ -167,11 +178,15 @@ document.getElementById("spinWheelButton").addEventListener("click", () => {
     let spinCount = parseInt(localStorage.getItem("spinCount")) + 1;
     localStorage.setItem("spinCount", spinCount);
 
-    const randomAngle = Math.floor(Math.random() * 360) + 720;
-    wheelContainer.style.transform = `rotate(${randomAngle}deg)`;
+    const anglePerActivity = 360 / activities.length;
+    const selectedIndex = Math.floor(Math.random() * activities.length);
+    const extraSpins = 5; // Full spins for visual effect
+    const finalAngle = (extraSpins * 360) + (360 - (selectedIndex * anglePerActivity));
+
+    wheelContainer.style.transition = "transform 1.8s ease-out";
+    wheelContainer.style.transform = `rotate(${finalAngle}deg)`;
 
     setTimeout(() => {
-        const selectedIndex = Math.floor(Math.random() * activities.length);
         currentActivity = activities[selectedIndex];
         document.getElementById("selectedActivity").textContent = `🎯 Your activity: ${currentActivity}!`;
         document.getElementById("completeActivityButton").style.display = "inline-block";
@@ -188,6 +203,7 @@ document.getElementById("spinWheelButton").addEventListener("click", () => {
         }
     }, 3500);
 });
+
 
 document.getElementById("completeActivityButton").addEventListener("click", () => {
     let completedActivities = JSON.parse(localStorage.getItem("completedActivities"));
