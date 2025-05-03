@@ -1,0 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #e1c3ad, #e3c7ce);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: #333;
+    transition: all 0.3s ease-in-out;
+    animation: gradientBackground 10s ease infinite;
+}
+
+@keyframes gradientBackground {
+    0%, 100% {
+        background: linear-gradient(135deg, #e3c1a8, #f7c8d3);
+    }
+    50% {
+        background: linear-gradient(135deg, #f7d4e5, #ffe7ca);
+    }
+}
+
+/* Page Title */
+h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #f167a1;
+    font-size: 2.5em;
+    font-weight: 600;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Main Container */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    gap: 3rem;
+    flex-wrap: wrap;
+    width: 90%;
+    max-width: 1200px;
+}
+
+/* Each Platform Box */
+.platform-container {
+    background-color: #fff;
+    padding: 2rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border-radius: 16px;
+    flex: 1 1 300px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 1px solid #ddd;
+}
+
+.platform-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+}
+
+/* Icons */
+.platform-container i {
+    font-size: 5rem;
+    color: #c22265;
+    margin-bottom: 1rem;
+    transition: transform 0.3s;
+}
+
+.platform-container i:hover {
+    transform: scale(1.1);
+}
+
+/* Descriptions */
+.platform-container p {
+    font-size: 1.1em;
+    color: #555;
+    margin: 0 0 1rem;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    background-color: #007b4e;
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #005a39;
+}
+
+/* Responsive Tweaks */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        gap: 2rem;
+    }
+}
