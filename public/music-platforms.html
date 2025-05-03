@@ -4,54 +4,8 @@
     <meta charset="UTF-8">
     <title>Select Music/Podcast Platform</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        body {
-            font-family: sans-serif;
-            background-color: #f9f9f9;
-            text-align: center;
-            padding: 3rem;
-        }
-        h2 {
-            margin-bottom: 1rem;
-        }
-        .container {
-            display: flex;
-            justify-content: space-between;
-            gap: 3rem;
-            flex-wrap: wrap;
-        }
-        .platform-container {
-            width: 45%;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            padding: 2rem;
-            text-align: center;
-        }
-        .platform-container i {
-            font-size: 4rem;
-            color: #333;
-            margin-bottom: 1rem;
-            transition: transform 0.3s;
-        }
-        .platform-container i:hover {
-            transform: scale(1.1);
-        }
-        .btn {
-            background-color: #007b4e;
-            color: white;
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 5px;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 1rem;
-            text-decoration: none;
-        }
-        .btn:hover {
-            background-color: #005a39;
-        }
-    </style>
+    <link rel="stylesheet" href="platforms.css">
+
 </head>
 <body>
 
@@ -73,23 +27,7 @@
         </div>
     </div>
 
-    <script>
-        // Get the mood from the URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const mood = urlParams.get("mood") || "your mood";
-
-        // Change the title dynamically
-        document.getElementById("pageTitle").textContent = `Select a Music/Podcast Platform for ${mood}`;
-
-        // Redirect to the respective platforms when buttons are clicked
-        document.getElementById("spotifyBtn").onclick = () => {
-            window.open(`https://open.spotify.com/search/${encodeURIComponent(mood)}`, "_blank");
-        };
-
-        document.getElementById("youtubeBtn").onclick = () => {
-            window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(mood)} playlist`, "_blank");
-        };
-    </script>
-
+    
+<script src="music-platforms.js"></script>
 </body>
 </html>
