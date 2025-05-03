@@ -204,6 +204,8 @@ app.post("/save-emoji", checkDbConnection, (req, res) => {
   });
 });
 
+//comment
+
 // Register Route (POST) - with DB check
 app.post("/register", checkDbConnection, upload.single("profile_picture"), async (req, res) => {
   console.log("Register request received");
