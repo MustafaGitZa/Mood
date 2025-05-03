@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Select Ebook/Audio Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f9f9f9;
+            text-align: center;
+            padding: 3rem;
+        }
+        h2 {
+            margin-bottom: 1rem;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+            gap: 3rem;
+            flex-wrap: wrap;
+        }
+        .platform-container {
+            width: 45%;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 2rem;
+            text-align: center;
+        }
+        .platform-container i {
+            font-size: 4rem;
+            color: #333;
+            margin-bottom: 1rem;
+            transition: transform 0.3s;
+        }
+        .platform-container i:hover {
+            transform: scale(1.1);
+        }
+        .btn {
+            background-color: #007b4e;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background-color: #005a39;
+        }
+    </style>
+</head>
+<body>
+
+    <h2 id="pageTitle">Select an Ebook/Audio Platform</h2>
+
+    <div class="container">
+        <!-- Google Books Container -->
+        <div class="platform-container">
+            <i class="fas fa-book-open"></i>
+            <p>Google Books: Explore and read ebooks!</p>
+            <a href="#" class="btn" id="googleBooksBtn">Go to Google Books</a>
+        </div>
+
+        <!-- Audible Container -->
+        <div class="platform-container">
+            <i class="fas fa-headphones"></i>
+            <p>Audible: Listen to audiobooks and podcasts!</p>
+            <a href="#" class="btn" id="audibleBtn">Go to Audible</a>
+        </div>
+    </div>
+
+    <script>
+        // Get the mood from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const mood = urlParams.get("mood") || "your mood";
+
+        // Change the title dynamically
+        document.getElementById("pageTitle").textContent = `Select an Ebook/Audio Platform for ${mood}`;
+
+        // Redirect to the respective platforms when buttons are clicked
+        document.getElementById("googleBooksBtn").onclick = () => {
+            window.open(`https://play.google.com/store/search?q=${encodeURIComponent(mood)}&c=books`, "_blank");
+        };
+
+        document.getElementById("audibleBtn").onclick = () => {
+            window.open(`https://www.audible.com/search?keywords=${encodeURIComponent(mood)}`, "_blank");
+        };
+    </script>
+
+</body>
+</html>
