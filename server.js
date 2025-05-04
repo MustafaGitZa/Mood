@@ -817,12 +817,58 @@ app.get('/spotify-results', (req, res) => {
       }
 
       if (results.length === 0) {
-          return res.status(404).send("No playlists found for this mood.");
+          return res.status(404).send("No playlists or podcasts found for this mood.");
       }
 
-      res.json(results[0]); // send back the playlist object
+      const data = results[0]; // Assuming we get the first match for the mood
+      res.json({
+          spotifyPlaylist: {
+              amapianoLink: data.amapiano_link,
+              kwaitoLink: data.kwaito_link,
+              globalLink: data.global_link
+          },
+          podcasts: {
+              podcastLink1: data.podcast_link_1,
+              podcastLink2: data.podcast_link_2
+          }
+      });
   });
 });
+
+
+app.get('/youtube-results', (req, res) => {
+  const mood = req.query.mood;
+
+  if (!mood) {
+      return res.status(400).send("Mood query param is required.");
+  }
+
+  const sql = 'SELECT * FROM youtube_playlist WHERE mood_name = ?';
+  db.query(sql, [mood], (err, results) => {
+      if (err) {
+          console.error(err);
+          return res.status(500).send("Database error");
+      }
+
+      if (results.length === 0) {
+          return res.status(404).send("No playlists or podcasts found for this mood.");
+      }
+
+      const data = results[0]; // Assuming we get the first match for the mood
+      res.json({
+          youtubePlaylist: {
+              amapianoLink: data.amapiano_link,
+              kwaitoLink: data.kwaito_link,
+              globalLink: data.global_link
+          },
+          podcasts: {
+              podcastLink1: data.podcast_link_1,
+              podcastLink2: data.podcast_link_2
+          }
+      });
+  });
+});
+
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");

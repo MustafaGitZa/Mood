@@ -221,9 +221,37 @@
                     }
                 });
             });
+           // Fetching the mood from the query parameter
         const urlParams = new URLSearchParams(window.location.search);
         const mood = urlParams.get("mood") || "your mood";
         document.getElementById("pageTitle").textContent = `YouTube results for ${mood}`;
+
+        // Fetching the YouTube results
+        fetch(`/youtube-results?mood=${encodeURIComponent(mood)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("No playlists or podcasts found.");
+                }
+                return response.json();
+            })
+            .then(data => {
+                const container = document.querySelector(".results-container");
+
+                // Displaying YouTube Playlist links
+                container.innerHTML = `
+                    <h3>Suggested YouTube Playlists:</h3>
+                    <a href="${data.youtubePlaylist.amapianoLink}" target="_blank">Amapiano Playlist</a><br>
+                    <a href="${data.youtubePlaylist.kwaitoLink}" target="_blank">Kwaito Playlist</a><br>
+                    <a href="${data.youtubePlaylist.globalLink}" target="_blank">Global Playlist</a><br><br>
+
+                    <h3>Suggested Podcast Listens:</h3>
+                    <a href="${data.podcasts.podcastLink1}" target="_blank">Podcast 1</a><br>
+                    <a href="${data.podcasts.podcastLink2}" target="_blank">Podcast 2</a>
+                `;
+            })
+            .catch(error => {
+                document.querySelector(".results-container").innerHTML = `<p>${error.message}</p>`;
+            });
     </script>
 </body>
 </html>
