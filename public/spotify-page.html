@@ -225,7 +225,7 @@
                 const mood = urlParams.get("mood") || "your mood";
                 document.getElementById("pageTitle").textContent = `Spotify results for ${mood}`;
 
-                fetch(`/platforms/spotify-results?mood=${encodeURIComponent(mood)}`)
+                fetch(`/spotify-results?mood=${encodeURIComponent(mood)}`)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error("No playlists found.");
