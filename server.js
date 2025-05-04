@@ -801,7 +801,28 @@ app.get("/get-profile", (req, res) => {
   });
 });
 
+// Fetch Spotify playlists for mood
+app.get('/spotify-results', (req, res) => {
+  const mood = req.query.mood;
 
+  if (!mood) {
+      return res.status(400).send("Mood query param is required.");
+  }
+
+  const sql = 'SELECT * FROM spotify_playlist WHERE mood_name = ?';
+  db.query(sql, [mood], (err, results) => {
+      if (err) {
+          console.error(err);
+          return res.status(500).send("Database error");
+      }
+
+      if (results.length === 0) {
+          return res.status(404).send("No playlists found for this mood.");
+      }
+
+      res.json(results[0]); // send back the playlist object
+  });
+});
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
