@@ -921,6 +921,13 @@ app.get("/admin/registered-users", checkDbConnection, (req, res) => {
       res.json(results);
   });
 });
+function checkAdminRole(req, res, next) {
+  if (req.session && req.session.role === 'admin') {
+    next(); // User is admin — proceed
+  } else {
+    res.status(403).json({ message: "Access denied. Admins only." });
+  }
+}
 
 app.post("/admin/update-role", checkDbConnection, checkAdminRole, (req, res) => {
   const { userId, newRole } = req.body;
