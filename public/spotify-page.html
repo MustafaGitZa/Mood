@@ -221,29 +221,37 @@
                     }
                 });
             });
-            const urlParams = new URLSearchParams(window.location.search);
-                const mood = urlParams.get("mood") || "your mood";
-                document.getElementById("pageTitle").textContent = `Spotify results for ${mood}`;
+           // Fetching the mood from the query parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const mood = urlParams.get("mood") || "your mood";
+        document.getElementById("pageTitle").textContent = `Spotify results for ${mood}`;
 
-                fetch(`/spotify-results?mood=${encodeURIComponent(mood)}`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error("No playlists found.");
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        const container = document.querySelector(".results-container");
-                        container.innerHTML = `
-                <h3>Suggested Spotify Playlists:</h3>
-                <a href="${data.amapiano_link}" target="_blank">Amapiano Playlist</a><br>
-                <a href="${data.kwaito_link}" target="_blank">Kwaito Playlist</a><br>
-                <a href="${data.global_link}" target="_blank">Global Playlist</a>
-            `;
-                    })
-                    .catch(error => {
-                        document.querySelector(".results-container").innerHTML = `<p>${error.message}</p>`;
-                    });
+        // Fetching the Spotify results
+        fetch(`/spotify-results?mood=${encodeURIComponent(mood)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("No playlists or podcasts found.");
+                }
+                return response.json();
+            })
+            .then(data => {
+                const container = document.querySelector(".results-container");
+
+                // Displaying Spotify Playlist links
+                container.innerHTML = `
+                    <h3>Suggested Spotify Playlists:</h3>
+                    <a href="${data.spotifyPlaylist.amapianoLink}" target="_blank">Amapiano Playlist</a><br>
+                    <a href="${data.spotifyPlaylist.kwaitoLink}" target="_blank">Kwaito Playlist</a><br>
+                    <a href="${data.spotifyPlaylist.globalLink}" target="_blank">Global Playlist</a><br><br>
+
+                    <h3>Suggested Podcast Listens:</h3>
+                    <a href="${data.podcasts.podcastLink1}" target="_blank">Podcast 1</a><br>
+                    <a href="${data.podcasts.podcastLink2}" target="_blank">Podcast 2</a>
+                `;
+            })
+            .catch(error => {
+                document.querySelector(".results-container").innerHTML = `<p>${error.message}</p>`;
+            });
     </script>
 </body>
 </html>
