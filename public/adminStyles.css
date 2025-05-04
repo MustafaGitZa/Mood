@@ -1,0 +1,365 @@
+/* General Styles */
+body {
+    font-family: 'Poppins', sans-serif; /* Clean modern font */
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #e3c1a8, #f7c8d3); /* Nude pastel gradient */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100vh; /* Full viewport height */
+    color: #333; /* Subtle dark text color for better readability */
+    transition: all 0.3s ease-in-out; /* Smooth transitions for any updates */
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #f167a1;
+    font-size: 2.5em;
+    font-weight: 600;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 1s ease-in-out;
+}
+
+/* Navbar Styles */
+.navbar {
+    background-color: #9f2d2d; /* Dark red background */
+    width: 100%;
+    height: 50px; /* Reduce navbar height */
+    padding: 5px 15px; /* Slimmer padding */
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Navigation links */
+.nav-menu {
+    display: flex;
+    gap: 15px;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    font-size: 0.9em; /* Slightly smaller text */
+    padding: 8px 12px;
+}
+
+.navbar a:hover {
+    background-color: #f7c8d3;
+    color: #333;
+}
+
+/* Card Styles */
+.card {
+    background-color: white; /* White background for the card */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    padding: 20px; /* Add padding inside the card */
+    margin: 20px 0; /* Add spacing between cards */
+    width: 100%; /* Ensure the card takes full width */
+    max-width: 800px; /* Optional: Limit the card's width */
+    overflow-x: auto; /* Allow horizontal scrolling for tables */
+    min-height: 200px; /* Minimum height for the card */
+}
+
+/* Admin Dashboard Grid */
+.admin-dashboard-grid {
+    display: flex; /* Use flexbox layout */
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center items horizontally */
+    justify-content: center; /* Center items vertically */
+    gap: 20px; /* Add spacing between cards */
+    padding: 20px; /* Add padding around the grid */
+    min-height: calc(100vh - 60px); /* Full viewport height minus navbar height */
+    margin-top: 60px; /* Ensure it doesn't overlap with the navbar */
+    width: 100%; /* Full width */
+    max-width: 1200px; /* Limit the maximum width */
+    margin-left: auto; /* Center the grid horizontally */
+    margin-right: auto; /* Center the grid horizontally */
+}
+
+/* Admin Dashboard Container */
+.admin-dashboard-container {
+    width: 100%; /* Ensure full width */
+    text-align: center; /* Optional: Center-align text */
+}
+
+/* Table Styles */
+table {
+    width: 100%; /* Make the table take full width of the card */
+    border-collapse: collapse; /* Remove gaps between table cells */
+}
+
+table th, table td {
+    padding: 10px; /* Add padding inside table cells */
+    text-align: left; /* Align text to the left */
+    border: 1px solid #ddd; /* Add a light border around cells */
+}
+
+table th {
+    background-color: #f7c8d3; /* Light pink background for headers */
+    color: #333; /* Dark text color for headers */
+    font-weight: bold;
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9; /* Light gray background for even rows */
+}
+
+.profile-container {
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    display: flex; /* To control icon and menu */
+    align-items: center;
+}
+
+.profile-icon {
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    border-radius: 50%;
+    background-color: transparent; /* Ensure image is visible */
+    color: white; /* Fallback text color */
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* Clip content to circle */
+    transition: transform 0.3s ease;
+    border: 1px solid #e04e89; /* Border */
+    position: relative; /* For absolute positioning of image */
+}
+
+.profile-icon img#defaultProfileIcon,
+.profile-icon img#navProfileAvatar {
+    display: none; /* Initially hidden, controlled by JS */
+    width: 100%; /* Fill the profile-icon */
+    height: 100%;
+    object-fit: cover; /* Cover the circle */
+    border-radius: 50%; /* Make it circular */
+    position: absolute; /* Position within the profile-icon */
+    top: 0;
+    left: 0;
+}
+
+.profile-container:hover .profile-icon {
+    transform: scale(1.1);
+}
+
+.profile-icon {
+    /* ... other styles ... */
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* ... other styles ... */
+}
+
+/* Expanded Menu */
+.profile-expanded-menu {
+    display: none;
+    position: absolute;
+    top: 100%; /* Position below the icon */
+    right: 0;
+    /* Use a light background that complements the app */
+    background-color: #f8f0fb; /* Light pinkish background */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    width: 180px; /* Adjust width as needed */
+    text-align: center;
+    padding: 15px;
+    z-index: 10;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+    border: 1px solid #e0e0e0; /* Light border */
+}
+
+.profile-container:hover .profile-expanded-menu {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+.profile-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.avatar-placeholder {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+    border: 1px solid #ddd;
+}
+
+.expanded-initials {
+    font-size: 24px;
+    font-weight: bold;
+    color: #f167a1; /* Use primary app color for initials */
+}
+
+.profile-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.user-info {
+    font-size: 14px;
+    color: #555;
+    font-weight: bold;
+}
+
+.menu-options {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    margin-top: 10px; /* Add some spacing */
+}
+
+.menu-options a {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+    text-align: left;
+    transition: background-color 0.3s ease;
+}
+
+.menu-options a:hover {
+    background-color: #f7c8d3; /* Light hover color */
+    color: #333;
+}
+
+/* Hide the original .profile-menu */
+.profile-menu {
+    display: none !important;
+}
+
+/* Responsiveness for Smaller Screens */
+@media (max-width: 768px) {
+    .profile-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+
+    .avatar-placeholder {
+        width: 50px;
+        height: 50px;
+    }
+
+    .expanded-initials {
+        font-size: 20px;
+    }
+
+    .profile-expanded-menu {
+        width: 150px;
+        font-size: 12px;
+    }
+}
+/* Dropdown container */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Dropdown button */
+.dropbtn {
+    background-color: #9f2d2d; /* Dark red background to match navbar */
+    color: white;
+    padding: 8px 16px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+/* Hover effect for dropdown button */
+.dropbtn:hover {
+    background-color: #f7c8d3; /* Light pink hover color */
+    color: #333; /* Dark text color */
+}
+
+/* Dropdown content (hidden by default) */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white; /* White background for dropdown */
+    min-width: 120px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    z-index: 1;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid #ddd; /* Light border */
+}
+
+/* Dropdown links */
+.dropdown-content a {
+    color: #333; /* Dark text color */
+    padding: 10px 12px;
+    text-decoration: none;
+    display: block;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+/* Hover effect for dropdown links */
+.dropdown-content a:hover {
+    background-color: #f7c8d3; /* Light pink hover color */
+    color: #333; /* Dark text color */
+}
+
+/* Show dropdown content on hover */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Search Bar Styles */
+#userSearch {
+    width: 30%; /* Full width */
+    padding: 10px; /* Add padding inside the input */
+    margin-bottom: 15px; /* Add spacing below the search bar */
+    border: 1px solid #ddd; /* Light border */
+    border-radius: 4px; /* Rounded corners */
+    font-size: 14px; /* Match font size with the rest of the page */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+}
+
+/* Search Bar Focus Effect */
+#userSearch:focus {
+    border-color: #9f2d2d; /* Dark red border on focus */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Slightly stronger shadow */
+    outline: none; /* Remove default outline */
+}
