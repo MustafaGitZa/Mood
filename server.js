@@ -910,7 +910,7 @@ app.get("/admin/active-users", checkDbConnection, (req, res) => {
 app.get("/admin/registered-users", checkDbConnection, (req, res) => {
   const query = `
   SELECT user_id, name, surname, username, email, created_at, role
-  FROM moodify_db.users 
+  FROM sql3776573.users 
   ORDER BY user_id ASC 
   `;
   db.query(query, (err, results) => {
