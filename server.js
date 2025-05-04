@@ -230,7 +230,7 @@ app.post("/register", checkDbConnection, upload.single("profile_picture"), async
 
   try {
       const hashedPassword = await bcrypt.hash(password, 10);
-      const query = "INSERT INTO users (username, password, email, name, surname, profile_picture) VALUES (?, ?, ?, ?, ?, ?)";
+      const query = "INSERT INTO users (username, password, email, name, surname, profile_picture,role) VALUES (?, ?, ?, ?, ?, ?,'user')";
       db.query(query, [username, hashedPassword, email, name, surname, profile_picture], (err, result) => {
           if (err) {
               if (err.code === "ER_DUP_ENTRY") {
@@ -272,14 +272,34 @@ app.post("/login", checkDbConnection, (req, res) => {
     } else {
       const user = results[0];
       console.log('User found:', user);
+
+       // Fallback: Set role to "user" if it is null or undefined
+       if (!user.role) {
+        console.log(`User ${user.username} has no role set. Defaulting to "user".`);
+        user.role = "user";
+      }
+
       try {
         const isMatch = await bcrypt.compare(password, user.password);
         if (isMatch) {
+          // Store user details in the session
           req.session.userId = user.user_id;
           req.session.username = user.username;
+          req.session.role = user.role; // Store the user's role in the session
           console.log("Password match successful. Sending userId:", user.user_id);
           console.log('Password match successful for user:', user.username);
-          res.status(200).json({ message: "Login successful!", userId: user.user_id, username: user.username, redirectUrl: "/home" });
+
+          // Update last_login time
+          db.query("UPDATE users SET last_login = NOW() WHERE user_id = ?", [user.user_id], (err) => {
+            if (err) console.error("Failed to update last_login:", err);
+          });
+
+          // Redirect based on role
+          if (user.role === "admin") {
+            res.status(200).json({ message: "Login successful!", userId: user.user_id, username: user.username, redirectUrl: "/admin" });
+          } else {
+            res.status(200).json({ message: "Login successful!", userId: user.user_id, username: user.username, redirectUrl: "/home" });
+          }
         } else {
           res.status(401).json({ message: "Invalid username or password." });
         }
@@ -869,6 +889,71 @@ app.get('/youtube-results', (req, res) => {
   });
 });
 
+// Fetch active users
+app.get("/admin/active-users", checkDbConnection, (req, res) => {
+  const query = `
+      SELECT user_id, name, surname, username, email, last_login 
+      FROM users 
+      WHERE last_login >= NOW() - INTERVAL 7 DAY
+      ORDER BY last_login DESC
+  `;
+  db.query(query, (err, results) => {
+      if (err) {
+          console.error("Error fetching active users:", err);
+          return res.status(500).json({ message: "Error fetching active users." });
+      }
+      res.json(results);
+  });
+});
+
+// Fetch all users
+app.get("/admin/registered-users", checkDbConnection, (req, res) => {
+  const query = `
+  SELECT user_id, name, surname, username, email, created_at, role
+  FROM moodify_db.users 
+  ORDER BY user_id ASC 
+  `;
+  db.query(query, (err, results) => {
+      if (err) {
+          console.error("Error fetching users:", err);
+          return res.status(500).json({ message: "Error fetching users." });
+      }
+      res.json(results);
+  });
+});
+
+app.post("/admin/update-role", checkDbConnection, checkAdminRole, (req, res) => {
+  const { userId, newRole } = req.body;
+
+  console.log("Updating role for userId:", userId, "to newRole:", newRole); // Debugging log
+
+  // Validate the new role
+  if (!["user", "admin"].includes(newRole)) {
+    return res.status(400).json({ message: "Invalid role specified." });
+  }
+
+  const query = "UPDATE users SET role = ? WHERE user_id = ?";
+  db.query(query, [newRole, userId], (err, result) => {
+    if (err) {
+      console.error("Error updating user role:", err);
+      return res.status(500).json({ message: "Error updating user role." });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    res.json({ message: "User role updated successfully!" });
+  });
+});
+
+app.get("/admin", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "admin.html"));
+});
+
+app.get("/home", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "home.html"));
+});
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");

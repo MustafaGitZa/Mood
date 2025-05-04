@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Dashboard</title>
+        <link rel="stylesheet" href="adminStyles.css">
+    </head>
+    <body>
+        <nav class="navbar">
+            <ul class="nav-menu">
+                <a href="home.html">Home</a>
+                <a href="about.html">About</a>
+            </ul>
+            <div class="profile-container">
+                <div class="profile-icon" id="profileIcon">
+                    <img id="defaultProfileIcon" src="/assets/boy.png" alt="Default User" style="display: none;">
+                    <img id="navProfileAvatar" src="" alt="User Avatar" style="display: none;">
+                </div>
+                <div class="profile-expanded-menu" id="profileExpandedMenu">
+                    <div class="avatar-section">
+                        <div class="avatar-placeholder">
+                            <div class="profile-initials" id="profileInitials"></div>
+                            <img src="/assets/default-avatar.png" alt="User Avatar" class="profile-avatar" id="profileAvatar">
+                        </div>
+                        <div class="user-info">
+                            <span id="userFullName"></span>
+                        </div>
+                    </div>
+                    <div class="menu-options">
+                        <a href="edit-profile.html">Edit Profile</a>
+                        <a href="login.html">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="admin-dashboard-grid">
+            <div class="admin-dashboard-container">
+                <h1>Admin Dashboard</h1>
+                <p>Welcome to the admin dashboard. Here you can manage user feedback and view statistics.</p>
+            </div>
+
+            <div class="registered-users card">
+                <div id="totalUsers"></div>
+                <h3>Registered Users</h3>
+
+                <label for="userSearch">Search Users:</label>
+                <input
+                    type="text"
+                    id="userSearch"
+                    placeholder="Search for a user..."
+                />
+                <table id="userTable" border="1" cellspacing="0" cellpadding="8">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Surname</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Created</th>
+                            <th>Role</th> <!-- Added Role Column -->
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="user-details card">
+                <div id="activeUsers"></div>
+                <h3>Active Users (Last 7 Days)</h3>
+                <table id="activeUserTable" border="1" cellspacing="0" cellpadding="8">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Surname</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Last Login</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <script src="adminScript.js"></script>
+    </body>
+</html>
