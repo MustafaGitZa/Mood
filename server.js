@@ -453,11 +453,18 @@ app.delete("/delete-profile", checkDbConnection, (req, res) => {
 
 // Fetch mood data (mood counts) - with DB check
 app.get("/ratings", checkDbConnection, (req, res) => {
-  if (!req.session.userId) {
+  const userId = req.session.userId;
+
+  if (!userId) {
     return res.status(403).json({ message: "User not authenticated." });
   }
 
-  const userId = req.session.userId;
+  const start = req.query.start;
+  const end = req.query.end;
+
+  // If no start or end date is provided, default to current month
+  const startDate = start || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+  const endDate = end || new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0];
 
   const countMoodsQuery = `
     SELECT 
@@ -468,92 +475,36 @@ app.get("/ratings", checkDbConnection, (req, res) => {
       SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'neutral' THEN 1 ELSE 0 END) AS neutral,
       SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'surprised' THEN 1 ELSE 0 END) AS surprised
     FROM moodlogs
-    WHERE user_id = ?;
+    WHERE user_id = ?
+      AND log_date BETWEEN ? AND ?
   `;
 
-  db.query(countMoodsQuery, [userId], (err, results) => {
+  const individualMoodQuery = `
+    SELECT 
+      log_date AS dateTime, 
+      logged_mood AS emotion
+    FROM moodlogs
+    WHERE user_id = ?
+      AND log_date BETWEEN ? AND ?
+    ORDER BY log_date DESC
+  `;
+
+  db.query(countMoodsQuery, [userId, startDate, `${endDate} 23:59:59`], (err, moodCounts) => {
     if (err) {
       console.error("Error counting moods:", err);
       return res.status(500).json({ message: "An error occurred while counting moods." });
     }
 
-    const { happy, sad, angry, excited, neutral, surprised } = results[0];
+    db.query(individualMoodQuery, [userId, startDate, `${endDate} 23:59:59`], (err, individualMoods) => {
+      if (err) {
+        console.error("Error fetching individual moods:", err);
+        return res.status(500).json({ message: "An error occurred while fetching mood records." });
+      }
 
-    res.json({
-      happy,
-      sad,
-      angry,
-      excited,
-      neutral,
-      surprised
+      res.json({ moodCounts, individualMoods });
     });
   });
 });
-
-// Logout
-app.post("/logout", (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      return res.status(500).json({ message: "Error logging out." });
-    }
-    res.status(200).json({ message: "Logout successful!" });
-  });
-});
-
-app.get('/moodlogs/:date', checkDbConnection, async (req, res) => {
-  if (!req.session.userId) {
-    return res.status(403).json({ message: "User not authenticated." });
-  }
-
-  const userId = req.session.userId;
-  const date = new Date(req.params.date).toISOString().split('T')[0];
-
-  try {
-    const [moodLogs] = await db.promise().query(
-      `
-      SELECT ml.logged_mood, mlt.type_name, ml.log_date
-      FROM moodlogs ml
-      JOIN moodlog_types mlt ON ml.type_id = mlt.type_id
-      WHERE ml.user_id = ? AND DATE(ml.log_date) = ?
-      ORDER BY ml.log_date DESC
-      `,
-      [userId, date]
-    );
-
-    const [moodCounts] = await db.promise().query(
-      `
-      SELECT 
-        SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'happy' THEN 1 ELSE 0 END) AS happy,
-        SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'sad' THEN 1 ELSE 0 END) AS sad,
-        SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'angry' THEN 1 ELSE 0 END) AS angry,
-        SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'excited' THEN 1 ELSE 0 END) AS excited,
-        SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'neutral' THEN 1 ELSE 0 END) AS neutral,
-        SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'surprised' THEN 1 ELSE 0 END) AS surprised
-      FROM moodlogs
-      WHERE user_id = ?
-      `,
-      [userId]
-    );
-
-    const [individualMoods] = await db.promise().query(
-      `
-      SELECT 
-        log_date AS dateTime, 
-        logged_mood AS emotion
-      FROM moodlogs
-      WHERE user_id = ?
-      ORDER BY log_date DESC
-      `,
-      [userId]
-    );
-
-    res.json({ moodLogs, moodCounts: moodCounts[0], individualMoods });
-  } catch (error) {
-    console.error('Error in mood report fetch:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
 
 // Fetch tips - with DB check
 app.post("/fetch-tips", checkDbConnection, (req, res) => {
