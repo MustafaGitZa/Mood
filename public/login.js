@@ -1,7 +1,8 @@
 const loginForm = document.getElementById('loginForm');
 const loginSuccessModal = document.getElementById('loginSuccessModal');
-const okButton = document.querySelector('.ok-button'); // Get the OK button
-const loginFailedModal = document.getElementById('loginFailedModal'); // Get the loginFailedModal
+const okButton = document.querySelector('.ok-button'); // Get the OK button. This is correct.
+const loginFailedModal = document.getElementById('loginFailedModal'); //Get the loginFailedModal
+
 
 loginForm.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -24,10 +25,12 @@ loginForm.addEventListener('submit', async (event) => {
             console.log("Storing userId & username in localStorage:", data.userId, data.username);
             localStorage.setItem("userId", data.userId);
             localStorage.setItem("username", data.username);
+            loginSuccessModal.style.display = "flex"; // Show the success modal
 
-            // Redirect based on the role (redirectUrl provided by the server)
-            window.location.href = data.redirectUrl;
+             // Redirect based on the role (redirectUrl provided by the server)
+             window.location.href = data.redirectUrl;
         } else {
+            // alert(data.message);  // Remove alert
             loginFailedModal.style.display = "flex"; // Show the error modal
         }
     } catch (error) {
@@ -36,12 +39,18 @@ loginForm.addEventListener('submit', async (event) => {
     }
 });
 
+//  Add event listener to the OK button to close the modal and redirect.
+okButton.addEventListener('click', () => {
+    loginSuccessModal.style.display = 'none';
+    window.location.href = '/home.html';
+});
+
 // Add event listener for the OK button in the error modal
-const errorOkButton = document.querySelector('.error-ok-button'); // Select the correct button
-if (errorOkButton) { // Check if the button exists
+const errorOkButton = document.querySelector('.error-ok-button');  // Select the correct button
+if (errorOkButton) {  //check if the button exists
     errorOkButton.addEventListener('click', () => {
         loginFailedModal.style.display = 'none';
-        window.location.href = '/login.html'; // Go back to login page
+        window.location.href = '/login.html';  // Go back to login page
     });
 }
 
