@@ -36,13 +36,13 @@ saveMoodButton.addEventListener("click", async function () {
     
         // Music button click → to internal music platform page with mood query param
         musicButton.onclick = function () {
-            const platformPageUrl = `music-platforms.html?mood=${encodeURIComponent(selectedEmojiMood)}`;
+            const platformPageUrl = `music-platforms.html?mood=${encodeURIComponent(moodName)}`;
             window.location.href = platformPageUrl;
         };
     
         // Ebook button click → to internal ebook platform page with mood query param
         ebookButton.onclick = function () {
-            const platformPageUrl = `ebook-platforms.html?mood=${encodeURIComponent(selectedEmojiMood)}`;
+            const platformPageUrl = `ebook-platforms.html?mood=${encodeURIComponent(moodName)}`;
             window.location.href = platformPageUrl;
         };
     
