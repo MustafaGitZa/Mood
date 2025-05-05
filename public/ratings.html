@@ -1,24 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Ratings</title>
-        <link rel="stylesheet" href="styles.css">
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="ratingsScript.js"></script> <!-- Link to External JS -->
-    </head>
-    <body>
-         <!-- Navigation Bar -->
-        <nav class="navbar">
-            <ul class="nav-menu">            
-                <a href="dashboard.html">Dashboard</a>
-                <a href="contact.html">Contact</a>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ratings</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="ratingsScript.js" defer></script>
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <ul class="nav-menu">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="contact.html">Contact</a>
+        </ul>
+        <div class="profile-container">
+            <img src="profile-icon.png" alt="Profile Icon" class="profile-icon" id="profileIcon">
+            <div class="profile-menu" id="profileMenu">
+                <a href="edit-profile.html">My Profile</a>
                 <a href="login.html">Logout</a>
-            </ul>
-            
-        </nav>
-        <!-- Mood Chart Container -->
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mood Chart Container -->
     <div class="chart-container">
         <h2>Your Mood History</h2>
 
@@ -66,5 +74,6 @@
             </button>
         </div>
     </div>
-    </body>
+</body>
+
 </html>
