@@ -159,6 +159,18 @@ function captureMood() {
     console.log("Mood and image saved:", { detectedMood, capturedImage });
 }
 
+// Music button click → to music platform page with mood query param
+musicButton.onclick = function () {
+    const platformPageUrl = `music-platforms.html?mood=${encodeURIComponent(selectedEmojiMood)}`;
+    window.location.href = platformPageUrl;
+};
+
+// Ebook button click → to ebook platform page with mood query param
+ebookButton.onclick = function () {
+    const platformPageUrl = `ebook-platforms.html?mood=${encodeURIComponent(selectedEmojiMood)}`;
+    window.location.href = platformPageUrl;
+};
+
 // Main Function
 (async function main() {
     await startWebcam();

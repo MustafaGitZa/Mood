@@ -33,17 +33,20 @@ saveMoodButton.addEventListener("click", async function () {
         alert(data.message); // Show success message
         blurOverlay.style.display = "block";
         moodPopup.style.display = "block";
-
+    
+        // Music button click → to internal music platform page with mood query param
         musicButton.onclick = function () {
-            const spotifySearchUrl = `https://open.spotify.com/search/${encodeURIComponent(moodName)}`;
-            window.open(spotifySearchUrl, "_blank");
+            const platformPageUrl = `music-platforms.html?mood=${encodeURIComponent(selectedEmojiMood)}`;
+            window.location.href = platformPageUrl;
         };
-
+    
+        // Ebook button click → to internal ebook platform page with mood query param
         ebookButton.onclick = function () {
-            const ebookUrl = "https://play.google.com/store/books?hl=en"; // Modify if needed
-            window.open(ebookUrl, "_blank");
+            const platformPageUrl = `ebook-platforms.html?mood=${encodeURIComponent(selectedEmojiMood)}`;
+            window.location.href = platformPageUrl;
         };
-
+    
+        // Close popup button
         closePopupButton.onclick = function () {
             moodPopup.style.display = "none";
             blurOverlay.style.display = "none";
@@ -52,4 +55,5 @@ saveMoodButton.addEventListener("click", async function () {
         console.error("Error Response Data:", data);
         alert(data.message);
     }
+    
 });
