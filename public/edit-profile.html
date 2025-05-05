@@ -1,44 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Profile</title>
-    <link rel="stylesheet" href="editProfileStyles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Profile</title>
+  <link rel="stylesheet" href="editProfileStyles.css">
+  <link rel="stylesheet" href="modal.css"> <!-- Optional: Separate modal styles -->
 </head>
 <body>
-    <div class="navbar">
-        <a href="/dashboard" class="nav-link">← Back to Dashboard</a>
-        <a href="login.html" class="logout-btn">Logout</a>
+  <div class="navbar">
+    <a href="/dashboard" class="nav-link">← Back to Dashboard</a>
+    <a href="login.html" class="logout-btn">Logout</a>
+  </div>
+
+  <div class="edit-profile-container">
+    <h1>Edit Profile</h1>
+    <form id="editProfileForm">
+      <div class="avatar-selection">
+        <label id="chooseAvatarLabel">Choose an Avatar (Optional)</label><br>
+        <img id="selectedAvatarDisplay" src="" alt="Selected Avatar" style="display:none;">
+        <div class="avatar-options-container">
+          <img src="/assets/lady.png" alt="Avatar Lady" class="avatar-option" data-avatar="/assets/lady.png">
+          <img src="/assets/girl.png" alt="Avatar Girl" class="avatar-option" data-avatar="/assets/girl.png">
+          <img src="/assets/boy.png" alt="Avatar Boy" class="avatar-option" data-avatar="/assets/boy.png">
+          <img src="/assets/gentleman.png" alt="Avatar Gentleman" class="avatar-option" data-avatar="/assets/gentleman.png">
+        </div>
+        <input type="hidden" id="selectedAvatar" name="selectedAvatar" value="">
+      </div>
+      
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" required>
+      <label for="surname">Surname:</label>
+      <input type="text" id="surname" name="surname" required>
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" required>
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required required data-current="">
+      <span id="emailError" class="text-red-500 text-sm"></span>
+      <button type="submit">Update Changes</button>
+    </form>
+
+    <button id="deleteProfileBtn" class="delete-profile-btn">Delete Profile</button>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div id="confirmDeleteModal" class="modal hidden">
+    <div class="modal-content">
+      <p>Are you sure you want to delete your profile? This action cannot be undone.</p>
+      <div class="modal-buttons">
+        <button id="confirmDeleteBtn" class="confirm-btn">Yes, Delete</button>
+        <button id="cancelDeleteBtn" class="cancel-btn">Cancel</button>
+      </div>
     </div>
-    <div class="edit-profile-container">
-        <h1>Edit Profile</h1>
-        <form id="editProfileForm">
-           
-            <div class="avatar-selection">
-                <label id="chooseAvatarLabel">Choose an Avatar (Optional)</label><br>
-                <img id="selectedAvatarDisplay" src="" alt="Selected Avatar" style="display:none;">
-                <div class="avatar-options-container">
-                    <img src="/assets/lady.png" alt="Avatar Lady" class="avatar-option" data-avatar="/assets/lady.png">
-                    <img src="/assets/girl.png" alt="Avatar Girl" class="avatar-option" data-avatar="/assets/girl.png">
-                    <img src="/assets/boy.png" alt="Avatar Boy" class="avatar-option" data-avatar="/assets/boy.png">
-                    <img src="/assets/gentleman.png" alt="Avatar Gentleman" class="avatar-option" data-avatar="/assets/gentleman.png">
-                </div>
-                <input type="hidden" id="selectedAvatar" name="selectedAvatar" value="">
-            </div>
-            
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" required>
-            <label for="surname">Surname:</label>
-            <input type="text" id="surname" name="surname" required>
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
-            <button type="submit">update Changes</button>
-        </form>
-        <button id="deleteProfileBtn" class="delete-profile-btn">Delete Profile</button>
+  </div>
+  <!-- Success Modal -->
+<div id="successModal" class="modal hidden">
+    <div class="modal-content">
+      <p id="successMessageText"></p>
+      <button id="successModalCloseBtn" class="confirm-btn">OK</button>
     </div>
-    <script src="editProfileScript.js"></script>
+  </div>
+  
+
+  <script src="editProfileScript.js"></script>
 </body>
 </html>
+
+

@@ -207,22 +207,13 @@ app.post("/save-emoji", checkDbConnection, (req, res) => {
 //comment
 
 // Register Route (POST) - with DB check
-app.post("/register", checkDbConnection, upload.single("profile_picture"), async (req, res) => {
+app.post("/register", upload.none(), checkDbConnection, async (req, res) => {
   console.log("Register request received");
 
-  const { username, password, email, name, surname } = req.body;
-  console.log("Received user details:", { username, email, name, surname });
+  const { username, password, email, name, surname, avatar_path } = req.body;
+  console.log("Received user details:", { username, email, name, surname, avatar_path });
 
-  let profile_picture = null;
-
-  if (req.file) {
-      console.log("📸 Profile picture received:", req.file.filename);
-      profile_picture = `/uploads/${req.file.filename}`;
-  } else if (req.body.avatar_path) {
-      console.log("Avatar path received:", req.body.avatar_path);
-      profile_picture = req.body.avatar_path;
-  }
-  // If neither a file nor a pre-selected avatar path exists, profile_picture remains null.
+  const profile_picture = avatar_path || null;
 
   if (!username || !password || !email) {
       return res.status(400).json({ message: "Username, password, and email are required." });
@@ -230,7 +221,7 @@ app.post("/register", checkDbConnection, upload.single("profile_picture"), async
 
   try {
       const hashedPassword = await bcrypt.hash(password, 10);
-      const query = "INSERT INTO users (username, password, email, name, surname, profile_picture,role) VALUES (?, ?, ?, ?, ?, ?,'user')";
+      const query = "INSERT INTO users (username, password, email, name, surname, profile_picture) VALUES (?, ?, ?, ?, ?, ?)";
       db.query(query, [username, hashedPassword, email, name, surname, profile_picture], (err, result) => {
           if (err) {
               if (err.code === "ER_DUP_ENTRY") {
@@ -240,13 +231,32 @@ app.post("/register", checkDbConnection, upload.single("profile_picture"), async
                   res.status(500).json({ message: "Error during registration. Please try again later." });
               }
           } else {
-              res.status(201).json({ message: "User registered successfully!" + name });
+              res.status(201).json({ message: "User registered successfully!" });
           }
       });
   } catch (error) {
       console.error("Error hashing password:", error);
-      res.status(500).json({ message: "Internal server error." });
+      res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+app.post("/validate-email", checkDbConnection, express.json(), (req, res) => {
+  const { email } = req.body;
+
+  // Basic input check
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
   }
+
+  const query = "SELECT email FROM users WHERE email = ?";
+  db.query(query, [email], (err, results) => {
+    if (err) {
+      console.error("Error validating email:", err);  // renamed log message
+      return res.status(500).json({ error: "Database error during email validation" });
+    }
+
+    return res.json({ exists: results.length > 0 });
+  });
 });
 
 // Login Route (POST) - with DB check
@@ -267,11 +277,13 @@ app.post("/login", checkDbConnection, (req, res) => {
       console.error("Error during login:", err);
       res.status(500).json({ message: "Error during login. Please try again later." });
     } else if (results.length === 0) {
-      console.log('No user found with username:', username); // Log when no user is found
-      res.status(401).json({ message: "Invalid username or password." });
+      // Username does not exist in the database
+      console.log('No user found with username:', username);
+      res.status(404).json({ message: "Username does not exist." });  // Changed to 404 for "not found"
     } else {
       const user = results[0];
       console.log('User found:', user);
+
 
        // Fallback: Set role to "user" if it is null or undefined
        if (!user.role) {
@@ -301,13 +313,33 @@ app.post("/login", checkDbConnection, (req, res) => {
             res.status(200).json({ message: "Login successful!", userId: user.user_id, username: user.username, redirectUrl: "/home" });
           }
         } else {
-          res.status(401).json({ message: "Invalid username or password." });
+          res.status(401).json({ message: "Username or password is incorrect." });
         }
       } catch (error) {
         console.error("Error comparing passwords:", error);
         res.status(500).json({ message: "Internal server error." });
       }
     }
+  });
+});
+
+//comment
+app.post("/check-email", checkDbConnection, express.json(), (req, res) => {
+  const { email } = req.body;
+
+  // Basic input check
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  const query = "SELECT email FROM users WHERE email = ?";
+  db.query(query, [email], (err, results) => {
+    if (err) {
+      console.error("Error checking email:", err);
+      return res.status(500).json({ error: "Database error while checking email" });
+    }
+
+    return res.json({ exists: results.length > 0 });
   });
 });
 

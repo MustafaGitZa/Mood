@@ -1,7 +1,8 @@
 const loginForm = document.getElementById('loginForm');
 const loginSuccessModal = document.getElementById('loginSuccessModal');
-const okButton = document.querySelector('.ok-button');
-const loginFailedModal = document.getElementById('loginFailedModal');
+const okButton = document.querySelector('.ok-button'); // Get the OK button. This is correct.
+const loginFailedModal = document.getElementById('loginFailedModal'); // Get the loginFailedModal
+const errorMessageElement = loginFailedModal.querySelector('.error-message'); // Get the error message element
 
 loginForm.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -24,13 +25,17 @@ loginForm.addEventListener('submit', async (event) => {
             console.log("Storing userId & username in localStorage:", data.userId, data.username);
             localStorage.setItem("userId", data.userId);
             localStorage.setItem("username", data.username);
-
-            // Store redirectUrl from response
-            localStorage.setItem("redirectUrl", data.redirectUrl);
-
-            loginSuccessModal.style.display = "flex";
+            loginSuccessModal.style.display = "flex"; // Show the success modal
         } else {
-            loginFailedModal.style.display = "flex";
+            // Handle different error messages based on status codes
+            if (response.status === 404) {
+                errorMessageElement.textContent = "Username does not exist.";  // Display this if username does not exist
+            } else if (response.status === 401) {
+                errorMessageElement.textContent = "Username or password is incorrect.";  // Display this if username or password is incorrect
+            } else {
+                errorMessageElement.textContent = "An unexpected error occurred. Please try again.";  // Fallback error message
+            }
+            loginFailedModal.style.display = "flex"; // Show the error modal
         }
     } catch (error) {
         console.error("Error:", error);
@@ -38,18 +43,17 @@ loginForm.addEventListener('submit', async (event) => {
     }
 });
 
-// Success modal OK button — redirect using stored redirectUrl
+// Add event listener to the OK button to close the modal and redirect to home
 okButton.addEventListener('click', () => {
     loginSuccessModal.style.display = 'none';
-    const redirectUrl = localStorage.getItem("redirectUrl") || '/home.html';
-    window.location.href = redirectUrl;
+    window.location.href = '/home.html';
 });
 
-// Error modal OK button
-const errorOkButton = document.querySelector('.error-ok-button');
-if (errorOkButton) {
+// Add event listener for the OK button in the error modal
+const errorOkButton = document.querySelector('.error-ok-button');  // Select the correct button
+if (errorOkButton) {  // Check if the button exists
     errorOkButton.addEventListener('click', () => {
         loginFailedModal.style.display = 'none';
-        window.location.href = '/login.html';
+        window.location.href = '/login.html';  // Go back to the login page
     });
 }
