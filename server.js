@@ -506,6 +506,61 @@ app.get("/ratings", checkDbConnection, (req, res) => {
   });
 });
 
+app.get('/moodlogs/:date', checkDbConnection, async (req, res) => {
+  if (!req.session.userId) {
+    return res.status(403).json({ message: "User not authenticated." });
+  }
+
+  const userId = req.session.userId;
+  const date = new Date(req.params.date).toISOString().split('T')[0];
+
+  try {
+    const [moodLogs] = await db.promise().query(
+      `
+      SELECT ml.logged_mood, mlt.type_name, ml.log_date
+      FROM moodlogs ml
+      JOIN moodlog_types mlt ON ml.type_id = mlt.type_id
+      WHERE ml.user_id = ? AND DATE(ml.log_date) = ?
+      ORDER BY ml.log_date DESC
+      `,
+      [userId, date]
+    );
+
+    const [moodCounts] = await db.promise().query(
+      `
+      SELECT 
+        SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'happy' THEN 1 ELSE 0 END) AS happy,
+        SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'sad' THEN 1 ELSE 0 END) AS sad,
+        SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'angry' THEN 1 ELSE 0 END) AS angry,
+        SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'excited' THEN 1 ELSE 0 END) AS excited,
+        SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'neutral' THEN 1 ELSE 0 END) AS neutral,
+        SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'surprised' THEN 1 ELSE 0 END) AS surprised
+      FROM moodlogs
+      WHERE user_id = ?
+      `,
+      [userId]
+    );
+
+    const [individualMoods] = await db.promise().query(
+      `
+      SELECT 
+        log_date AS dateTime, 
+        logged_mood AS emotion
+      FROM moodlogs
+      WHERE user_id = ?
+      ORDER BY log_date DESC
+      `,
+      [userId]
+    );
+
+    res.json({ moodLogs, moodCounts: moodCounts[0], individualMoods });
+  } catch (error) {
+    console.error('Error in mood report fetch:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 // Fetch tips - with DB check
 app.post("/fetch-tips", checkDbConnection, (req, res) => {
   const userId = req.session?.userId;
