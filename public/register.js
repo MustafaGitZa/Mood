@@ -182,7 +182,7 @@ window.addEventListener('load', function() {
         const successMessageContainer = document.getElementById('successMessageContainer');
         const successMessageElement = document.getElementById('successMessage');
         successMessageElement.textContent = successMessage;
-        successMessageContainer.style.display = 'block'; // Show the success message
+        successMessageContainer.style.display = ''; // Show the success message
         sessionStorage.removeItem('successMessage');
     }
 
