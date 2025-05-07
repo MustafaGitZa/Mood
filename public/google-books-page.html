@@ -41,6 +41,9 @@
             <p>Links for your mood-based eBooks will appear here (fetched from the database).</p>
         </div>
     </div>
+    <div class="navigation-btn">
+        <button onclick="window.location.href='ebook-platforms.html'">⬅️ Back to Platform Selection</button>
+      </div>
 
     <script>
        document.addEventListener("DOMContentLoaded", async function () {
@@ -222,9 +225,32 @@
                 }
             });
         });
-        const urlParams = new URLSearchParams(window.location.search);
-        const mood = urlParams.get("mood") || "your mood";
-        document.getElementById("pageTitle").textContent = `Google Books results for ${mood}`;
+        // Fetch mood from query params
+const urlParams = new URLSearchParams(window.location.search);
+const mood = urlParams.get("mood") || "your mood";
+document.getElementById("pageTitle").textContent = `Ebooks for ${mood}`;
+
+// Fetch ebook results
+fetch(`/ebook-results?mood=${encodeURIComponent(mood)}`)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("No ebooks found for this mood.");
+        }
+        return response.json();
+    })
+    .then(data => {
+        const container = document.querySelector(".results-container");
+
+        container.innerHTML = `
+            <h3>Google Books Recommendations:</h3>
+            <a href="${data.googlebookLinks[0]}" target="_blank">Google Book 1</a><br>
+            <a href="${data.googlebookLinks[1]}" target="_blank">Google Book 2</a>
+        `;
+    })
+    .catch(error => {
+        document.querySelector(".results-container").innerHTML = `<p>${error.message}</p>`;
+    });
+
     </script>
 </body>
 </html>

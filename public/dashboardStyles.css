@@ -12,12 +12,11 @@ body {
     transition: all 0.3s ease-in-out; /* Smooth transitions for any updates */
 }
 
-/* Navbar Styles */
 .navbar {
-    background-color: #9f2d2d; /* Keep the top navbar color */
+    background-color: #9f2d2d; /* Dark red background */
     width: 100%;
-    height: 50px;
-    padding: 5px 15px;
+    height: 50px; /* Reduce navbar height */
+    padding: 5px 15px; /* Slimmer padding */
     position: fixed;
     top: 0;
     left: 0;
@@ -36,13 +35,21 @@ body {
 .navbar a {
     color: white;
     text-decoration: none;
-    font-size: 0.9em;
+    font-size: 0.9em; /* Slightly smaller text */
     padding: 8px 12px;
 }
 
 .navbar a:hover {
     background-color: #f7c8d3;
     color: #333;
+}
+
+/* Profile Icon Container */
+.profile-container {
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 /* Profile Container - Adjusted for initials and expanded menu */
@@ -56,48 +63,32 @@ body {
     align-items: center;
 }
 
+/* Profile Icon (Small icon/initial shown) */
 .profile-icon {
     width: 35px;
     height: 35px;
     cursor: pointer;
     border-radius: 50%;
-    background-color: transparent; /* Ensure image is visible */
-    color: white; /* Fallback text color */
-    font-size: 16px;
-    font-weight: bold;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden; /* Clip content to circle */
-    transition: transform 0.3s ease;
-    border: 1px solid #e04e89; /* Border */
-}
-
-.profile-icon img#defaultProfileIcon,
-.profile-icon img#navProfileAvatar {
-    display: none; /* Initially hidden, controlled by JS */
-    width: 100%; /* Fill the profile-icon */
-    height: 100%;
-    object-fit: cover; /* Cover the circle */
-    border-radius: 50%; /* Make it circular */
-    position: absolute; /* Position within the profile-icon */
-    top: 0;
-    left: 0;
-}
-
-.profile-container:hover .profile-icon {
-    transform: scale(1.1);
-}
-
-.profile-icon {
-    /* ... other styles ... */
+    /* Use a color that aligns with the general styling */
+    background-color: #f167a1; /* Primary app color */
     color: white;
     font-size: 16px;
     font-weight: bold;
     display: flex;
     justify-content: center;
     align-items: center;
-    /* ... other styles ... */
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    border: 1px solid #e04e89; /* Slightly darker border */
+}
+
+.profile-container:hover .profile-icon {
+    transform: scale(1.1);
+}
+
+/* Profile Initials (Hidden when not expanded) */
+.profile-initials {
+    display: none; /* Initially hidden */
 }
 
 /* Expanded Menu */
@@ -133,56 +124,6 @@ body {
     flex-direction: column;
     align-items: center;
     margin-bottom: 10px;
-}
-.avatar-selection {
-    margin-top: 20px;
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-#chooseAvatarLabel {
-    display: block;
-    margin-bottom: 10px;
-    font-weight: bold;
-    color: #555;
-}
-
-#selectedAvatarDisplay {
-    width: 80px; /* Adjust size as needed */
-    height: 80px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 15px;
-    border: 2px solid #f167a1; /* Highlight selected avatar */
-    display: none; /* Hidden by default */
-}
-
-.avatar-options-container {
-    display: flex;
-    justify-content: center;
-    gap: 15px; /* Spacing between avatar options */
-    margin-top: 10px;
-}
-
-.avatar-option {
-    width: 50px; /* Adjust size of options */
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-    cursor: pointer;
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    border: 1px solid #ddd;
-}
-
-.avatar-option:hover {
-    transform: scale(1.1);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-.avatar-option.selected {
-    border: 2px solid #e04e89; /* Indicate selection */
-    transform: scale(1.15);
-    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
 }
 
 .avatar-placeholder {
@@ -269,6 +210,36 @@ body {
         font-size: 12px;
     }
 }
+
+/* Hide the original .profile-menu */
+.profile-menu {
+    display: none !important;
+}
+
+/* Responsiveness for Smaller Screens */
+@media (max-width: 768px) {
+    .profile-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+
+    .avatar-placeholder {
+        width: 50px;
+        height: 50px;
+    }
+
+    .expanded-initials {
+        font-size: 20px;
+    }
+
+    .profile-expanded-menu {
+        width: 150px;
+        font-size: 12px;
+    }
+}
+
+
 /* 4-Block Grid Layout */
 .dashboard-grid {
     display: grid;
@@ -645,7 +616,7 @@ body.modal-active::before {
 /* Primary Button Style */
 .primary-btn {
     padding: 12px 22px;
-    background: #fa0803;
+    background: #bc2866;
     color: #fff;
     font-size: 1em;
     border: none;

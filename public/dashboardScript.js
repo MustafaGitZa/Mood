@@ -1,30 +1,27 @@
 document.addEventListener("DOMContentLoaded", async function () {
-    const profileContainer = document.querySelector(".profile-container");
     const profileIcon = document.getElementById("profileIcon");
-    const expandedInitials = document.getElementById("profileInitials");
+    const profileExpandedMenu = document.getElementById("profileExpandedMenu");
+    const profileInitials = document.getElementById("profileInitials");
+    const userFullNameDisplay = document.getElementById("userFullName");
     const profileAvatarExpanded = document.getElementById("profileAvatar"); // Avatar in expanded menu
-    const userFullName = document.getElementById("userFullName");
-    const welcomeUsernameSpan = document.getElementById("username");
-    const defaultProfileIconImg = document.getElementById("defaultProfileIcon"); // Default icon in navbar
     const navProfileAvatarImg = document.getElementById("navProfileAvatar"); // User avatar in navbar
-
+    const hoverTriggerButton = document.getElementById("hoverTriggerButton");
+   
     try {
         const userId = localStorage.getItem("userId");
         console.log("Retrieved userId:", userId);
 
         if (!userId) {
             console.log("User not logged in.");
-            profileIcon.textContent = "GU"; // Show guest user initials
-            profileIcon.style.backgroundImage = '';
-            profileIcon.style.backgroundColor = '#f167a1';
-            profileIcon.style.color = 'white';
-            profileIcon.style.display = 'flex';
-            profileIcon.style.justifyContent = 'center';
-            profileIcon.style.alignItems = 'center';
-            expandedInitials.textContent = "GU";
-            userFullName.textContent = "Guest User";
-            if (defaultProfileIconImg) {
-                defaultProfileIconImg.style.display = "none"; // Hide default image
+            profileInitials.textContent = "GU";
+            profileIcon.textContent = "G";
+            profileIcon.style.display = "flex";
+            userFullNameDisplay.textContent = "Guest User";
+            if (profileAvatarExpanded) {
+                profileAvatarExpanded.style.display = "none";
+            }
+            if (navProfileAvatarImg) {
+                navProfileAvatarImg.style.display = "none";
             }
             return;
         }
@@ -34,138 +31,96 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         if (usernameResponse.ok && usernameData.username) {
             console.log("Username fetched successfully:", usernameData.username);
-            welcomeUsernameSpan.textContent = usernameData.username;
 
             const username = usernameData.username.trim();
             const initials = username.split(' ').map(name => name[0]).join('').toUpperCase();
-            expandedInitials.textContent = initials;
-            userFullName.textContent = username;
-            profileIcon.textContent = initials.substring(0, 1); // Show first initial in navbar
-            profileIcon.style.backgroundImage = '';
-            profileIcon.style.backgroundColor = '#f167a1';
-            profileIcon.style.color = 'white';
-            profileIcon.style.display = 'flex';
-            profileIcon.style.justifyContent = 'center';
-            profileIcon.style.alignItems = 'center';
+            profileInitials.textContent = initials;
+            userFullNameDisplay.textContent = username;
+            profileIcon.textContent = ""; // We will use the image in the navbar
+            profileIcon.style.display = "flex";
+
+            await fetchUserProfile();
         } else {
             console.error("API error:", usernameData.message);
-            welcomeUsernameSpan.textContent = "Guest";
+            profileInitials.textContent = "GU";
             profileIcon.textContent = "G";
-            profileIcon.style.backgroundImage = '';
-            profileIcon.style.backgroundColor = '#f167a1';
-            profileIcon.style.color = 'white';
-            profileIcon.style.display = 'flex';
-            profileIcon.style.justifyContent = 'center';
-            profileIcon.style.alignItems = 'center';
-            expandedInitials.textContent = "G";
-            userFullName.textContent = "Guest User";
-            if (defaultProfileIconImg) {
-                defaultProfileIconImg.style.display = "none"; // Hide default image
+            profileIcon.style.display = "flex";
+            userFullNameDisplay.textContent = "Guest User";
+            if (profileAvatarExpanded) {
+                profileAvatarExpanded.style.display = "none";
+            }
+            if (navProfileAvatarImg) {
+                navProfileAvatarImg.style.display = "none";
             }
         }
 
-        await fetchUserProfile();
-
     } catch (error) {
         console.error("Error fetching username:", error);
-        welcomeUsernameSpan.textContent = "Guest";
+        profileInitials.textContent = "GU";
         profileIcon.textContent = "G";
-        profileIcon.style.backgroundImage = '';
-        profileIcon.style.backgroundColor = '#f167a1';
-        profileIcon.style.color = 'white';
-        profileIcon.style.display = 'flex';
-        profileIcon.style.justifyContent = 'center';
-        profileIcon.style.alignItems = 'center';
-        expandedInitials.textContent = "G";
-        userFullName.textContent = "Guest User";
-        if (defaultProfileIconImg) {
-            defaultProfileIconImg.style.display = "none"; // Hide default image
+        profileIcon.style.display = "flex";
+        userFullNameDisplay.textContent = "Guest User";
+        if (profileAvatarExpanded) {
+            profileAvatarExpanded.style.display = "none";
         }
         if (navProfileAvatarImg) {
             navProfileAvatarImg.style.display = "none";
-        }
-        if (profileAvatarExpanded) {
-            profileAvatarExpanded.style.display = "none";
         }
     }
 
     async function fetchUserProfile() {
         try {
             const response = await fetch('/getUserProfile');
-            const user = await response.json();
-            const navProfileAvatarImg = document.getElementById("navProfileAvatar"); // Get the navigation bar avatar
-            const profileInitialsExpanded = document.getElementById("profileInitials"); // Get initials in expanded menu
-            const defaultProfileIconImg = document.getElementById("defaultProfileIcon");
+            const userProfileData = await response.json();
 
-            if (user.profile_picture) {
-                console.log("Profile picture URL:", user.profile_picture);
-                profileAvatar.src = user.profile_picture;
-                profileAvatar.style.display = "block";
+            if (userProfileData && userProfileData.profile_picture) {
+                console.log("Profile picture path:", userProfileData.profile_picture);
+                if (profileAvatarExpanded) {
+                    profileAvatarExpanded.src = userProfileData.profile_picture;
+                    profileAvatarExpanded.style.display = "block";
+                    profileInitials.style.display = "none";
+                }
                 if (navProfileAvatarImg) {
-                    navProfileAvatarImg.src = user.profile_picture;
+                    navProfileAvatarImg.src = userProfileData.profile_picture;
                     navProfileAvatarImg.style.display = "block";
+                    profileIcon.textContent = ""; // Ensure no initials are shown if avatar is present
+                } else {
+                    // If navProfileAvatarImg doesn't exist, fallback to initials
+                    profileIcon.textContent = profileInitials.textContent.substring(0, 1);
                 }
-                profileIcon.textContent = ""; // Clear initials
-                profileIcon.style.backgroundImage = `url('${user.profile_picture}')`;
+                profileIcon.style.backgroundImage = `url('${userProfileData.profile_picture}')`;
                 profileIcon.style.backgroundSize = 'cover';
-                profileIcon.style.backgroundColor = 'transparent';
-                if (profileInitialsExpanded) {
-                    profileInitialsExpanded.style.display = "none"; // Hide initials in expanded menu
-                }
-                if (defaultProfileIconImg) {
-                    defaultProfileIconImg.style.display = "none"; // Hide default image
-                }
+                profileIcon.style.backgroundColor = 'transparent'; // Ensure background color doesn't hide image
             } else {
-                profileAvatar.style.display = "none";
+                console.log("No profile picture found, displaying initials.");
+                if (profileAvatarExpanded) {
+                    profileAvatarExpanded.style.display = "none";
+                    profileInitials.style.display = "flex";
+                }
                 if (navProfileAvatarImg) {
-                    navProfileAvatarImg.src = "";
                     navProfileAvatarImg.style.display = "none";
                 }
-                const username = document.getElementById("username").textContent;
-                const initials = username.split(' ').map(name => name[0]).join('').toUpperCase();
-                profileIcon.textContent = initials.substring(0, 1); // Show first initial in navbar
-                profileIcon.style.backgroundImage = '';
-                profileIcon.style.backgroundColor = '#f167a1';
-                profileIcon.style.color = 'white';
-                profileIcon.style.display = 'flex';
-                profileIcon.style.justifyContent = 'center';
-                profileIcon.style.alignItems = 'center';
-                if (profileInitialsExpanded) {
-                    profileInitialsExpanded.style.display = "flex"; // Show initials in expanded menu
-                }
-                if (defaultProfileIconImg) {
-                    defaultProfileIconImg.style.display = "none"; // Hide default image
-                }
+                profileIcon.textContent = profileInitials.textContent.substring(0, 1);
+                profileIcon.style.backgroundImage = ''; // Remove any background image
+                profileIcon.style.backgroundColor = '#f167a1'; // Set default background color
             }
         } catch (error) {
             console.error("Error loading profile picture:", error);
-            profileAvatar.src = "default-avatar.png";
-            profileAvatar.style.display = "none";
-            const navProfileAvatarImg = document.getElementById("navProfileAvatar");
+            if (profileAvatarExpanded) {
+                profileAvatarExpanded.src = "default-avatar.png"; // Fallback image on error
+                profileAvatarExpanded.style.display = "block";
+                profileInitials.style.display = "none";
+            }
             if (navProfileAvatarImg) {
-                navProfileAvatarImg.src = "";
                 navProfileAvatarImg.style.display = "none";
             }
-            const username = document.getElementById("username").textContent;
-            const initials = username.split(' ').map(name => name[0]).join('').toUpperCase();
-            profileIcon.textContent = initials.substring(0, 1); // Show first initial in navbar on error
+            profileIcon.textContent = profileInitials.textContent.substring(0, 1);
             profileIcon.style.backgroundImage = '';
             profileIcon.style.backgroundColor = '#f167a1';
-            profileIcon.style.color = 'white';
-            profileIcon.style.display = 'flex';
-            profileIcon.style.justifyContent = 'center';
-            profileIcon.style.alignItems = 'center';
-            const profileInitialsExpanded = document.getElementById("profileInitials");
-            if (profileInitialsExpanded) {
-                profileInitialsExpanded.style.display = "flex"; // Show initials in expanded menu on error
-            }
-            if (defaultProfileIconImg) {
-                defaultProfileIconImg.style.display = "none"; // Hide default image
-            }
         }
     }
 
-    const profileExpandedMenu = document.getElementById("profileExpandedMenu");
+
     profileIcon.addEventListener("click", function (event) {
         event.stopPropagation();
         profileExpandedMenu.classList.toggle("show");
@@ -177,6 +132,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     });
 });
+
 function fetchTip() {
     fetch("/fetch-tips", {
         method: "POST",
@@ -218,5 +174,4 @@ function closeMoodModal() {
     const moodRoomModal = document.getElementById("moodRoomModal"); // Locate the modal element
     moodRoomModal.style.display = "none"; // Hide the modal
 }
-
 

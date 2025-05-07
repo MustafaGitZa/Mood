@@ -134,14 +134,44 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
 });
 
+document.addEventListener("DOMContentLoaded", function() {
+  const exportBtn = document.getElementById("exportReportButton");
+  if (exportBtn) {
+    exportBtn.addEventListener("click", function() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      // Add title
+      doc.setFontSize(18);
+      doc.text("Mood History Report", 20, 20);
+
+      // Add chart image
+      const canvas = document.getElementById("moodChart");
+      const imgData = canvas.toDataURL("image/png");
+      doc.addImage(imgData, "PNG", 20, 30, 170, 100);
+
+      // Save the PDF
+      doc.save("Mood_Report.pdf");
+    });
+  }
+});
+
+
 let chartInstance = null;
 
+// Toggle calendar visibility
 document.getElementById("toggleCalendarBtn").addEventListener("click", () => {
   const container = document.getElementById("calendarContainer");
   container.style.display = container.style.display === "none" ? "block" : "none";
-  if (container.style.display === "block") generateCalendar();
+
+  // Hide chart when calendar is shown
+  if (container.style.display === "block") {
+    generateCalendar();
+    document.querySelector(".chart-container").style.display = "block";
+  }
 });
 
+// Generate calendar grid
 async function generateCalendar() {
   const calendar = document.getElementById("calendar");
   calendar.innerHTML = "";
@@ -149,7 +179,7 @@ async function generateCalendar() {
   const today = dayjs();
   const daysInMonth = today.daysInMonth();
   const year = today.year();
-  const month = today.month(); // 0-indexed
+  const month = today.month();
 
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const headerRow = document.createElement("div");
@@ -200,14 +230,13 @@ async function generateCalendar() {
   }
 }
 
-// 🎯 Fetch mood data and update chart + table
+// Fetch and process individual mood logs
 async function individualMood(date) {
   try {
     const response = await fetch(`/moodlogs/${date}`);
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
     const result = await response.json();
-
     console.log("✅ Mood data received:", result);
 
     if (!Array.isArray(result.moodLogs) || result.moodLogs.length === 0) {
@@ -215,7 +244,6 @@ async function individualMood(date) {
       return;
     }
 
-    // Build mood count only from moods actually logged on that day
     const moodCounts = {};
     result.moodLogs.forEach(log => {
       const mood = log.logged_mood || log.emotion;
@@ -226,15 +254,13 @@ async function individualMood(date) {
 
     initializeChart(moodCounts);
     populateMoodTable(result.moodLogs);
-
   } catch (error) {
     console.error("Error in individualMood():", error);
     alert("Failed to load mood data.");
   }
 }
 
-
-// 📊 Initialize chart with moodCounts
+// Render mood chart
 function initializeChart(moodCounts) {
   const ctx = document.getElementById("moodChart").getContext("2d");
 
@@ -270,24 +296,91 @@ function initializeChart(moodCounts) {
 
   if (chartInstance) chartInstance.destroy();
   chartInstance = new Chart(ctx, config);
+
+  // Show chart after rendering
+  document.querySelector("#moodModal .chart-container").style.display = "block";
 }
 
-// 📝 Populate mood table
+
+// Populate modal mood table
 function populateMoodTable(moodLogs) {
-  const table = document.getElementById("moodTableBody");
-  if (!table) return;
+  const tableBody = document.getElementById("moodTableBody");
+  const modal = document.getElementById("moodModal");
+  const table = document.getElementById("moodTable");
 
-  table.innerHTML = ""; // Clear existing rows
-  moodLogs.forEach(log => {
-    const row = document.createElement("tr");
-    const moodCell = document.createElement("td");
-    const dateCell = document.createElement("td");
+  tableBody.innerHTML = "";
 
-    moodCell.textContent = log.logged_mood || log.emotion;
-    dateCell.textContent = new Date(log.log_date || log.dateTime).toLocaleString();
+    moodLogs.forEach(log => {
+      const row = document.createElement("tr");
+      const dateCell = document.createElement("td");
+      const moodCell = document.createElement("td");
+      const timeCell = document.createElement("td");
 
-    row.appendChild(moodCell);
-    row.appendChild(dateCell);
-    table.appendChild(row);
-  });
+      dateCell.textContent = new Date(log.dateTime).toLocaleDateString();
+      moodCell.textContent = log.emotion || log.logged_mood;
+      timeCell.textContent = new Date(log.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      row.appendChild(dateCell);
+      row.appendChild(moodCell);
+      row.appendChild(timeCell);
+      tableBody.appendChild(row);
+    });
+  
+
+  // Show the modal and the table
+  modal.classList.add("show");
+ 
 }
+
+
+// Close modal
+function closeMoodModal() {
+  document.getElementById("moodModal").classList.remove("show");
+}
+
+document.getElementById("sendMoodBtn").addEventListener("click", () => {
+  const email = prompt("Enter the recipient's email address:");
+  if (!email) {
+    alert("Email is required to send the report.");
+    return;
+  }
+
+  // Collect mood data from the table
+  const rows = document.querySelectorAll("#moodTableBody tr");
+  if (rows.length === 0) {
+    alert("No mood data available to send.");
+    return;
+  }
+
+  const moodData = [];
+
+  rows.forEach(row => {
+    const cells = row.querySelectorAll("td");
+    moodData.push({
+      date: cells[0].textContent,
+      mood: cells[1].textContent,
+      time: cells[2].textContent
+    });
+  });
+
+  // Send POST request to backend API route
+  fetch("/send-report", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: `email=${encodeURIComponent(email)}&moodData=${encodeURIComponent(JSON.stringify(moodData))}`
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.status === "success") {
+      alert("✅ " + data.message);
+    } else {
+      alert("❌ " + data.message);
+    }
+  })
+  .catch(error => {
+    console.error("Error sending mood report:", error);
+    alert("An error occurred while sending the email.");
+  });
+});

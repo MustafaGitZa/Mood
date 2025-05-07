@@ -42,13 +42,11 @@
         
         <div class="mood-wheel">
           
-            <div class="wheel-options">
-
-                
-            </div>
-            
+            <div class="wheel-options"></div>
+           
+            <div class="wheel-pointer" >🔻</div>
         </div>
-        <div class="wheel-pointer" style="position: relative; width: 320px; margin: auto;">🔻</div>
+        
 
         <button id="spinWheelButton">🔄 Spin the Wheel!</button>
         <p id="selectedActivity"></p>
@@ -56,8 +54,18 @@
         <button id="completeActivityButton" style="display:none;">✅ I did it!</button>
         <p id="progressStatus"></p>
 
+
         <button onclick="window.location.href='dashboard.html'">⬅️ Back to Dashboard</button>
     </div>
+    <div id="badgeContainer" style="display:none; text-align:center; margin-top:20px;">
+        <h2>🏅 Mood Champion!</h2>
+        <p>You’ve completed all activities — well done!</p>
+        <div style="font-size: 80px;">🎖️</div>
+        <br>
+        <button id="shareBadgeButton" style="display:none;">📧 Share Your Badge</button>
+
+    </div>
+    
 
     <script src="moodWheelScript.js"></script>
 </body>
