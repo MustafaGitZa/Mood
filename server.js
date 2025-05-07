@@ -955,81 +955,6 @@ app.get('/youtube-results', (req, res) => {
 });
 
 
-
-
-// Fetch active users
-app.get("/admin/active-users", checkDbConnection, (req, res) => {
-  const query = `
-      SELECT user_id, name, surname, username, email, last_login 
-      FROM users 
-      WHERE last_login >= NOW() - INTERVAL 7 DAY
-      ORDER BY last_login DESC
-  `;
-  db.query(query, (err, results) => {
-      if (err) {
-          console.error("Error fetching active users:", err);
-          return res.status(500).json({ message: "Error fetching active users." });
-      }
-      res.json(results);
-  });
-});
-
-// Fetch all users
-app.get("/admin/registered-users", checkDbConnection, (req, res) => {
-  const query = `
-  SELECT user_id, name, surname, username, email, registration_date, role
-  FROM sql3776573.users 
-  ORDER BY user_id ASC 
-  `;
-  db.query(query, (err, results) => {
-      if (err) {
-          console.error("Error fetching users:", err);
-          return res.status(500).json({ message: "Error fetching users." });
-      }
-      res.json(results);
-  });
-});
-function checkAdminRole(req, res, next) {
-  if (req.session && req.session.role === 'admin') {
-    next(); // User is admin — proceed
-  } else {
-    res.status(403).json({ message: "Access denied. Admins only." });
-  }
-}
-
-app.post("/admin/update-role", checkDbConnection, checkAdminRole, (req, res) => {
-  const { userId, newRole } = req.body;
-
-  console.log("Updating role for userId:", userId, "to newRole:", newRole); // Debugging log
-
-  // Validate the new role
-  if (!["user", "admin"].includes(newRole)) {
-    return res.status(400).json({ message: "Invalid role specified." });
-  }
-
-  const query = "UPDATE users SET role = ? WHERE user_id = ?";
-  db.query(query, [newRole, userId], (err, result) => {
-    if (err) {
-      console.error("Error updating user role:", err);
-      return res.status(500).json({ message: "Error updating user role." });
-    }
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "User not found." });
-    }
-
-    res.json({ message: "User role updated successfully!" });
-  });
-});
-
-app.get("/admin", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "admin.html"));
-});
-
-app.get("/home", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "home.html"));
-});
-
 app.post("/validate-email", checkDbConnection, express.json(), (req, res) => {
   const { email } = req.body;
 
@@ -1119,6 +1044,384 @@ app.post("/send-badge", async (req, res) =>{
   }
 });
 
+
+// Fetch active users
+app.get("/admin/active-users", checkDbConnection, (req, res) => {
+  const query = `
+      SELECT user_id, name, surname, username, email, last_login 
+      FROM users 
+      WHERE last_login >= NOW() - INTERVAL 7 DAY
+      ORDER BY last_login DESC
+  `;
+  db.query(query, (err, results) => {
+      if (err) {
+          console.error("Error fetching active users:", err);
+          return res.status(500).json({ message: "Error fetching active users." });
+      }
+      res.json(results);
+  });
+});
+
+// Fetch all users
+app.get("/admin/registered-users", checkDbConnection, (req, res) => {
+  const query = `
+  SELECT user_id, name, surname, username, email, registration_date, role
+  FROM sql3776573.users
+  ORDER BY user_id ASC 
+  `;
+  db.query(query, (err, results) => {
+      if (err) {
+          console.error("Error fetching users:", err);
+          return res.status(500).json({ message: "Error fetching users." });
+      }
+      res.json(results);
+  });
+});
+
+app.post("/admin/update-role", checkDbConnection, checkAdminRole, (req, res) => {
+  const { userId, newRole } = req.body;
+
+  console.log("Updating role for userId:", userId, "to newRole:", newRole); // Debugging log
+
+  // Validate the new role
+  if (!["user", "admin"].includes(newRole)) {
+    return res.status(400).json({ message: "Invalid role specified." });
+  }
+
+  const query = "UPDATE users SET role = ? WHERE user_id = ?";
+  db.query(query, [newRole, userId], (err, result) => {
+    if (err) {
+      console.error("Error updating user role:", err);
+      return res.status(500).json({ message: "Error updating user role." });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+       // If the role is changed to "admin", insert the user into the `admin` table
+       if (newRole === "admin") {
+        const insertAdminQuery = `
+          INSERT INTO admin (name, surname, username, email, password, registration_date)
+          SELECT name, surname, username, email, password, registration_date
+          FROM users
+          WHERE user_id = ?
+          ON DUPLICATE KEY UPDATE 
+            name = VALUES(name), 
+            surname = VALUES(surname), 
+            email = VALUES(email), 
+            password = VALUES(password), 
+            registration_date = VALUES(registration_date)
+        `;
+        db.query(insertAdminQuery, [userId], (err) => {
+          if (err) {
+            console.error("Error adding user to admin table:", err);
+            return res.status(500).json({ message: "Error adding user to admin table." });
+          }
+          console.log("User added to admin table successfully.");
+        });
+      } 
+
+        // If the role is changed to "user", remove the user from the `admin` table
+      if (newRole === "user") {
+        const deleteAdminQuery = "DELETE FROM admin WHERE username = (SELECT username FROM users WHERE user_id = ?)";
+        db.query(deleteAdminQuery, [userId], (err) => {
+          if (err) {
+            console.error("Error removing user from admin table:", err);
+            return res.status(500).json({ message: "Error removing user from admin table." });
+          }
+          console.log("User removed from admin table successfully.");
+        });
+      }
+
+
+    res.json({ message: "User role updated successfully!" });
+  });
+});
+
+
+app.get("/admin", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "admin.html"));
+});
+
+app.get("/home", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "home.html"));
+});
+
+app.get("/spotify-page", (req, res) => {
+  res.sendFile(path.join(__dirname, "public" ,"spotify-page.html"));
+});
+
+app.get('/spotify-results', (req, res) => {
+  // Serve the Spotify page
+ 
+  const mood = req.query.mood;
+
+  if (!mood) {
+      console.log("Mood query param is missing.");
+      return res.status(400).send("Mood query param is required.");
+  }
+
+  console.log("Fetching playlists for mood:", mood);
+
+  const sql = 'SELECT * FROM spotify_playlist WHERE mood_name = ?';
+  db.query(sql, [mood], (err, results) => {
+      if (err) {
+          console.error(err);
+          return res.status(500).send("Database error");
+      }
+
+      if (results.length === 0) {
+          console.log("No playlists found for mood:", mood);
+          return res.status(404).send("No playlists or podcasts found for this mood.");
+      }
+
+      const data = results[0]; // Assuming we get the first match for the mood
+      console.log("Playlists found:", data);
+
+      // Send the response with the playlist links
+
+      res.json({
+          spotifyPlaylist: {
+              amapianoLink: data.amapiano_link,
+              kwaitoLink: data.kwaito_link,
+              globalLink: data.global_link
+          },
+          podcasts: {
+              podcastLink1: data.podcast_link_1,
+              podcastLink2: data.podcast_link_2
+          }
+      });
+  });
+});
+
+
+
+app.get('/youtube-results', (req, res) => {
+  const mood = req.query.mood;
+
+  if (!mood) {
+      return res.status(400).send("Mood query param is required.");
+  }
+
+  const sql = 'SELECT * FROM youtube_playlist WHERE mood_name = ?';
+  db.query(sql, [mood], (err, results) => {
+      if (err) {
+          console.error(err);
+          return res.status(500).send("Database error");
+      }
+
+      if (results.length === 0) {
+          return res.status(404).send("No playlists or podcasts found for this mood.");
+      }
+
+      const data = results[0]; // Assuming we get the first match for the mood
+      res.json({
+          youtubePlaylist: {
+              amapianoLink: data.amapiano_link,
+              kwaitoLink: data.kwaito_link,
+              globalLink: data.global_link
+          },
+          podcasts: {
+              podcastLink1: data.podcast_link_1,
+              podcastLink2: data.podcast_link_2
+          }
+      });
+  });
+});
+
+function checkAdminRole(req, res, next) {
+  if (!req.session || req.session.role !== 'admin') {
+    return res.status(403).json({ message: "Forbidden. Admins only." });
+  }
+  next();
+}
+
+
+
+
+// Fetch Spotify playlists
+app.get('/admin/spotify-playlists', (req, res) => {
+  const sql = `
+      SELECT 
+          id, mood_name, amapiano_link, kwaito_link, global_link, podcast_link_1, podcast_link_2 
+      FROM spotify_playlist
+  `;
+
+  db.query(sql, (err, results) => {
+      if (err) {
+          console.error("Database error:", err);
+          return res.status(500).send("Database error");
+      }
+      res.json(results);
+  });
+});
+
+// Fetch YouTube playlists
+app.get('/admin/youtube-playlists', (req, res) => {
+  const sql = `
+      SELECT 
+          id, mood_name, amapiano_link, kwaito_link, global_link, podcast_link_1, podcast_link_2 
+      FROM youtube_playlist
+  `;
+
+  db.query(sql, (err, results) => {
+      if (err) {
+          console.error("Database error:", err);
+          return res.status(500).send("Database error");
+      }
+      res.json(results);
+  });
+});
+
+
+
+// Update a playlist
+app.post('/admin/playlists/update', (req, res) => {
+  const { id, source, mood_name, amapiano_link, kwaito_link, global_link, podcast_link_1, podcast_link_2 } = req.body;
+
+  const table = source === 'spotify' ? 'spotify_playlist' : 'youtube_playlist';
+
+  const sql = `
+      UPDATE ${table}
+      SET amapiano_link = ?, kwaito_link = ?, global_link = ?, podcast_link_1 = ?, podcast_link_2 = ?
+      WHERE id = ?
+  `;
+
+  db.query(sql, [mood_name, amapiano_link, kwaito_link, global_link, podcast_link_1, podcast_link_2, id], (err, result) => {
+      if (err) {
+          console.error("Database error:", err);
+          return res.status(500).send("Database error");
+      }
+      res.send("Playlist updated successfully");
+  });
+});
+
+// Route to get the logged-in user's role
+app.get('/api/user-role', (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ message: "User not logged in." });
+  }
+
+  const userId = req.session.userId;
+
+  const query = "SELECT role FROM users WHERE user_id = ?";
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error("Error fetching user role:", err);
+      return res.status(500).json({ message: "Error fetching user role." });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    res.json({ role: results[0].role });
+  });
+});
+
+app.get('/admin/user-report/:userId', checkDbConnection, (req, res) => {
+  const userId = req.params.userId;
+
+  const query = `
+      SELECT name, surname, username, email, last_login
+      FROM users
+      WHERE user_id = ?
+  `;
+
+  const moodQuery = `
+      SELECT logged_mood, log_date
+      FROM moodlogs
+      WHERE user_id = ?
+      ORDER BY log_date DESC
+  `;
+
+  db.query(query, [userId], (err, userResults) => {
+      if (err) {
+          console.error('Error fetching user report:', err);
+          return res.status(500).json({ message: 'Error fetching user report' });
+      }
+
+      if (userResults.length === 0) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+
+      const user = userResults[0];
+
+      db.query(moodQuery, [userId], (err, moodResults) => {
+          if (err) {
+              console.error('Error fetching user moods:', err);
+              return res.status(500).json({ message: 'Error fetching user moods' });
+          }
+
+          res.json({ ...user, moods: moodResults });
+      });
+  });
+});
+
+app.use('/admin', checkAdminRole);
+
+// Fetch all books
+app.get('/admin/books', checkDbConnection, (req, res) => {
+  const query = 'SELECT * FROM mood_ebook_audio';
+  db.query(query, (err, results) => {
+      if (err) {
+          console.error('Error fetching books:', err);
+          return res.status(500).json({ message: 'Error fetching books' });
+      }
+      res.json(results);
+  });
+});
+
+// Add a new book
+app.post('/admin/books', checkDbConnection, (req, res) => {
+  const { mood_name, googlebook_link_1, googlebook_link_2, audiobook_link_1, audiobook_link_2 } = req.body;
+  const query = `
+      INSERT INTO mood_ebook_audio (mood_name, googlebook_link_1, googlebook_link_2, audiobook_link_1, audiobook_link_2)
+      VALUES (?, ?, ?, ?, ?)
+  `;
+  db.query(query, [mood_name, googlebook_link_1, googlebook_link_2, audiobook_link_1, audiobook_link_2], (err) => {
+      if (err) {
+          console.error('Error adding book:', err);
+          return res.status(500).json({ message: 'Error adding book' });
+      }
+      res.status(201).json({ message: 'Book added successfully!' });
+  });
+});
+
+// Update a book
+app.put('/admin/books/:id', checkDbConnection, (req, res) => {
+  const bookId = req.params.id;
+  const { mood_name, googlebook_link_1, googlebook_link_2, audiobook_link_1, audiobook_link_2 } = req.body;
+  const query = `
+      UPDATE mood_ebook_audio
+      SET googlebook_link_1 = ?, googlebook_link_2 = ?, audiobook_link_1 = ?, audiobook_link_2 = ?
+      WHERE id = ?
+  `;
+  db.query(query, [mood_name, googlebook_link_1, googlebook_link_2, audiobook_link_1, audiobook_link_2, bookId], (err) => {
+      if (err) {
+          console.error('Error updating book:', err);
+          return res.status(500).json({ message: 'Error updating book' });
+      }
+      res.json({ message: 'Book updated successfully!' });
+  });
+});
+
+
+// Fetch admin details
+app.get('/admin/admin-details', (req, res) => {
+  const sql = `
+      SELECT name, surname, username, email, registration_date
+      FROM admin
+  `;
+  db.query(sql, (err, results) => {
+      if (err) {
+          console.error('Database error:', err);
+          return res.status(500).send('Database error');
+      }
+      res.json(results);
+  });
+});
 
 
 const PORT = process.env.PORT || 3000;
