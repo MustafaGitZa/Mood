@@ -48,24 +48,47 @@
         <div id="calendar"></div>
       </div>
   
-      <div class="chart-container">
-        <canvas id="moodChart"></canvas>
-      </div>
+      <div id="moodModal" class="modal">
+        <div class="modal-content mood-modal-content">
+          <button class="close-btn" onclick="closeMoodModal()">Close</button>
+          <h2>Mood Details</h2>
       
-      <!-- Table Section -->
-      <div id="moodTableContainer" style="display: none;">
-        <button id="backToChartButton" style="display: none;">Back to Chart</button>
-        <table id="moodTable">
-          <thead>
-            <tr><th>Date</th><th>Mood</th><th>Time</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+          <!-- Chart container -->
+          <div class="chart-container" style="display: none;">
+            <canvas id="moodChart"></canvas>
+          </div>
+          <!-- Export Report Button underneath the graph -->
+          <div style="text-align: center; margin-top: 20px;">
+            <button id="exportReportButton"
+              style="background-color: #db1765; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 4px; cursor: pointer;">
+              Export to PDF
+            </button>
+      
+          <div style="text-align: center; margin-top: 15px;">
+             <!-- <button id="sendMoodBtn">Send Email</button> -->
+          <!---->
+          <!-- Mood table -->
+          <table id="moodTable" style="display: none;">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Mood</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody id="moodTableBody"></tbody>
+          </table>
+        </div>
       </div>
   
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
     <!-- Include Chart.js in your HTML if not already -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- jsPDF library for generating PDFs -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- html2pdf library for converting HTML to PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
   
     <script src="report.js"></script>
 </body>

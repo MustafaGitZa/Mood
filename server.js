@@ -593,22 +593,13 @@ app.post("/fetch-tips", checkDbConnection, (req, res) => {
   });
 });
 
-const moodPlaylists = {
-  "Happy": "https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC",  // Happy Hits
-  "Sad": "https://open.spotify.com/playlist/37i9dQZF1DX7qK8ma5wgG1",    // Sad Songs
-  "Angry": "https://open.spotify.com/playlist/37i9dQZF1DWYxwmBaMqxsl",  // Rage Beats
-  "Calm": "https://open.spotify.com/playlist/37i9dQZF1DX3PIPIT6lEg5",   // Calm Vibes
-  "Energetic": "https://open.spotify.com/playlist/37i9dQZF1DX8tZsk68tuDw" // Workout Motivation
-};
-
 app.post("/send-report", checkDbConnection, async (req, res) => {
-  const userId = req.session?.userId; // Get the logged-in user's ID from the session
+  const userId = req.session?.userId;
 
   if (!userId) {
     return res.status(403).json({ message: "User not authenticated." });
   }
 
-  // Fetch the user's email from the database
   const getEmailQuery = "SELECT email FROM users WHERE user_id = ?";
   db.query(getEmailQuery, [userId], async (err, results) => {
     if (err) {
@@ -620,83 +611,118 @@ app.post("/send-report", checkDbConnection, async (req, res) => {
       return res.status(404).json({ message: "User not found." });
     }
 
-    const email = results[0].email; // Get the user's email
+    const email = results[0].email;
     const { moods } = req.body;
 
     if (!moods || moods.length === 0) {
       return res.status(400).json({ message: "Mood data is required." });
     }
 
-    const date = new Date().toISOString().split("T")[0]; // Get current date in YYYY-MM-DD format
+    const date = new Date().toISOString().split("T")[0];
 
-    const moodTable = moods
-      .map((mood) => {
-        const playlistUrl = moodPlaylists[mood.logged_mood] || "https://open.spotify.com";
-        return `
-          <tr>
-            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${mood.logged_mood}</td>
-            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${mood.type_name}</td>
-            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${new Date(mood.log_date).toLocaleString()}</td>
-            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
-              <a href="${playlistUrl}" target="_blank">Playlist</a>
-            </td>
-          </tr>`;
-      })
-      .join("");
+    // Async function to fetch playlist links for a mood
+    const getPlaylistLinks = (moodName) => {
+      return new Promise((resolve, reject) => {
+        const query = `
+          SELECT 
+            s.amapiano_link AS spotify_amapiano, s.kwaito_link AS spotify_kwaito, s.global_link AS spotify_global,
+            y.amapiano_link AS youtube_amapiano, y.kwaito_link AS youtube_kwaito, y.global_link AS youtube_global
+          FROM spotify_playlist s
+          LEFT JOIN youtube_playlist y ON s.mood_name = y.mood_name
+          WHERE s.mood_name = ?
+        `;
+        db.query(query, [moodName], (err, results) => {
+          if (err) {
+            return reject(err);
+          }
+          if (results.length === 0) {
+            // Default links if no match found
+            return resolve({
+              spotify_amapiano: "https://open.spotify.com",
+              spotify_kwaito: "https://open.spotify.com",
+              spotify_global: "https://open.spotify.com",
+              youtube_amapiano: "https://youtube.com",
+              youtube_kwaito: "https://youtube.com",
+              youtube_global: "https://youtube.com",
+            });
+          }
+          resolve(results[0]);
+        });
+      });
+    };
 
-    const emailContent = `
-      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
-        <div style="background-color: #4CAF50; color: white; padding: 20px; text-align: center;">
-          <h1 style="margin: 0;">Your Mood Report</h1>
-          <p style="margin: 0;">Date: ${date}</p>
-        </div>
-        <div style="padding: 20px;">
-          <p>Hello,</p>
-          <p>Here is your mood report for the selected date:</p>
-          <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-            <thead>
-              <tr style="background-color: #f2f2f2;">
-                <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Mood</th>
-                <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Type</th>
-                <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Logged At</th>
-                <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Playlist</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${moodTable}
-            </tbody>
-          </table>
-          <p style="margin-top: 20px;">Thank you for using Moodify!</p>
-        </div>
-        <div style="background-color: #f9f9f9; color: #555; padding: 10px; text-align: center; font-size: 0.9em;">
-          <p style="margin: 0;">Moodify &copy; 2025. All rights reserved.</p>
-        </div>
-      </div>
-    `;
+    // Build moodTable with dynamic playlists
+    const moodTablePromises = moods.map(async (mood) => {
+      const links = await getPlaylistLinks(mood.logged_mood);
+
+      return `
+        <tr>
+          <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${mood.logged_mood}</td>
+          <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${mood.type_name}</td>
+          <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${new Date(mood.log_date).toLocaleString()}</td>
+          <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
+            <a href="${links.spotify_global}" target="_blank">Spotify Global</a><br/>
+            <a href="${links.youtube_global}" target="_blank">YouTube Global</a>
+          </td>
+        </tr>`;
+    });
 
     try {
+      const moodTable = (await Promise.all(moodTablePromises)).join("");
+
+      const emailContent = `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+          <div style="background-color: #4CAF50; color: white; padding: 20px; text-align: center;">
+            <h1 style="margin: 0;">Your Mood Report</h1>
+            <p style="margin: 0;">Date: ${date}</p>
+          </div>
+          <div style="padding: 20px;">
+            <p>Hello,</p>
+            <p>Here is your mood report for the selected date:</p>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+              <thead>
+                <tr style="background-color: #f2f2f2;">
+                  <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Mood</th>
+                  <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Type</th>
+                  <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Logged At</th>
+                  <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Playlists</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${moodTable}
+              </tbody>
+            </table>
+            <p style="margin-top: 20px;">Thank you for using Moodify!</p>
+          </div>
+          <div style="background-color: #f9f9f9; color: #555; padding: 10px; text-align: center; font-size: 0.9em;">
+            <p style="margin: 0;">Moodify &copy; 2025. All rights reserved.</p>
+          </div>
+        </div>
+      `;
+
       const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
-        port: 587, // Use 465 for SSL or 587 for TLS
-        secure: false, // Set to true if using port 465
+        port: 587,
+        secure: false,
         auth: {
-          user: process.env.APP_USER, // Your Gmail address
-          pass: process.env.APP_PASSWORD, // Your Gmail app password
+          user: process.env.APP_USER,
+          pass: process.env.APP_PASSWORD,
         },
         tls: {
-          rejectUnauthorized: false, // Allow self-signed certificates
+          rejectUnauthorized: false,
         },
       });
 
       const info = await transporter.sendMail({
-        from: process.env.APP_USER, // Sender address
-        to: "xnhlapo.nhlapo@gmail.com", // Recipient's email
-        subject: "Your Mood Report ✔", // Subject line
-        html: emailContent, // HTML body
+        from: process.env.APP_USER,
+        to: email,
+        subject: "Your Mood Report ✔",
+        html: emailContent,
       });
 
       console.log("Message sent: %s", info.messageId);
       res.status(200).json({ message: "Mood report sent successfully!" });
+
     } catch (error) {
       console.error("Error sending email:", error);
       res.status(500).json({ message: "Failed to send mood report. Please try again later." });
@@ -704,10 +730,14 @@ app.post("/send-report", checkDbConnection, async (req, res) => {
   });
 });
 
-// Configure email transporter only if environment variables are available
+
+
+
 let transporter = null;
+
 try {
   if (process.env.MAILTRAP_HOST && process.env.MAILTRAP_PORT && process.env.MAILTRAP_USER && process.env.MAILTRAP_PASS) {
+    // Mailtrap config (for dev/testing)
     transporter = nodemailer.createTransport({
       host: process.env.MAILTRAP_HOST,
       port: process.env.MAILTRAP_PORT,
@@ -716,34 +746,55 @@ try {
         pass: process.env.MAILTRAP_PASS,
       }
     });
-    console.log("Email transport configured successfully");
+    console.log("Mailtrap email transport configured successfully");
+
+  } else if (process.env.APP_USER && process.env.APP_PASSWORD) {
+    // Gmail config (for live use)
+    transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587, // Use 465 for SSL or 587 for TLS
+      secure: false, // true for 465
+      auth: {
+        user: process.env.APP_USER,
+        pass: process.env.APP_PASSWORD,
+      },
+      tls: {
+        rejectUnauthorized: false, // allow self-signed certificates
+      },
+    });
+    console.log("✅ Gmail email transport configured successfully");
+
   } else {
-    console.log("Email configuration not available - email features will not work");
+    console.log("⚠️ No email configuration found - emails will not send.");
   }
 } catch (error) {
-  console.error("Error configuring email transport:", error);
+  console.error("❌ Error configuring email transport:", error);
 }
 
-// Email sending function
-async function sendEmail(to, subject, text) {
+
+// General email sending function
+async function sendEmail(to, subject, emailContent) {
   if (!transporter) {
-    console.log("Email transport not configured - skipping email send");
+    console.log("⚠️ Email transport not configured - skipping email send");
     return;
   }
-  
+
   try {
     const info = await transporter.sendMail({
-      from: `"MoodSync 👋" <${process.env.MAILTRAP_FROM_EMAIL || 'noreply@example.com'}>`,
+      from: `"MoodSync 💙" <${process.env.APP_USER || 'noreply@moodsync.com'}>`,
       to: to,
       subject: subject,
-      text: text,
+      html: emailContent,
     });
 
-    console.log('Message sent: %s', info.messageId);
+    console.log('✅ Email sent: %s', info.messageId);
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('❌ Error sending email:', error);
   }
 }
+
+module.exports = { sendEmail };
+
 
 const { v4: uuidv4 } = require('uuid'); // for generating unique tokens
 
@@ -1017,6 +1068,58 @@ app.post("/check-email", checkDbConnection, express.json(), (req, res) => {
     return res.json({ exists: results.length > 0 });
   });
 });
+
+// Route: EBooks
+app.get('/ebook-results', (req, res) => {
+  const mood = req.query.mood;
+
+  const query = 'SELECT googlebook_link_1, googlebook_link_2 FROM mood_ebook_audio WHERE mood_name = ?';
+  db.execute(query, [mood], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (results.length === 0) return res.status(404).json({ error: 'No ebooks found for this mood.' });
+
+    res.json({
+      googlebookLinks: [results[0].googlebook_link_1, results[0].googlebook_link_2]
+    });
+  });
+});
+
+// Route: Audiobooks
+app.get('/audiobook-results', (req, res) => {
+  const mood = req.query.mood;
+
+  const query = 'SELECT audiobook_link_1, audiobook_link_2 FROM mood_ebook_audio WHERE mood_name = ?';
+  db.execute(query, [mood], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (results.length === 0) return res.status(404).json({ error: 'No audiobooks found for this mood.' });
+
+    res.json({
+      audiobookLinks: [results[0].audiobook_link_1, results[0].audiobook_link_2]
+    });
+  });
+});
+
+
+// Route to send badge email
+app.post("/send-badge", async (req, res) =>{
+  const { email } = req.body;
+
+  const emailContent = `
+    <h2>🏅 Congrats, Mood Champion!</h2>
+    <p>You've completed all your activities! Here's your badge:</p>
+    <img src="https://img.icons8.com/external-flat-icons-inmotus-design/67/null/external-badge-gamification-flat-icons-inmotus-design.png" alt="Mood Champion Badge" width="120"/>
+    <p>Keep shining 🌟</p>
+  `;
+
+  try {
+    await sendEmail(email, "🎉 Your Mood Champion Badge!", emailContent);
+    res.status(200).json({ message: "🏅 Badge sent to your inbox!" });
+  } catch (error) {
+    res.status(500).json({ message: "❌ Failed to send badge email." });
+  }
+});
+
+
 
 const PORT = process.env.PORT || 3000;
 

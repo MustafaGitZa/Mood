@@ -133,6 +133,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     });
 });
+// Mood Wheel Script
 if (!localStorage.getItem("completedActivities")) {
     localStorage.setItem("completedActivities", JSON.stringify([]));
 }
@@ -141,7 +142,6 @@ if (!localStorage.getItem("spinCount")) {
 }
 
 let currentActivity = "";
-
 const wheelContainer = document.querySelector(".wheel-options");
 const activities = [
     "🌬️ Deep Breathing",
@@ -151,9 +151,10 @@ const activities = [
     "🌳 Step Outside & Breathe",
     "💌 Write 3 Wins Today"
 ];
+
 wheelContainer.innerHTML = "";
 
-
+// Wheel layout
 const radius = 70;
 activities.forEach((activity, index) => {
     const section = document.createElement("span");
@@ -174,49 +175,76 @@ activities.forEach((activity, index) => {
     wheelContainer.appendChild(section);
 });
 
+// Spin button
 document.getElementById("spinWheelButton").addEventListener("click", () => {
     let spinCount = parseInt(localStorage.getItem("spinCount")) + 1;
     localStorage.setItem("spinCount", spinCount);
 
-    const anglePerActivity = 360 / activities.length;
-    const selectedIndex = Math.floor(Math.random() * activities.length);
-    const extraSpins = 5; // Full spins for visual effect
+    let completedActivities = JSON.parse(localStorage.getItem("completedActivities"));
+    let remainingActivities = activities.filter(act => !completedActivities.includes(act));
+
+    if (remainingActivities.length === 0) {
+        alert("✅ All activities done! No more left to spin.");
+        return;
+    }
+
+    const anglePerActivity = 360 / remainingActivities.length;
+    const selectedIndex = Math.floor(Math.random() * remainingActivities.length);
+    const extraSpins = 5;
     const finalAngle = (extraSpins * 360) + (360 - (selectedIndex * anglePerActivity));
 
     wheelContainer.style.transition = "transform 1.8s ease-out";
     wheelContainer.style.transform = `rotate(${finalAngle}deg)`;
 
     setTimeout(() => {
-        currentActivity = activities[selectedIndex];
+        currentActivity = remainingActivities[selectedIndex];
         document.getElementById("selectedActivity").textContent = `🎯 Your activity: ${currentActivity}!`;
         document.getElementById("completeActivityButton").style.display = "inline-block";
     }, 3000);
 
     setTimeout(() => {
-        if (spinCount >= 3) {
-            let completedActivities = JSON.parse(localStorage.getItem("completedActivities"));
-            if (completedActivities.length < 2) {
-                if (confirm("😞 Still not feeling better? Would you like to talk to a professional?")) {
-                    window.location.href = "helpResources.html";
-                }
+        if (spinCount >= 3 && remainingActivities.length >= 2) {
+            if (confirm("😞 Still not feeling better? Would you like to talk to a professional?")) {
+                window.location.href = "helpResources.html";
             }
         }
     }, 3500);
 });
 
-
+// Mark activity complete
 document.getElementById("completeActivityButton").addEventListener("click", () => {
     let completedActivities = JSON.parse(localStorage.getItem("completedActivities"));
     if (!completedActivities.includes(currentActivity)) {
         completedActivities.push(currentActivity);
         localStorage.setItem("completedActivities", JSON.stringify(completedActivities));
     }
+
     document.getElementById("progressStatus").textContent = `✅ Completed: ${completedActivities.length}/6 activities`;
     document.getElementById("completeActivityButton").style.display = "none";
 
     if (completedActivities.length === 6) {
         alert("🏅 Congrats! You've earned a 'Mood Champion' badge!");
+        sendBadgeEmail(); // Call backend to email badge
         localStorage.removeItem("completedActivities");
         localStorage.setItem("spinCount", 0);
     }
 });
+
+// Call backend email route
+function sendBadgeEmail() {
+    const email = prompt("Enter your email to receive your badge:");
+    if (email) {
+        fetch("/send-badge", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(err => {
+            alert("Error sending badge email.");
+        });
+    }
+}

@@ -41,6 +41,9 @@
             <p>Links for your mood-based audio content will appear here (fetched from the database).</p>
         </div>
     </div>
+    <div class="navigation-btn">
+        <button onclick="window.location.href='ebook-platforms.html'">⬅️ Back to Platform Selection</button>
+      </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", async function () {
@@ -176,9 +179,32 @@
                     }
                 });
             });
-        const urlParams = new URLSearchParams(window.location.search);
-        const mood = urlParams.get("mood") || "your mood";
-        document.getElementById("pageTitle").textContent = `Audible results for ${mood}`;
+        // Fetch mood from query params
+const urlParams = new URLSearchParams(window.location.search);
+const mood = urlParams.get("mood") || "your mood";
+document.getElementById("pageTitle").textContent = `Audiobooks for ${mood}`;
+
+// Fetch audiobook results
+fetch(`/audiobook-results?mood=${encodeURIComponent(mood)}`)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("No audiobooks found for this mood.");
+        }
+        return response.json();
+    })
+    .then(data => {
+        const container = document.querySelector(".results-container");
+
+        container.innerHTML = `
+            <h3>Audiobook Recommendations:</h3>
+            <a href="${data.audiobookLinks[0]}" target="_blank">Audiobook 1</a><br>
+            <a href="${data.audiobookLinks[1]}" target="_blank">Audiobook 2</a>
+        `;
+    })
+    .catch(error => {
+        document.querySelector(".results-container").innerHTML = `<p>${error.message}</p>`;
+    });
+
     </script>
 </body>
 </html>

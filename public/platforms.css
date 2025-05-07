@@ -398,3 +398,38 @@ h2 {
     background: linear-gradient(135deg, #c22265, #f167a1);
     transform: translateY(-2px);
 }
+
+.navigation-btn {
+    margin-top: 30px;
+    text-align: center;
+  }
+  
+  .navigation-btn button {
+    padding: 12px 20px;
+    background-color:linear-gradient(135deg, #f167a1, #c22265);
+    color: #f167a1;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .navigation-btn button:hover {
+    background-color: linear-gradient(135deg, #c22265, #f167a1);
+  }
+
+/* Responsive Design for Smaller Screens */
+@media (max-width: 768px) {
+    .platform-container {
+        flex: 1 1 100%;
+        margin-bottom: 20px;
+    }
+    .btn {
+        padding: 0.5rem 1.5rem;
+        font-size: 0.9rem;
+    }
+    .results-container {
+        width: 95%;
+    }
+}
+  
