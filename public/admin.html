@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
     <head>
         <meta charset="UTF-8">
@@ -10,7 +11,11 @@
         <nav class="navbar">
             <ul class="nav-menu">
                 <a href="home.html">Home</a>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="contact.html">Contact</a>
                 <a href="about.html">About</a>
+                
+                
             </ul>
             <div class="profile-container">
                 <div class="profile-icon" id="profileIcon">
@@ -77,13 +82,87 @@
                             <th>Username</th>
                             <th>Email</th>
                             <th>Last Login</th>
+                            <th>Reports</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
             </div>
+
+            <div class="admin-details card">
+                <h3>Admin Details</h3>
+                <table id="adminTable" border="1" cellspacing="0" cellpadding="8">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Surname</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Rows will be dynamically populated -->
+                    </tbody>
+                </table>
+                <button id="downloadAdminReport" class="update-button">Download Admin Report</button>
+            </div>
+
+            <div class="playlist-management card">
+                <h3>Manage Spotify Playlists for Moods</h3>
+                <table id="spotifyPlaylistTable" border="1" cellspacing="2" cellpadding="8">
+                    <thead>
+                        <tr>
+                            <th>Mood</th>
+                            <th>Playlist URL</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Rows will be dynamically populated -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="playlist-management card">
+                <h3>Manage YouTube Playlists for Moods</h3>
+                <table id="youtubePlaylistTable" border="1" cellspacing="0" cellpadding="8">
+                    <thead>
+                        <tr>
+                            <th>Mood</th>
+                            <th>Playlist URL</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Rows will be dynamically populated -->
+                    </tbody>
+                </table>
+                
+            </div>
+
+            <div class="book-management card">
+                <h3>Manage Books and Audio Books</h3>
+                <table id="bookTable" border="1" cellspacing="0" cellpadding="8">
+                    <thead>
+                        <tr>
+                            <th>Mood Name</th>
+                            <th>Google Book Link 1</th>
+                            <th>Google Book Link 2</th>
+                            <th>Audio Book Link 1</th>
+                            <th>Audio Book Link 2</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Rows will be dynamically populated -->
+                    </tbody>
+                </table>
+            </div>
+
         </div>
 
         <script src="adminScript.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     </body>
 </html>

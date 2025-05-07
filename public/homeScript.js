@@ -176,4 +176,28 @@ document.addEventListener("DOMContentLoaded", async function () {
             profileExpandedMenu.classList.remove("show");
         }
     });
+    try {
+        // Fetch the user's role from the backend
+        const response = await fetch('/api/user-role');
+        if (!response.ok) throw new Error('Failed to fetch user role');
+        const data = await response.json();
+    
+        // Check if the user has an admin role
+        if (data.role === 'admin') {
+          // Show the Admin link
+          const adminLink = document.querySelector('.admin-link');
+          if (adminLink) {
+            adminLink.style.display = 'inline';
+          } else {
+            // Dynamically add the Admin link if it doesn't exist in the HTML
+            const navMenu = document.querySelector('.nav-menu');
+            const adminLinkElement = document.createElement('a');
+            adminLinkElement.href = 'admin.html';
+            adminLinkElement.textContent = 'Admin';
+            navMenu.appendChild(adminLinkElement);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+      }
 });

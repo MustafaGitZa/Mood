@@ -363,3 +363,206 @@ table tr:nth-child(even) {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Slightly stronger shadow */
     outline: none; /* Remove default outline */
 }
+
+.playlist-management {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+#playlistTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#playlistTable th, #playlistTable td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+#playlistTable input {
+    width: 100%;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.update-button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #f167a1;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.update-button:hover {
+    background-color: #d83a7c;
+}
+
+
+.report-button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #f167a1;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.report-button:hover {
+    background-color: #d83a7c;
+}
+
+/* Style for the input fields in the Spotify playlist table */
+#spotifyPlaylistTable input {
+    width: 100%; /* Make the input take the full width of the container */
+    padding: 8px; /* Add padding for better spacing */
+    margin: 5px 0; /* Add margin for spacing between inputs */
+    border: 1px solid #ccc; /* Light gray border */
+    border-radius: 4px; /* Rounded corners */
+    box-sizing: border-box; /* Ensure padding and border are included in the width */
+    font-size: 14px; /* Font size */
+}
+
+/* Focus effect for the input fields */
+#spotifyPlaylistTable input:focus {
+    border-color: #f167a1; /* Green border on focus */
+    outline: none; /* Remove default outline */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Add a subtle green glow */
+}
+
+/* Style for the input fields in the Spotify playlist table */
+#youtubePlaylistTable input {
+    width: 100%; /* Make the input take the full width of the container */
+    padding: 8px; /* Add padding for better spacing */
+    margin: 5px 0; /* Add margin for spacing between inputs */
+    border: 1px solid #ccc; /* Light gray border */
+    border-radius: 4px; /* Rounded corners */
+    box-sizing: border-box; /* Ensure padding and border are included in the width */
+    font-size: 14px; /* Font size */
+}
+
+/* Focus effect for the input fields */
+#youtubePlaylistTable input:focus {
+    border-color: #f167a1; /* Green border on focus */
+    outline: none; /* Remove default outline */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Add a subtle green glow */
+}
+
+/* Style for playlist-management and book-management cards */
+.playlist-management,
+.book-management {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#bookTable,
+#spotifyPlaylistTable,
+#youtubePlaylistTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#bookTable th,
+#bookTable td,
+#spotifyPlaylistTable th,
+#spotifyPlaylistTable td,
+#youtubePlaylistTable th,
+#youtubePlaylistTable td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+#bookTable input,
+#spotifyPlaylistTable input,
+#youtubePlaylistTable input {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+#bookTable input:focus,
+#spotifyPlaylistTable input:focus,
+#youtubePlaylistTable input:focus {
+    border-color: #f167a1;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.book-management h3,
+.playlist-management h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.book-management button,
+.playlist-management button {
+    padding: 8px 16px;
+    background-color: #f167a1;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.book-management button:hover,
+.playlist-management button:hover {
+    background-color: #d83a7c;
+}
+
+.admin-details {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#adminTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#adminTable th,
+#adminTable td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+#adminTable th {
+    background-color: #f7c8d3;
+    color: #333; /* Dark text color for headers */
+    font-weight: bold;
+}
+
+.update-button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #f167a1;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.update-button:hover {
+    background-color: #d83a7c;
+}
