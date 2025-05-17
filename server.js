@@ -956,22 +956,23 @@ app.get('/youtube-results', (req, res) => {
 
 
 app.post("/validate-email", checkDbConnection, express.json(), (req, res) => {
-  const { email } = req.body;
+  const { email, userId } = req.body;
 
   // Basic input check
   if (!email) {
     return res.status(400).json({ error: "Email is required" });
   }
 
-  const query = "SELECT email FROM users WHERE email = ?";
-  db.query(query, [email], (err, results) => {
+  // Modified query to exclude current user's email from duplication check
+  const query = "SELECT user_id FROM users WHERE email = ? AND user_id != ?";
+  db.query(query, [email, userId], (err, results) => {
     if (err) {
-      console.error("Error validating email:", err);  // renamed log message
+      console.error("Error validating email:", err);
       return res.status(500).json({ error: "Database error during email validation" });
     }
 
-    return res.json({ exists: results.length > 0 });
-  });
+    return res.json({ exists: results.length > 0 });
+  });
 });
 
 //comment
