@@ -225,35 +225,70 @@
                 });
             });
            // Fetching the mood from the query parameter
+        // Fetching parameters from URL
         const urlParams = new URLSearchParams(window.location.search);
         const mood = urlParams.get("mood") || "your mood";
-        document.getElementById("pageTitle").textContent = `Spotify results for ${mood}`;
+        const genre = urlParams.get("genre"); // Optional genre filter
+        
+        document.getElementById("pageTitle").textContent = genre 
+            ? `Spotify results for ${mood} (${genre})`
+            : `Spotify results for ${mood}`;
 
-        // Fetching the Spotify results
-        fetch(`/spotify-results?mood=${encodeURIComponent(mood)}`)
+        // Fetching recommendations from the new unified API
+        fetch(`/music-recommendations?platform=spotify&mood=${encodeURIComponent(mood)}${genre ? `&genre=${genre}` : ''}`)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error("No playlists or podcasts found.");
+                    throw new Error(response.status === 404 
+                        ? "No playlists found for this mood/genre combination."
+                        : "Failed to load recommendations.");
                 }
                 return response.json();
             })
             .then(data => {
                 const container = document.querySelector(".results-container");
-
-                // Displaying Spotify Playlist links
-                container.innerHTML = `
-                    <h3>Suggested Spotify Playlists:</h3>
-                    <a href="${data.spotifyPlaylist.amapianoLink}" target="_blank">Amapiano Playlist</a><br>
-                    <a href="${data.spotifyPlaylist.kwaitoLink}" target="_blank">Kwaito Playlist</a><br>
-                    <a href="${data.spotifyPlaylist.globalLink}" target="_blank">Global Playlist</a><br><br>
-
-                    <h3>Suggested Podcast Listens:</h3>
-                    <a href="${data.podcasts.podcastLink1}" target="_blank">Podcast 1</a><br>
-                    <a href="${data.podcasts.podcastLink2}" target="_blank">Podcast 2</a>
-                `;
+                
+                if (data.recommendations.length === 0) {
+                    container.innerHTML = `<p>No Spotify playlists found for ${mood}${genre ? ` in the ${genre} genre` : ''}.</p>`;
+                    return;
+                }
+                
+                // Build HTML for all recommendations
+                let html = '';
+                
+                if (!genre) {
+                    html += `<h3>Recommended for ${mood}:</h3>`;
+                }
+                
+                data.recommendations.forEach(rec => {
+                    html += `
+                        <div class="recommendation-card">
+                            <h4>${rec.genre.charAt(0).toUpperCase() + rec.genre.slice(1)}</h4>
+                            <a href="${rec.playlistLink}" target="_blank" class="btn-spotify">
+                                <i class="fab fa-spotify"></i> Play ${rec.genre} Playlist
+                            </a>`;
+                    
+                    if (rec.podcasts && rec.podcasts.length > 0) {
+                        html += `<div class="podcast-links"><h5>Podcasts:</h5>`;
+                        rec.podcasts.forEach((podcast, index) => {
+                            if (podcast) {
+                                html += `<a href="${podcast}" target="_blank">Podcast ${index + 1}</a>`;
+                            }
+                        });
+                        html += `</div>`;
+                    }
+                    
+                    html += `</div>`;
+                });
+                
+                container.innerHTML = html;
             })
             .catch(error => {
-                document.querySelector(".results-container").innerHTML = `<p>${error.message}</p>`;
+                document.querySelector(".results-container").innerHTML = `
+                    <div class="error-message">
+                        <p>${error.message}</p>
+                        <button onclick="window.location.href='music-platforms.html'">Try a different mood</button>
+                    </div>
+                `;
             });
     </script>
 </body>

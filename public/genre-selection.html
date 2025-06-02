@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Select Genre</title>
+    <link rel="stylesheet" href="platforms.css">
+    <style>
+        /* Genre selection specific styles */
+        .genre-selection {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .genre-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .genre-btn {
+            background-color: #f167a1;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+        .genre-btn:hover {
+            background-color: #e0558f;
+            transform: translateY(-2px);
+        }
+        .genre-btn.active {
+            background-color: #1DB954; /* Spotify green */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .continue-btn {
+            background-color: #1DB954;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        .continue-btn:hover {
+            background-color: #1aa34a;
+            transform: translateY(-2px);
+        }
+        .continue-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <ul class="nav-menu">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="home.html">Home</a>
+            <a href="contact.html">Contact</a>
+        </ul>
+        <div class="profile-container">
+            <div class="profile-icon" id="profileIcon">
+                <img id="navProfileAvatar" src="" alt="User Avatar" style="display: none;">
+            </div>
+            <div class="profile-expanded-menu" id="profileExpandedMenu">
+                <div class="avatar-section">
+                    <div class="avatar-placeholder">
+                        <div class="profile-initials" id="profileInitials"></div>
+                        <img src="default-avatar.png" alt="User Avatar" class="profile-avatar" id="profileAvatar">
+                    </div>
+                    <div class="user-info">
+                        <span id="userFullName"></span>
+                    </div>
+                </div>
+                <div class="menu-options">
+                    <a href="edit-profile.html">Edit Profile</a>
+                    <a href="login.html">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="genre-selection">
+        <h2>Select Your Preferred Genre</h2>
+        <p>Choose a music genre that matches your current mood</p>
+        
+        <div class="genre-options">
+            <button class="genre-btn" data-genre="amapiano">Amapiano</button>
+            <button class="genre-btn" data-genre="kwaito">Kwaito</button>
+            <button class="genre-btn" data-genre="global">Global Hits</button>
+            <button class="genre-btn" data-genre="afrobeats">Afrobeats</button>
+            <button class="genre-btn" data-genre="house">House</button>
+            <button class="genre-btn" data-genre="gqom">Gqom</button>
+            <button class="genre-btn" data-genre="jazz">Jazz</button>
+            <button class="genre-btn" data-genre="gospel">Gospel</button>
+            <button class="genre-btn" data-genre="hiphop">Hip Hop</button>
+            <button class="genre-btn" data-genre="rnb">R&B</button>
+        </div>
+        
+        <button id="continueBtn" class="continue-btn" disabled>
+            Continue to Recommendations
+        </button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            // Your existing profile management code remains the same
+            // Keep all the profile-related JavaScript from your original file
+            
+            // Genre selection functionality
+            const urlParams = new URLSearchParams(window.location.search);
+            const platform = urlParams.get('platform');
+            const mood = urlParams.get('mood');
+            let selectedGenre = null;
+            
+            // Set up genre selection
+            document.querySelectorAll('.genre-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    document.querySelectorAll('.genre-btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    selectedGenre = this.dataset.genre;
+                    
+                    // Enable continue button
+                    document.getElementById('continueBtn').disabled = false;
+                });
+            });
+            
+            // Continue button handler
+            document.getElementById('continueBtn').addEventListener('click', function() {
+                if (!selectedGenre) return;
+                
+                // Redirect to the appropriate results page
+                if (platform === 'spotify') {
+                    window.location.href = `spotify-page.html?mood=${encodeURIComponent(mood)}&genre=${selectedGenre}`;
+                } else if (platform === 'youtube') {
+                    window.location.href = `youtube-page.html?mood=${encodeURIComponent(mood)}&genre=${selectedGenre}`;
+                }
+            });
+            
+            // Update page title with mood
+            if (mood) {
+                document.querySelector('.genre-selection h2').textContent += ` for ${mood}`;
+            }
+        });
+    </script>
+</body>
+</html>

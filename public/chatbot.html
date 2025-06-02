@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HopeBot - Compassionate Chat</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #fff7f7;
+    display: flex;
+    justify-content: center; /* center container horizontally */
+    align-items: center;     /* center container vertically */
+    height: 100vh;
+    margin: 0;
+    padding: 20px;
+  }
+
+  #chat-history {
+    flex-grow: 1;
+    max-height: 70vh;
+    overflow-y: auto;
+    background: #ffe6e6;
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0 0 10px #dca0a0;
+    margin-bottom: 15px;
+  }
+  #chat-input {
+    width: 80%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #dca0a0;
+    font-size: 1rem;
+  }
+  #chat-send {
+    padding: 12px 20px;
+    background-color: #b35d57;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 10px;
+  }
+  #chat-send:hover {
+    background-color: #9e4a4a;
+  }
+  .msg-user {
+    background-color: #b35d57;
+    color: white;
+    margin-left: auto;
+    text-align: right;
+  }
+  .msg-bot {
+    background-color: #f7d9d7;
+    color: #4a2c28;
+    margin-right: auto;
+    text-align: left;
+  }
+  .msg {
+    max-width: 85%;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+    border-radius: 14px;
+    word-wrap: break-word;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  #container {
+  max-width: 600px;
+  width: 100%;
+  margin: auto; /* centers horizontally */
+  background: #fff0f0;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 8px 15px rgba(179, 93, 87, 0.25);
+  display: flex;
+  flex-direction: column;
+  height: 90vh; /* container height */
+}
+
+</style>
+</head>
+<body>
+
+  <div id="container">
+      <div id="chat-history"></div>
+      <div style="display: flex; align-items: center;">
+        <textarea id="chat-input" rows="2" placeholder="How are you feeling?"></textarea>
+        <button id="chat-send">Send</button>
+      </div>
+    </div>
+
+<script>
+  const chatHistory = document.getElementById('chat-history');
+  const chatInput = document.getElementById('chat-input');
+  const chatSend = document.getElementById('chat-send');
+
+  // Conversation context state
+  let conversationState = null;
+  let conversationTurnCount = 0;
+  const maxTurnsPerTopic = 6;
+
+  // Topic definitions with empathetic and motivational messages
+  const topics = [
+    {
+      name: 'sad',
+      keywords: ['sad', 'depressed', 'unhappy', 'down', 'blue', 'hurt', 'low'],
+      initialResponse: "I’m really sorry you’re feeling this way. It's okay to feel sad sometimes. Would you like to tell me more about what’s been going on?",
+      followUps: [
+        "Thank you for sharing that with me. What do you think has been making you feel this way?",
+        "That sounds really tough. It’s important to be gentle with yourself during times like this.",
+        "Remember, you’re not alone in this. Sometimes sharing helps lighten the load. What else would you like to talk about?",
+        "It’s okay to take things one step at a time. What’s something small that brings you even a little bit of comfort?",
+        "If it ever feels too much, reaching out to a friend or professional can be a strong step. I’m here to support you too."
+      ],
+      motivationalResponses: [
+        "You’ve been through a lot, but your strength in sharing means a lot. Keep holding on.",
+        "Every day is a new chance. You are stronger than you realize.",
+        "You’re not defined by your sadness. There’s hope, even if it’s hard to see right now.",
+        "Small steps count, and it’s okay to rest. You deserve kindness — especially from yourself.",
+        "You’re important, and your feelings matter. I’m glad you’re here talking with me."
+      ]
+    },
+    {
+      name: 'anxious',
+      keywords: ['anxious', 'nervous', 'worried', 'scared', 'afraid', 'panic', 'stress'],
+      initialResponse: "Feeling anxious can be really overwhelming. It’s okay to feel this way. Would you like to talk about what’s making you anxious?",
+      followUps: [
+        "Thank you for telling me. Sometimes naming what worries us helps reduce its power.",
+        "Remember to breathe deeply — slow breaths can help calm your mind. Have you tried that?",
+        "You’re doing your best, and it’s okay to take things slowly.",
+        "Anxiety can feel very isolating, but you’re not alone in this.",
+        "If the worry feels too much, talking to someone you trust or a professional can really help."
+      ],
+      motivationalResponses: [
+        "You’re facing your fears by sharing them — that’s brave.",
+        "One moment at a time, you can get through this.",
+        "Your feelings are valid, and you can find calm again.",
+        "You have inner strength, even if it feels hidden right now.",
+        "I believe in your ability to find peace, step by step."
+      ]
+    },
+    {
+      name: 'alone',
+      keywords: ['alone', 'lonely', 'isolated', 'friendless', 'left out'],
+      initialResponse: "Feeling alone is hard. I’m here with you. Would you like to share more about what’s been making you feel this way?",
+      followUps: [
+        "It takes courage to share those feelings. Thank you.",
+        "Sometimes, even small connections can help. Is there someone you trust you could talk to?",
+        "Loneliness can be heavy — what are some things you enjoy or find comfort in?",
+        "Remember, reaching out is a sign of strength, not weakness.",
+        "I’m here to listen whenever you want to share."
+      ],
+      motivationalResponses: [
+        "You are not truly alone — there are people who care.",
+        "Even in quiet moments, you are valuable and seen.",
+        "Building connections takes time, and you’re taking steps right now by talking.",
+        "You deserve kindness and friendship, and it can happen.",
+        "Keep reaching out — your voice matters."
+      ]
+    },
+    {
+      name: 'hopeless',
+      keywords: ['hopeless', 'give up', 'suicide', 'kill myself', 'worthless', 'no future', 'end it'],
+      initialResponse: "It sounds like you’re going through an extremely hard time right now. Please remember, you don’t have to face this alone. You might consider reaching out to a trusted friend, family member, or professional for support. Here's a helpline if you need it: 1-800-273-8255 (USA). Would you like to talk more about how you're feeling?",
+      followUps: [
+        "Thank you for sharing your feelings. You are important, and your feelings matter.",
+        "Sometimes, even small steps can help in tough times. What’s something, no matter how small, that you enjoy or find comfort in?",
+        "You’re showing courage by opening up — that’s a really strong thing.",
+        "Remember, there are people who want to help you through this.",
+        "Whenever you want to talk, I’m here to listen."
+      ],
+      motivationalResponses: [
+        "You are valuable just as you are.",
+        "There is hope, even when it feels impossible right now.",
+        "Your story isn’t over yet. There’s help and kindness available.",
+        "You are stronger than your hardest days.",
+        "Please consider reaching out for support — you don’t have to carry this alone."
+      ]
+    },
+    {
+      name: 'angry',
+      keywords: ['angry', 'mad', 'furious', 'irritated', 'frustrated', 'upset', 'annoyed', 'resentful'],
+      initialResponse: "It sounds like you’re feeling really angry right now. That’s a valid feeling. Would you like to talk about what’s making you feel this way?",
+      followUps: [
+        "Thanks for sharing that. What do you think is causing this anger?",
+        "It’s okay to feel frustrated sometimes. How have you been coping with these feelings?",
+        "Anger can be tough to manage. What usually helps you calm down?",
+        "Remember, expressing anger safely is important. What might help you release some of that tension?",
+        "I’m here to listen whenever you want to talk more about it."
+      ],
+      motivationalResponses: [
+        "Your feelings are important, and it’s good you’re expressing them.",
+        "Finding healthy ways to deal with anger can help you feel more at peace.",
+        "You have the strength to work through these feelings, step by step.",
+        "It’s okay to take a break and breathe. You deserve calm and kindness too.",
+        "Talking about anger can be a powerful step toward healing."
+      ]
+    }
+  ];
+
+  // Generic fallback responses to keep flow natural
+  const genericFallbacks = [
+    "Thanks for sharing. Can you tell me a bit more?",
+    "I'm listening — please go on when you're ready.",
+    "That sounds important. What else is on your mind?",
+    "It's okay to take your time. I'm here with you.",
+    "I appreciate you opening up to me."
+  ];
+
+  // Append message to chat
+  function addMessage(text, from = 'bot') {
+    const div = document.createElement('div');
+    div.classList.add('msg');
+    div.classList.add(from === 'user' ? 'msg-user' : 'msg-bot');
+    div.textContent = text;
+    chatHistory.appendChild(div);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+  }
+
+  // Find matching topic based on user input keywords
+  function findTopic(input) {
+    input = input.toLowerCase();
+    for (const topic of topics) {
+      for (const keyword of topic.keywords) {
+        if (input.includes(keyword)) {
+          return topic;
+        }
+      }
+    }
+    return null;
+  }
+
+  // Select random message from array
+  function randomFromArray(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  // Main chatbot response logic
+  function getBotResponse(input) {
+    if (!input.trim()) return "Please share whatever you're comfortable with.";
+
+    // First turn or reset conversation state if input is new topic
+    if (!conversationState) {
+      const topic = findTopic(input);
+      if (topic) {
+        conversationState = {
+          topic: topic,
+          turn: 1
+        };
+        conversationTurnCount = 1;
+        return topic.initialResponse;
+      } else {
+        // No clear topic, give generic gentle prompt
+        return randomFromArray(genericFallbacks);
+      }
+    } else {
+      // Continuing a conversation in a topic
+      conversationTurnCount++;
+      const topic = conversationState.topic;
+
+      // Every 3rd turn, add motivational encouragement
+      if (conversationTurnCount % 3 === 0) {
+        return randomFromArray(topic.motivationalResponses);
+      }
+
+      // Use follow-up messages in order, cycle if needed
+      const followUps = topic.followUps;
+      const index = (conversationTurnCount - 2) % followUps.length;
+      if (conversationTurnCount > maxTurnsPerTopic) {
+        conversationState = null; // reset conversation after enough turns
+        return "Thank you for sharing with me today. Remember, I'm here anytime you want to talk.";
+      }
+      return followUps[index];
+    }
+  }
+
+  // Event listener for send button
+  chatSend.addEventListener('click', () => {
+    const userText = chatInput.value.trim();
+    if (!userText) return;
+    addMessage(userText, 'user');
+    chatInput.value = '';
+    const botReply = getBotResponse(userText);
+    setTimeout(() => addMessage(botReply, 'bot'), 500);
+  });
+
+  // Also send message on pressing Enter (Shift+Enter for new line)
+  chatInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      chatSend.click();
+    }
+  });
+
+  // Start with a gentle greeting
+  addMessage("Hello! I’m here to listen. How are you feeling today?", 'bot');
+</script>
+
+</body>
+</html>
