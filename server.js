@@ -1067,7 +1067,7 @@ app.get("/admin/active-users", checkDbConnection, (req, res) => {
 app.get("/admin/registered-users", checkDbConnection, (req, res) => {
   const query = `
   SELECT user_id, name, surname, username, email, registration_date, role
-  FROM sql3776573.users
+  FROM users
   ORDER BY user_id ASC 
   `;
   db.query(query, (err, results) => {
@@ -1153,81 +1153,58 @@ app.get("/spotify-page", (req, res) => {
   res.sendFile(path.join(__dirname, "public" ,"spotify-page.html"));
 });
 
-app.get('/spotify-results', (req, res) => {
-  // Serve the Spotify page
- 
-  const mood = req.query.mood;
+// Replace both /spotify-results and /youtube-results with this single endpoint
+app.get('/music-recommendations', (req, res) => {
+  const { platform, mood, genre } = req.query;
 
-  if (!mood) {
-      console.log("Mood query param is missing.");
-      return res.status(400).send("Mood query param is required.");
+  // Validate required parameters
+  if (!platform || !mood) {
+    return res.status(400).json({ 
+      error: "Platform and mood parameters are required",
+      valid_platforms: ["spotify", "youtube"]
+    });
   }
 
-  console.log("Fetching playlists for mood:", mood);
+  // Build the query
+  let sql = `
+    SELECT * FROM mood_playlist
+    WHERE platform = ? 
+    AND mood_name = ?
+  `;
+  const params = [platform, mood];
 
-  const sql = 'SELECT * FROM spotify_playlist WHERE mood_name = ?';
-  db.query(sql, [mood], (err, results) => {
-      if (err) {
-          console.error(err);
-          return res.status(500).send("Database error");
-      }
-
-      if (results.length === 0) {
-          console.log("No playlists found for mood:", mood);
-          return res.status(404).send("No playlists or podcasts found for this mood.");
-      }
-
-      const data = results[0]; // Assuming we get the first match for the mood
-      console.log("Playlists found:", data);
-
-      // Send the response with the playlist links
-
-      res.json({
-          spotifyPlaylist: {
-              amapianoLink: data.amapiano_link,
-              kwaitoLink: data.kwaito_link,
-              globalLink: data.global_link
-          },
-          podcasts: {
-              podcastLink1: data.podcast_link_1,
-              podcastLink2: data.podcast_link_2
-          }
-      });
-  });
-});
-
-
-
-app.get('/youtube-results', (req, res) => {
-  const mood = req.query.mood;
-
-  if (!mood) {
-      return res.status(400).send("Mood query param is required.");
+  // Add genre filter if provided
+  if (genre) {
+    sql += ' AND genre = ?';
+    params.push(genre);
   }
 
-  const sql = 'SELECT * FROM youtube_playlist WHERE mood_name = ?';
-  db.query(sql, [mood], (err, results) => {
-      if (err) {
-          console.error(err);
-          return res.status(500).send("Database error");
-      }
+  // Execute query
+  db.query(sql, params, (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
 
-      if (results.length === 0) {
-          return res.status(404).send("No playlists or podcasts found for this mood.");
-      }
-
-      const data = results[0]; // Assuming we get the first match for the mood
-      res.json({
-          youtubePlaylist: {
-              amapianoLink: data.amapiano_link,
-              kwaitoLink: data.kwaito_link,
-              globalLink: data.global_link
-          },
-          podcasts: {
-              podcastLink1: data.podcast_link_1,
-              podcastLink2: data.podcast_link_2
-          }
+    if (results.length === 0) {
+      return res.status(404).json({ 
+        error: "No recommendations found",
+        suggestion: "Try a different mood or genre combination"
       });
+    }
+
+    // Format response
+    const response = {
+      platform,
+      mood,
+      recommendations: results.map(item => ({
+        genre: item.genre,
+        playlistLink: item.playlist_link,
+        podcasts: [item.podcast_link_1, item.podcast_link_2].filter(Boolean)
+      }))
+    };
+
+    res.json(response);
   });
 });
 
@@ -1241,62 +1218,107 @@ function checkAdminRole(req, res, next) {
 
 
 
-// Fetch Spotify playlists
-app.get('/admin/spotify-playlists', (req, res) => {
-  const sql = `
-      SELECT 
-          id, mood_name, amapiano_link, kwaito_link, global_link, podcast_link_1, podcast_link_2 
-      FROM spotify_playlist
+// Fetch all playlists (replaces both /admin/spotify-playlists and /admin/youtube-playlists)
+// Fetch all playlists
+app.get('/admin/playlists', (req, res) => {
+  const { platform } = req.query; // Optional platform filter
+  
+  let sql = `
+    SELECT 
+      id, platform, mood_name, genre, playlist_link, podcast_link_1, podcast_link_2
+    FROM mood_playlist
   `;
+  
+  const params = [];
+  
+  if (platform) {
+    sql += ' WHERE platform = ?';
+    params.push(platform);
+  }
+  
+  sql += ' ORDER BY mood_name, genre';
 
-  db.query(sql, (err, results) => {
-      if (err) {
-          console.error("Database error:", err);
-          return res.status(500).send("Database error");
+  db.query(sql, params, (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).send("Database error");
+    }
+    
+    // Transform to grouped by mood and genre format
+    const grouped = results.reduce((acc, curr) => {
+      if (!acc[curr.mood_name]) {
+        acc[curr.mood_name] = {
+          mood_name: curr.mood_name,
+          genres: {}
+        };
       }
-      res.json(results);
+      
+      if (!acc[curr.mood_name].genres[curr.genre]) {
+        acc[curr.mood_name].genres[curr.genre] = {
+          genre: curr.genre,
+          items: []
+        };
+      }
+      
+      acc[curr.mood_name].genres[curr.genre].items.push({
+        id: curr.id,
+        playlist_link: curr.playlist_link,
+        podcasts: [curr.podcast_link_1, curr.podcast_link_2].filter(Boolean)
+      });
+      
+      return acc;
+    }, {});
+    
+    // Convert to array format expected by frontend
+    const response = Object.values(grouped).map(mood => ({
+      mood_name: mood.mood_name,
+      genres: Object.values(mood.genres)
+    }));
+    
+    res.json(response);
   });
 });
-
-// Fetch YouTube playlists
-app.get('/admin/youtube-playlists', (req, res) => {
-  const sql = `
-      SELECT 
-          id, mood_name, amapiano_link, kwaito_link, global_link, podcast_link_1, podcast_link_2 
-      FROM youtube_playlist
-  `;
-
-  db.query(sql, (err, results) => {
-      if (err) {
-          console.error("Database error:", err);
-          return res.status(500).send("Database error");
-      }
-      res.json(results);
-  });
-});
-
-
 
 // Update a playlist
+// Update a playlist (now works for all platforms/genres)
 app.post('/admin/playlists/update', (req, res) => {
-  const { id, source, mood_name, amapiano_link, kwaito_link, global_link, podcast_link_1, podcast_link_2 } = req.body;
-
-  const table = source === 'spotify' ? 'spotify_playlist' : 'youtube_playlist';
+  const { 
+    id, 
+    mood_name, 
+    genre, 
+    playlist_link, 
+    podcast_link_1, 
+    podcast_link_2 
+  } = req.body;
 
   const sql = `
-      UPDATE ${table}
-      SET amapiano_link = ?, kwaito_link = ?, global_link = ?, podcast_link_1 = ?, podcast_link_2 = ?
-      WHERE id = ?
+    UPDATE mood_playlist
+    SET 
+      mood_name = ?,
+      genre = ?,
+      playlist_link = ?,
+      podcast_link_1 = ?,
+      podcast_link_2 = ?,
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
   `;
 
-  db.query(sql, [mood_name, amapiano_link, kwaito_link, global_link, podcast_link_1, podcast_link_2, id], (err, result) => {
+  db.query(sql, 
+    [mood_name, genre, playlist_link, podcast_link_1, podcast_link_2, id], 
+    (err, result) => {
       if (err) {
-          console.error("Database error:", err);
-          return res.status(500).send("Database error");
+        console.error("Database error:", err);
+        return res.status(500).send("Database error");
       }
+      
+      if (result.affectedRows === 0) {
+        return res.status(404).send("Playlist not found");
+      }
+      
       res.send("Playlist updated successfully");
   });
 });
+
 
 // Route to get the logged-in user's role
 app.get('/api/user-role', (req, res) => {
@@ -1424,6 +1446,85 @@ app.get('/admin/admin-details', (req, res) => {
   });
 });
 
+//search by mood api
+
+app.post("/search-mood", checkDbConnection, (req, res) => {
+  const userId = req.session?.userId;
+  const { mood } = req.body;
+
+  if (!userId) {
+    return res.status(401).json({ message: "User not logged in." });
+  }
+
+  if (!mood || typeof mood !== "string") {
+    return res.status(400).json({ message: "Mood type is required." });
+  }
+
+  const moodSearch = `%${mood}%`;
+
+  const query = `
+    SELECT logged_mood, log_date
+    FROM moodlogs
+    WHERE user_id = ? AND logged_mood LIKE ?
+    ORDER BY log_date DESC
+  `;
+
+  db.query(query, [userId, moodSearch], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({ message: "Error retrieving moods." });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "No moods found matching that type." });
+    }
+
+    res.status(200).json(results);
+  });
+});
+
+//journal paste both 1
+
+
+const moment = require('moment-timezone');
+
+app.post('/journal', async (req, res) => {
+  const { mood, entry } = req.body;
+  const userId = req.session.userId || 1; // Replace with actual session or logic
+
+  // Get South African time
+  const saTime = moment().tz('Africa/Johannesburg').format('YYYY-MM-DD HH:mm:ss');
+
+  try {
+    await db.execute(
+      'INSERT INTO journal_entries (user_id, mood, entry, created_at) VALUES (?, ?, ?, ?)',
+      [userId, mood, entry, saTime]
+    );
+    res.json({ message: 'Journal entry saved successfully.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Failed to save entry.' });
+  }
+});
+
+//journal paste both 2
+
+
+app.get('/journal', (req, res) => {
+    const userId = req.session.userId;
+
+    if (!userId) {
+        return res.status(401).json({ message: 'User not logged in' });
+    }
+
+    const query = `SELECT mood, entry, created_at FROM journal_entries WHERE user_id = ? ORDER BY created_at DESC`;
+    db.query(query, [userId], (err, results) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error fetching entries' });
+        }
+        res.json({ entries: results });
+    });
+});
 
 const PORT = process.env.PORT || 3000;
 

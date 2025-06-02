@@ -261,113 +261,159 @@ document.addEventListener('DOMContentLoaded', function () {
   
   document.addEventListener("DOMContentLoaded", async () => {
     const spotifyPlaylistTableBody = document.querySelector("#spotifyPlaylistTable tbody");
-  
+    const youtubePlaylistTableBody = document.querySelector("#youtubePlaylistTable tbody");
+
     // Helper function to extract link names from URLs
     function extractLinkName(url) {
-        try {
-            const urlObj = new URL(url);
-            return urlObj.hostname.replace('www.', ''); // Extract hostname and remove 'www.'
-        } catch {
-            return "N/A"; // Return "N/A" if the URL is invalid
-        }
-    }
-  
-    async function fetchSpotifyPlaylists() {
       try {
-          const response = await fetch('/admin/spotify-playlists');
-          const playlists = await response.json();
-  
-          // Populate the table
-          spotifyPlaylistTableBody.innerHTML = playlists.map(playlist => `
-              <tr data-id="${playlist.id}" data-source="spotify">
-                  <td>${playlist.mood_name}</td>
-                  <td>
-                      <div>
-                          <strong>Amapiano:</strong> ${extractLinkName(playlist.amapiano_link)}<br>
-                          <input type="text" value="${playlist.amapiano_link}" class="amapiano-link" />
-                      </div>
-                      <div>
-                          <strong>Kwaito:</strong> ${extractLinkName(playlist.kwaito_link)}<br>
-                          <input type="text" value="${playlist.kwaito_link}" class="kwaito-link" />
-                      </div>
-                      <div>
-                          <strong>Global:</strong> ${extractLinkName(playlist.global_link)}<br>
-                          <input type="text" value="${playlist.global_link}" class="global-link" />
-                      </div>
-                      <div>
-                          <strong>Podcast 1:</strong> ${extractLinkName(playlist.podcast_link_1)}<br>
-                          <input type="text" value="${playlist.podcast_link_1}" class="podcast-link-1" />
-                      </div>
-                      <div>
-                              <strong>Podcast 2:</strong> ${extractLinkName(playlist.podcast_link_2)}<br>
-                              <input type="text" value="${playlist.podcast_link_2}" class="podcast-link-2" />
-                          </div>
-                      </td>
-                      <td>
-                          <button class="update-button">Update</button>
-                      </td>
-                  </tr>
-              `).join('');
-          } catch (error) {
-              console.error("Error fetching Spotify playlists:", error);
-          }
+        const urlObj = new URL(url);
+        return urlObj.hostname.replace('www.', ''); // Extract hostname and remove 'www.'
+      } catch {
+        return "N/A"; // Return "N/A" if the URL is invalid
       }
-  
-      const youtubePlaylistTableBody = document.querySelector("#youtubePlaylistTable tbody");
-    console.log("YouTube Playlist Table Body:", youtubePlaylistTableBody); // Debugging log
-  
-    // Helper function to extract link names from URLs
-    function extractLinkName(url) {
-        try {
-            const urlObj = new URL(url);
-            return urlObj.hostname.replace('www.', ''); // Extract hostname and remove 'www.'
-        } catch {
-            return "N/A"; // Return "N/A" if the URL is invalid
-        }
     }
-  
-    // Fetch YouTube playlists and populate the table
-       // Fetch YouTube playlists and populate the table
-       async function fetchYouTubePlaylists() {
-        try {
-            const response = await fetch('/admin/youtube-playlists');
-            const playlists = await response.json();
-  
-            // Populate the table
-            youtubePlaylistTableBody.innerHTML = playlists.map(playlist => `
-                <tr data-id="${playlist.id}" data-source="youtube">
-                    <td>${playlist.mood_name}</td>
-                    <td>
-                        <div>
-                            <strong>Amapiano:</strong> ${extractLinkName(playlist.amapiano_link)}<br>
-                            <input type="text" value="${playlist.amapiano_link}" class="amapiano-link" />
-                        </div>
-                        <div>
-                            <strong>Kwaito:</strong> ${extractLinkName(playlist.kwaito_link)}<br>
-                            <input type="text" value="${playlist.kwaito_link}" class="kwaito-link" />
-                        </div>
-                        <div>
-                            <strong>Global:</strong> ${extractLinkName(playlist.global_link)}<br>
-                            <input type="text" value="${playlist.global_link}" class="global-link" />
-                        </div>
-                        <div>
-                            <strong>Podcast 1:</strong> ${extractLinkName(playlist.podcast_link_1)}<br>
-                            <input type="text" value="${playlist.podcast_link_1}" class="podcast-link-1" />
-                        </div>
-                        <div>
-                              <strong>Podcast 2:</strong> ${extractLinkName(playlist.podcast_link_2)}<br>
-                              <input type="text" value="${playlist.podcast_link_2}" class="podcast-link-2" />
-                          </div>
-                      </td>
-                      <td>
-                          <button class="update-button">Update</button>
-                      </td>
-                  </tr>
-              `).join('');
-          } catch (error) {
-              console.error("Error fetching YouTube playlists:", error);
-          }
+
+    // Fetch playlists for a specific platform
+    async function fetchPlaylists(platform) {
+      try {
+        const response = await fetch(`/admin/playlists?platform=${platform}`);
+        return await response.json();
+      } catch (error) {
+        console.error(`Error fetching ${platform} playlists:`, error);
+        return [];
       }
+    }
+
+    // Create a row for a mood with all its genres
+    function createMoodRow(moodData, platform) {
+      // Group items by genre
+      const genreGroups = {};
+      moodData.genres.forEach(genreGroup => {
+        const genre = genreGroup.genre;
+        genreGroups[genre] = genreGroup.items;
+      });
+
+      // Create the row HTML
+      const row = document.createElement('tr');
+      row.setAttribute('data-mood', moodData.mood_name);
+      row.setAttribute('data-source', platform);
+
+      // Mood name cell
+      const moodCell = document.createElement('td');
+      moodCell.textContent = moodData.mood_name;
+      row.appendChild(moodCell);
+
+      // Playlists cell
+      const playlistsCell = document.createElement('td');
+
+      // Add each genre section
+      for (const [genre, items] of Object.entries(genreGroups)) {
+        items.forEach(item => {
+          const genreDiv = document.createElement('div');
+          genreDiv.innerHTML = `
+                <strong>${genre}:</strong> ${extractLinkName(item.playlist_link)}<br>
+                <input type="text" value="${item.playlist_link}" class="playlist-link" data-genre="${genre}" data-id="${item.id}" />
+                <div class="podcast-section">
+                    <strong>Podcast 1:</strong> ${extractLinkName(item.podcasts[0] || '')}<br>
+                    <input type="text" value="${item.podcasts[0] || ''}" class="podcast-link-1" data-id="${item.id}" />
+                </div>
+                <div class="podcast-section">
+                    <strong>Podcast 2:</strong> ${extractLinkName(item.podcasts[1] || '')}<br>
+                    <input type="text" value="${item.podcasts[1] || ''}" class="podcast-link-2" data-id="${item.id}" />
+                </div>
+            `;
+          playlistsCell.appendChild(genreDiv);
+        });
+      }
+
+      row.appendChild(playlistsCell);
+
+      // Actions cell
+      const actionsCell = document.createElement('td');
+      const updateButton = document.createElement('button');
+      updateButton.className = 'update-button';
+      updateButton.textContent = 'Update All';
+      actionsCell.appendChild(updateButton);
+      row.appendChild(actionsCell);
+
+      return row;
+    }
+
+    // Populate a table with playlists grouped by mood
+    function populateTable(tableBody, moodGroups, platform) {
+      tableBody.innerHTML = '';
+
+      moodGroups.forEach(moodData => {
+        const row = createMoodRow(moodData, platform);
+        tableBody.appendChild(row);
+      });
+
+      // Add event listeners to update buttons
+      tableBody.querySelectorAll('.update-button').forEach(button => {
+        button.addEventListener('click', async function () {
+          const row = this.closest('tr');
+          const moodName = row.getAttribute('data-mood');
+          const platform = row.getAttribute('data-source');
+
+          // Get all playlist inputs in this row
+          const updates = [];
+          row.querySelectorAll('input[class="playlist-link"]').forEach(input => {
+            const id = input.getAttribute('data-id');
+            const genre = input.getAttribute('data-genre');
+            const playlist_link = input.value;
+
+            // Find corresponding podcast inputs
+            const podcast1 = row.querySelector(`input.podcast-link-1[data-id="${id}"]`).value;
+            const podcast2 = row.querySelector(`input.podcast-link-2[data-id="${id}"]`).value;
+
+            updates.push({
+              id,
+              mood_name: moodName,
+              genre,
+              playlist_link,
+              podcast_link_1: podcast1,
+              podcast_link_2: podcast2
+            });
+          });
+
+          // Send updates one by one
+          try {
+            for (const update of updates) {
+              const response = await fetch('/admin/playlists/update', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(update)
+              });
+
+              if (!response.ok) {
+                const error = await response.text();
+                throw new Error(error);
+              }
+            }
+
+            alert('All playlists updated successfully!');
+            fetchAndDisplayPlaylists(); // Refresh the data
+          } catch (error) {
+            console.error('Error updating playlists:', error);
+            alert(`Failed to update playlists: ${error.message}`);
+          }
+        });
+      });
+    }
+
+    // Fetch and display all playlists
+    async function fetchAndDisplayPlaylists() {
+      const spotifyMoodGroups = await fetchPlaylists('spotify');
+      const youtubeMoodGroups = await fetchPlaylists('youtube');
+
+      populateTable(spotifyPlaylistTableBody, spotifyMoodGroups, 'spotify');
+      populateTable(youtubePlaylistTableBody, youtubeMoodGroups, 'youtube');
+    }
+
+    // Initialize the page
+    fetchAndDisplayPlaylists();
   
       async function fetchBooks() {
         try {
@@ -518,4 +564,5 @@ document.addEventListener('DOMContentLoaded', function () {
   
    
   });
+  
   

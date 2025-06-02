@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mood Search</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom right, #f1cfd0, #d7b6b9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+table thead {
+  background-color: #ff66a5;
+  color: white;
+}
+
+table th, table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+table tr:hover {
+  background-color: #ffe6f0;
+}
+#results {
+  overflow-x: auto;
+}
+
+    h2 {
+      color: #333;
+    }
+
+    #moodForm {
+      background-color: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    #moodInput {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      width: 250px;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #ff66a5;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #e05590;
+    }
+
+    #results {
+      margin-top: 20px;
+      max-width: 500px;
+      text-align: left;
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    #results p {
+      margin: 5px 0;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 10px 0;
+    }
+    </style>
+</head>
+<body>
+
+  <h2>Search Your Mood Logs</h2>
+  <form id="moodForm">
+    <input type="text" id="moodInput" placeholder="Enter mood type (e.g. happy)" required>
+    <button type="submit">Search</button>
+  </form>
+
+  <div id="results"></div>
+
+  <script>
+    document.getElementById("moodForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const mood = document.getElementById("moodInput").value.trim();
+
+      const res = await fetch("/search-mood", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ mood })
+      });
+
+      const resultDiv = document.getElementById("results");
+      resultDiv.innerHTML = "";
+
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          resultDiv.innerHTML = "<h3>Matching Mood Logs:</h3>";
+          if (Array.isArray(data) && data.length > 0) {
+  resultDiv.innerHTML = "<h3>Matching Mood Logs:</h3>";
+
+  const table = document.createElement("table");
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>Mood</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${data.map(log => `
+        <tr>
+          <td>${log.logged_mood}</td>
+          <td>${new Date(log.log_date).toLocaleString()}</td>
+        </tr>
+      `).join("")}
+    </tbody>
+  `;
+  resultDiv.appendChild(table);
+} else {
+  resultDiv.innerHTML = "<p>No matching logs found.</p>";
+}
+
+        }
+      } else {
+        const error = await res.json();
+        resultDiv.innerHTML = `<p style="color:red;">${error.message}</p>`;
+      }
+    });
+  </script>
+</body>
+</html>

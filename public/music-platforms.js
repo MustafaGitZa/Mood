@@ -142,18 +142,18 @@ if (pageTitleElement) {
     pageTitleElement.textContent = `Select a Music/Podcast Platform for ${mood}`;
 }
 
-// Spotify button - redirect to local page with mood param
+// Spotify button - redirect to genre selection with mood and platform params
 const spotifyBtn = document.getElementById("spotifyBtn");
 if (spotifyBtn) {
     spotifyBtn.addEventListener("click", () => {
-        window.location.href = `spotify-page.html?mood=${encodeURIComponent(mood)}`;
+        window.location.href = `genre-selection.html?platform=spotify&mood=${encodeURIComponent(mood)}`;
     });
 }
 
-// YouTube button - redirect to local page with mood param
+// YouTube button - redirect to genre selection with mood and platform params
 const youtubeBtn = document.getElementById("youtubeBtn");
 if (youtubeBtn) {
     youtubeBtn.addEventListener("click", () => {
-        window.location.href = `youtube-page.html?mood=${encodeURIComponent(mood)}`;
+        window.location.href = `genre-selection.html?platform=youtube&mood=${encodeURIComponent(mood)}`;
     });
 }

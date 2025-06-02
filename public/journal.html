@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mood Journal</title>
+  <style>
+    /* Body Styling */
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #e3c1a8, #f7c8d3); /* Nude pastel gradient */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #333;
+      transition: all 0.3s ease-in-out;
+    }
+     .gratitude-reminder {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #d4edda; /* Soft green */
+    color: #155724;
+    padding: 15px 25px;
+    border-radius: 12px;
+    border: 1.5px solid #c3e6cb;
+    box-shadow: 0 6px 15px rgba(21, 87, 36, 0.25);
+    font-weight: 600;
+    font-size: 16px;
+    max-width: 320px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    animation: slideUpFade 0.6s ease forwards;
+    z-index: 1000;
+  }
+
+  .gratitude-reminder button {
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    font-weight: bold;
+    color: #155724;
+    cursor: pointer;
+    margin-left: 20px;
+    line-height: 1;
+    transition: color 0.3s ease;
+  }
+
+  .gratitude-reminder button:hover {
+    color: #0b3a13;
+  }
+
+  @keyframes slideUpFade {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, 30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  }
+
+    /* Container Styling */
+    .container {
+      background-color: #fff;
+      padding: 30px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid #ddd;
+      transition: all 0.3s ease-in-out;
+      text-align: center;
+    }
+
+    /* Heading Styling */
+    h2 {
+      color: #b35d57; /* Soft reddish-brown tone */
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Form Styling */
+    form {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #555;
+      text-align: left;
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+      background-color: #f4f4f4;
+      transition: all 0.3s ease-in-out;
+      resize: vertical;
+    }
+
+    input[type="text"]:focus, textarea:focus {
+      outline: none;
+      border-color: #b35d57; /* Focus effect with nude tone */
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #b35d57; /* Nude brown tone */
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease-in-out;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #8f4744;
+    }
+
+    /* Message Styling */
+    #message {
+      margin: 15px 0;
+      padding: 12px;
+      border-radius: 5px;
+      font-weight: 600;
+      display: none;
+    }
+
+    #message.success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    #message.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    /* Entries List Styling */
+    #entries-list {
+      text-align: left;
+      max-height: 250px;
+      overflow-y: auto;
+      padding-left: 20px;
+      margin-top: 10px;
+      border-top: 1px solid #ddd;
+    }
+
+    #entries-list li {
+      margin-bottom: 10px;
+      line-height: 1.3;
+      font-size: 14px;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Gratitude / Mood Journal</h2>
+
+    <form id="journal-form">
+      <label for="mood">Mood/Name:</label>
+      <input type="text" id="mood" name="mood" required />
+
+      <label for="entry">Journal Entry:</label>
+      <textarea id="entry" name="entry" rows="5" required></textarea>
+
+      <button type="submit">Submit</button>
+    </form>
+
+    <button id="toggle-entries-btn">View Journal Entries</button>
+
+    <div id="message"></div>
+
+    <ul id="entries-list" style="display:none;"></ul>
+<div id="gratitude-reminder" style="display:none; background:#d4edda; color:#155724; padding:10px; margin-bottom:15px; border-radius:5px; border:1px solid #c3e6cb;">
+    🌟 Don't forget to write something you're grateful for today!
+    <button onclick="closeReminder()" style="float:right;">&times;</button>
+  </div>
+  </div>
+   
+
+  <script>
+    const form = document.getElementById('journal-form');
+    const message = document.getElementById('message');
+    const entriesList = document.getElementById('entries-list');
+    const toggleBtn = document.getElementById('toggle-entries-btn');
+    let entriesVisible = false;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const mood = document.getElementById('mood').value.trim();
+      const entry = document.getElementById('entry').value.trim();
+
+      if (!mood || !entry) {
+        showMessage('Please fill out both mood and entry fields.', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch('/journal', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mood, entry })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          showMessage(result.message || 'Journal entry saved!', 'success');
+          form.reset();
+          if (entriesVisible) loadEntries();
+        } else {
+          showMessage(result.message || 'Failed to save entry.', 'error');
+        }
+      } catch (err) {
+        showMessage('Error communicating with server.', 'error');
+        console.error(err);
+      }
+    });
+
+    toggleBtn.addEventListener('click', () => {
+      entriesVisible = !entriesVisible;
+      entriesList.style.display = entriesVisible ? 'block' : 'none';
+      toggleBtn.textContent = entriesVisible ? 'Hide Journal Entries' : 'View Journal Entries';
+      if (entriesVisible) loadEntries();
+    });
+
+    function showMessage(text, type) {
+      message.textContent = text;
+      message.className = type;
+      message.style.display = 'block';
+      setTimeout(() => {
+        message.style.display = 'none';
+      }, 4000);
+    }
+
+    async function loadEntries() {
+      try {
+        const res = await fetch('/journal');
+        if (!res.ok) throw new Error('Failed to fetch entries');
+
+        const data = await res.json();
+        entriesList.innerHTML = '';
+
+        data.entries.forEach(e => {
+          const utcDate = new Date(e.created_at);
+          const saDateStr = utcDate.toLocaleString('en-ZA', {
+            timeZone: 'Africa/Johannesburg',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          });
+
+          const item = document.createElement('li');
+          item.textContent = `${saDateStr} — Mood: ${e.mood} — ${e.entry}`;
+          entriesList.appendChild(item);
+        });
+      } catch (err) {
+        showMessage('Could not load journal entries.', 'error');
+        console.error(err);
+      }
+    }
+    function closeReminder() {
+  document.getElementById('gratitude-reminder').style.display = 'none';
+}
+
+window.onload = function() {
+  const reminderCountKey = 'gratitudeReminderCount';
+  const lastDateKey = 'gratitudeReminderDate';
+
+  const today = new Date().toDateString();
+  const lastDate = localStorage.getItem(lastDateKey);
+  let count = parseInt(localStorage.getItem(reminderCountKey)) || 0;
+
+  // Reset count if day changed
+  if (lastDate !== today) {
+    localStorage.setItem(lastDateKey, today);
+    count = 0;
+  }
+
+  if (count < 3) {
+    document.getElementById('gratitude-reminder').style.display = 'block';
+    count++;
+    localStorage.setItem(reminderCountKey, count);
+  } else {
+    document.getElementById('gratitude-reminder').style.display = 'none';
+  }
+};
+
+  </script>
+</body>
+</html>
