@@ -433,6 +433,29 @@ select {
 }
 
 
+#backBtn {
+  background: linear-gradient(135deg, #991651, #ff69b4);
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transition: background 0.3s ease, transform 0.2s ease;
+  display: inline-block;
+}
+
+#backBtn:hover {
+  background: linear-gradient(135deg, #fa0803, #850c3c);
+  transform: translateY(-2px);
+}
+
+#backBtn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
 
 
 

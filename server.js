@@ -9,6 +9,7 @@ const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const router = express.Router();
 
+
 const resetTokens = {}; // { token: email }
 
 const app = express();
@@ -207,48 +208,74 @@ app.post("/save-emoji", checkDbConnection, (req, res) => {
 //comment
 
 // Register Route (POST) - with DB check
+//updated register api cos date of birth is calculated and return as age
+
+// Register Route (POST) - with DB check
 app.post("/register", checkDbConnection, upload.single("profile_picture"), async (req, res) => {
   console.log("Register request received");
 
-  const { username, password, email, name, surname } = req.body;
-  console.log("Received user details:", { username, email, name, surname });
+  const { username, password, email, name, surname, dob } = req.body; // Include dob from the form
+  console.log("Received user details:", { username, email, name, surname, dob });
 
   let profile_picture = null;
 
   if (req.file) {
-      console.log("📸 Profile picture received:", req.file.filename);
-      profile_picture = `/uploads/${req.file.filename}`;
+    console.log("📸 Profile picture received:", req.file.filename);
+    profile_picture = `/uploads/${req.file.filename}`;
   } else if (req.body.avatar_path) {
-      console.log("Avatar path received:", req.body.avatar_path);
-      profile_picture = req.body.avatar_path;
+    console.log("Avatar path received:", req.body.avatar_path);
+    profile_picture = req.body.avatar_path;
   }
-  // If neither a file nor a pre-selected avatar path exists, profile_picture remains null.
+
+  // ✅ Calculate age from dob
+  let calculatedAge = null;
+  if (dob) {
+    try {
+      const normalizedDOB = dob.replace(/\//g, '-'); // Convert YYYY/MM/DD to YYYY-MM-DD
+      const birthDate = new Date(normalizedDOB);
+      const today = new Date();
+      calculatedAge = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        calculatedAge--;
+      }
+      console.log("Calculated age:", calculatedAge);
+    } catch (error) {
+      console.error("Invalid DOB format:", dob);
+    }
+  }
 
   if (!username || !password || !email) {
-      return res.status(400).json({ message: "Username, password, and email are required." });
+    return res.status(400).json({ message: "Username, password, and email are required." });
   }
 
   try {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const query = `
-          INSERT INTO users (username, password, email, name, surname, profile_picture, role) 
-          VALUES (?, ?, ?, ?, ?, ?, 'user')
-      `;
-      db.query(query, [username, hashedPassword, email, name, surname, profile_picture], (err, result) => {
-          if (err) {
-              if (err.code === "ER_DUP_ENTRY") {
-                  res.status(400).json({ message: "Username or email already exists!" });
-              } else {
-                  console.error("Error during registration:", err);
-                  res.status(500).json({ message: "Error during registration. Please try again later." });
-              }
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const query = `
+      INSERT INTO users (username, password, email, name, surname, profile_picture, age, role)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 'user')
+    `;
+
+    db.query(
+      query,
+      [username, hashedPassword, email, name, surname, profile_picture, calculatedAge],
+      (err, result) => {
+        if (err) {
+          if (err.code === "ER_DUP_ENTRY") {
+            res.status(400).json({ message: "Username or email already exists!" });
           } else {
-              res.status(201).json({ message: `User registered successfully! Welcome, ${name}` });
+            console.error("Error during registration:", err);
+            res.status(500).json({ message: "Error during registration. Please try again later." });
           }
-      });
+        } else {
+          res.status(201).json({ message: `User registered successfully! Welcome, ${name}` });
+        }
+      }
+    );
   } catch (error) {
-      console.error("Error hashing password:", error);
-      res.status(500).json({ message: "Internal server error." });
+    console.error("Error hashing password:", error);
+    res.status(500).json({ message: "Internal server error." });
   }
 });
 
@@ -998,11 +1025,12 @@ app.post("/check-email", checkDbConnection, express.json(), (req, res) => {
 // Route: EBooks
 app.get('/ebook-results', (req, res) => {
   const mood = req.query.mood;
+  const type = req.query.type;
 
-  const query = 'SELECT googlebook_link_1, googlebook_link_2 FROM mood_ebook_audio WHERE mood_name = ?';
-  db.execute(query, [mood], (err, results) => {
+  const query = 'SELECT googlebook_link_1, googlebook_link_2 FROM mood_ebook_audio WHERE mood_name = ? AND book_type = ?';
+  db.execute(query, [mood, type], (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
-    if (results.length === 0) return res.status(404).json({ error: 'No ebooks found for this mood.' });
+    if (results.length === 0) return res.status(404).json({ error: 'No ebooks found for this mood and type.' });
 
     res.json({
       googlebookLinks: [results[0].googlebook_link_1, results[0].googlebook_link_2]
@@ -1010,20 +1038,23 @@ app.get('/ebook-results', (req, res) => {
   });
 });
 
+
 // Route: Audiobooks
 app.get('/audiobook-results', (req, res) => {
   const mood = req.query.mood;
+  const type = req.query.type;
 
-  const query = 'SELECT audiobook_link_1, audiobook_link_2 FROM mood_ebook_audio WHERE mood_name = ?';
-  db.execute(query, [mood], (err, results) => {
+  const query = 'SELECT audiobook_link_1, audiobook_link_2 FROM mood_ebook_audio WHERE mood_name = ? AND book_type = ?';
+  db.execute(query, [mood, type], (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
-    if (results.length === 0) return res.status(404).json({ error: 'No audiobooks found for this mood.' });
+    if (results.length === 0) return res.status(404).json({ error: 'No audiobooks found for this mood and type.' });
 
     res.json({
       audiobookLinks: [results[0].audiobook_link_1, results[0].audiobook_link_2]
     });
   });
 });
+
 
 
 // Route to send badge email
@@ -1525,6 +1556,160 @@ app.get('/journal', (req, res) => {
         res.json({ entries: results });
     });
 });
+
+
+app.get("/check-mood-health", checkDbConnection, (req, res) => {
+  const userId = req.session.userId;
+
+  if (!userId) {
+    return res.status(403).json({ message: "User not authenticated." });
+  }
+
+  const negativeMoods = ['sad', 'angry'];
+  const threshold = 5;
+  const days = 30;
+
+  // Generate placeholders like (?, ?, ?)
+  const placeholders = negativeMoods.map(() => '?').join(', ');
+
+  const moodCheckQuery = `
+    SELECT COUNT(*) AS negativeCount
+    FROM moodlogs
+    WHERE user_id = ?
+      AND LOWER(TRIM(logged_mood)) IN (${placeholders})
+      AND log_date >= DATE_SUB(NOW(), INTERVAL ? DAY)
+  `;
+
+  const queryParams = [userId, ...negativeMoods, days];
+
+  db.query(moodCheckQuery, queryParams, (err, results) => {
+    if (err) {
+      console.error("Error checking mood health:", err);
+      return res.status(500).json({ message: "Error checking mood health." });
+    }
+
+    const negativeCount = results[0].negativeCount;
+
+    res.json({
+      shouldShowModal: negativeCount >= threshold,
+      count: negativeCount,
+      threshold
+    });
+  });
+});
+
+
+
+app.get('/todays-genres', (req, res) => {
+  const sql = `
+    SELECT DISTINCT genre FROM mood_playlist 
+    WHERE genre IS NOT NULL
+    ORDER BY RAND() 
+    LIMIT 5
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    const genres = results.map(row => row.genre);
+    res.json({ genres });
+  });
+});
+
+// get playlists for a specific genre
+app.get('/playlists-for-genre', (req, res) => {
+  const genre = req.query.genre;
+  if (!genre) {
+    return res.status(400).json({ error: "Genre query parameter is required" });
+  }
+
+  const sql = `
+    SELECT playlist_link, platform, mood_name
+    FROM mood_playlist 
+    WHERE genre = ?
+    ORDER BY RAND()
+    LIMIT 10
+  `;
+
+  db.query(sql, [genre], (err, results) => {
+    if (err) {
+      console.error("Database error fetching playlists:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    // Format results if needed (e.g., rename playlist_link to playlist_url)
+    const playlists = results.map(row => ({
+  url: row.playlist_link,
+  platform: row.platform,
+  mood_name: row.mood_name
+}));
+
+
+    res.json({ playlists });
+  });
+});
+
+
+app.get('/recommended-reads', (req, res) => {
+  const moods = ['Happy', 'Sad', 'Angry', 'Relaxed', 'Inspired', 'Focused'];
+  const randomMood = moods[Math.floor(Math.random() * moods.length)];
+
+  const sql = `
+    SELECT * FROM mood_ebook_audio
+    WHERE mood_name = ?
+    ORDER BY RAND()
+    LIMIT 5
+  `;
+
+  db.query(sql, [randomMood], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    const recommendations = results.map(row => ({
+      mood: row.mood_name,
+      bookType: row.book_type,
+      googleBooks: [row.googlebook_link_1, row.googlebook_link_2].filter(Boolean),
+      audiobooks: [row.audiobook_link_1, row.audiobook_link_2].filter(Boolean)
+    }));
+
+    res.json({ recommendations });
+  });
+});
+
+app.get('/api/mood-trends', (req, res) => {
+  const userId = req.session.userId;
+
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized: no user session" });
+  }
+
+  const sql = `
+    SELECT 
+      logged_mood, 
+      DATE(log_date) AS day, 
+      COUNT(*) AS count
+    FROM moodlogs
+    WHERE user_id = ?
+      AND log_date >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+    GROUP BY logged_mood, day
+    ORDER BY day ASC
+  `;
+
+  db.query(sql, [userId], (err, results) => {
+    if (err) {
+      console.error("Database error fetching mood trends:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    res.json({ trends: results });
+  });
+});
+
+
 
 const PORT = process.env.PORT || 3000;
 

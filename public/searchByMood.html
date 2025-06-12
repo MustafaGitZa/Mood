@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Mood Search</title>
+   <link rel="stylesheet" href="report.css">
   <style>
     body {
       margin: 0;
@@ -96,13 +97,41 @@ table tr:hover {
     </style>
 </head>
 <body>
+   <nav class="navbar">
+        <ul class="nav-menu">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="contact.html">Contact</a>
+            <a href="reportChoose.html">Report</a>
+        </ul>
+        <div class="profile-container">
+            <div class="profile-icon" id="profileIcon">
+                <img id="navProfileAvatar" src="" alt="User Avatar" style="display: none;">
+            </div>
+            <div class="profile-expanded-menu" id="profileExpandedMenu">
+                <div class="avatar-section">
+                    <div class="avatar-placeholder">
+                        <div class="profile-initials" id="profileInitials"></div>
+                        <img src="default-avatar.png" alt="User Avatar" class="profile-avatar" id="profileAvatar">
+                    </div>
+                    <div class="user-info">
+                        <span id="userFullName"></span>
+                    </div>
+                </div>
+                <div class="menu-options">
+                    <a href="edit-profile.html">Edit Profile</a>
+                    <a href="login.html">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
 
   <h2>Search Your Mood Logs</h2>
   <form id="moodForm">
     <input type="text" id="moodInput" placeholder="Enter mood type (e.g. happy)" required>
     <button type="submit">Search</button>
   </form>
-
+  
   <div id="results"></div>
 
   <script>
@@ -157,5 +186,6 @@ table tr:hover {
       }
     });
   </script>
+  <script src="report.js"></script>
 </body>
 </html>

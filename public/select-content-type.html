@@ -1,4 +1,169 @@
-document.addEventListener("DOMContentLoaded", async function () {
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Select Content Type</title>
+  <link rel="stylesheet" href="platforms.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+   <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #e1c3ad, #e3c7ce);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #333;
+      transition: all 0.3s ease-in-out;
+      animation: gradientBackground 10s ease infinite;
+    }
+
+    @keyframes gradientBackground {
+      0%, 100% {
+        background: linear-gradient(135deg, #e3c1a8, #f7c8d3);
+      }
+      50% {
+        background: linear-gradient(135deg, #f7d4e5, #ffe7ca);
+      }
+    }
+
+    /* Page Title */
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #f167a1;
+      font-size: 2.5em;
+      font-weight: 600;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 2rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    label {
+      font-size: 1.2rem;
+      display: block;
+      margin-bottom: 1rem;
+      color: #333;
+    }
+
+    select {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      font-size: 1rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: linear-gradient(135deg, #f167a1, #c22265);
+      color: white;
+      border: none;
+      padding: 0.9rem 2rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn:hover {
+      background: linear-gradient(135deg, #c22265, #f167a1);
+      transform: translateY(-2px);
+    }
+
+    .btn i {
+      color: #ffffff;
+      font-size: 1rem;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    }
+
+    #moodPlatformDisplay {
+      text-align: center;
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      color: #555;
+    }
+
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+        <ul class="nav-menu">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="home.html">Home</a>
+            <a href="contact.html">Contact</a>
+        </ul>
+        <div class="profile-container">
+            <div class="profile-icon" id="profileIcon">
+                <img id="navProfileAvatar" src="" alt="User Avatar" style="display: none;">
+            </div>
+            <div class="profile-expanded-menu" id="profileExpandedMenu">
+                <div class="avatar-section">
+                    <div class="avatar-placeholder">
+                        <div class="profile-initials" id="profileInitials"></div>
+                        <img src="default-avatar.png" alt="User Avatar" class="profile-avatar" id="profileAvatar">
+                    </div>
+                    <div class="user-info">
+                        <span id="userFullName"></span>
+                    </div>
+                </div>
+                <div class="menu-options">
+                    <a href="edit-profile.html">Edit Profile</a>
+                    <a href="login.html">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+  <h2>Select Content Type for Your Mood</h2>
+  
+  <div id="moodPlatformDisplay"></div>
+
+  <div id="moodPlatformDisplay"></div>
+
+  <div class="container">
+    <label for="contentType">Choose a type:</label>
+    <select id="contentType">
+      <option value="fiction">Fiction</option>
+      <option value="non-fiction">Non-fiction</option>
+      <option value="motivational">Motivational</option>
+      <option value="spiritual">Spiritual</option>
+      <option value="self-help">Self-help</option>
+    </select>
+
+    <button class="btn" onclick="goToResults()">
+      <i class="fa-solid fa-arrow-right"></i> Next
+    </button>
+  </div>
+
+  <script>
+   document.addEventListener("DOMContentLoaded", async function () {
     const profileIcon = document.getElementById("profileIcon");
     const profileExpandedMenu = document.getElementById("profileExpandedMenu");
     const profileInitials = document.getElementById("profileInitials");
@@ -133,29 +298,24 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
 });
 
-// Get the mood from the URL
-const urlParams = new URLSearchParams(window.location.search);
-const mood = urlParams.get("mood") || "your mood";
-const type = urlParams.get("type");
 
-// Change the title dynamically if it exists
-const pageTitleElement = document.getElementById("pageTitle");
-if (pageTitleElement) {
-    pageTitleElement.textContent = `Select an Ebook/Audio Platform for ${mood}`;
-}
+    const urlParams = new URLSearchParams(window.location.search);
+    const mood = urlParams.get("mood");
+    const platform = urlParams.get("platform");
 
-// Google Books button - redirect to local page
-const googleBooksBtn = document.getElementById("googleBooksBtn");
-if (googleBooksBtn) {
-  googleBooksBtn.addEventListener("click", () => {
-    window.location.href = `select-content-type.html?mood=${encodeURIComponent(mood)}&platform=googlebooks`;
-  });
-}
+    document.getElementById("moodPlatformDisplay").textContent = `Mood: ${mood}, Platform: ${platform}`;
 
-// Audible button - redirect to local page
-const audibleBtn = document.getElementById("audibleBtn");
-if (audibleBtn) {
-  audibleBtn.addEventListener("click", () => {
-    window.location.href = `select-content-type.html?mood=${encodeURIComponent(mood)}&platform=audiobooks`;
-  });
-}
+    function goToResults() {
+      const type = document.getElementById("contentType").value;
+
+      if (platform === "googlebooks") {
+        window.location.href = `google-books-page.html?mood=${mood}&type=${type}`;
+      } else if (platform === "audiobooks") {
+        window.location.href = `audible-page.html?mood=${mood}&type=${type}`;
+      } else {
+        alert("Invalid platform selected.");
+      }
+    }
+  </script>
+</body>
+</html>
