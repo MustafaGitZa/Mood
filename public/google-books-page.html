@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>Google Books Results</title>
     <link rel="stylesheet" href="platforms.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 </head>
 <body>
     <nav class="navbar">
@@ -46,210 +48,170 @@
       </div>
 
     <script>
-       document.addEventListener("DOMContentLoaded", async function () {
-            const profileContainer = document.querySelector(".profile-container");
-            const profileIcon = document.getElementById("profileIcon");
-            const expandedInitials = document.getElementById("profileInitials");
-            const profileAvatarExpanded = document.getElementById("profileAvatar"); // Avatar in expanded menu
-            const userFullName = document.getElementById("userFullName");
-            const welcomeUsernameSpan = document.getElementById("username");
-            const defaultProfileIconImg = document.getElementById("defaultProfileIcon"); // Default icon in navbar
-            const navProfileAvatarImg = document.getElementById("navProfileAvatar"); // User avatar in navbar
+      document.addEventListener("DOMContentLoaded", async function () {
+    const profileIcon = document.getElementById("profileIcon");
+    const profileExpandedMenu = document.getElementById("profileExpandedMenu");
+    const profileInitials = document.getElementById("profileInitials");
+    const userFullNameDisplay = document.getElementById("userFullName");
+    const profileAvatarExpanded = document.getElementById("profileAvatar"); // Avatar in expanded menu
+    const navProfileAvatarImg = document.getElementById("navProfileAvatar"); // User avatar in navbar
+    const hoverTriggerButton = document.getElementById("hoverTriggerButton");
+   
+    try {
+        const userId = localStorage.getItem("userId");
+        console.log("Retrieved userId:", userId);
 
-            try {
-                const userId = localStorage.getItem("userId");
-                console.log("Retrieved userId:", userId);
+        if (!userId) {
+            console.log("User not logged in.");
+            profileInitials.textContent = "GU";
+            profileIcon.textContent = "G";
+            profileIcon.style.display = "flex";
+            userFullNameDisplay.textContent = "Guest User";
+            if (profileAvatarExpanded) {
+                profileAvatarExpanded.style.display = "none";
+            }
+            if (navProfileAvatarImg) {
+                navProfileAvatarImg.style.display = "none";
+            }
+            return;
+        }
 
-                if (!userId) {
-                    console.log("User not logged in.");
-                    profileIcon.textContent = "GU"; // Show guest user initials
-                    profileIcon.style.backgroundImage = '';
-                    profileIcon.style.backgroundColor = '#f167a1';
-                    profileIcon.style.color = 'white';
-                    profileIcon.style.display = 'flex';
-                    profileIcon.style.justifyContent = 'center';
-                    profileIcon.style.alignItems = 'center';
-                    expandedInitials.textContent = "GU";
-                    userFullName.textContent = "Guest User";
-                    if (defaultProfileIconImg) {
-                        defaultProfileIconImg.style.display = "none"; // Hide default image
-                    }
-                    return;
+        const usernameResponse = await fetch(`/get-username?userId=${userId}`);
+        const usernameData = await usernameResponse.json();
+
+        if (usernameResponse.ok && usernameData.username) {
+            console.log("Username fetched successfully:", usernameData.username);
+
+            const username = usernameData.username.trim();
+            const initials = username.split(' ').map(name => name[0]).join('').toUpperCase();
+            profileInitials.textContent = initials;
+            userFullNameDisplay.textContent = username;
+            profileIcon.textContent = ""; // We will use the image in the navbar
+            profileIcon.style.display = "flex";
+
+            await fetchUserProfile();
+        } else {
+            console.error("API error:", usernameData.message);
+            profileInitials.textContent = "GU";
+            profileIcon.textContent = "G";
+            profileIcon.style.display = "flex";
+            userFullNameDisplay.textContent = "Guest User";
+            if (profileAvatarExpanded) {
+                profileAvatarExpanded.style.display = "none";
+            }
+            if (navProfileAvatarImg) {
+                navProfileAvatarImg.style.display = "none";
+            }
+        }
+
+    } catch (error) {
+        console.error("Error fetching username:", error);
+        profileInitials.textContent = "GU";
+        profileIcon.textContent = "G";
+        profileIcon.style.display = "flex";
+        userFullNameDisplay.textContent = "Guest User";
+        if (profileAvatarExpanded) {
+            profileAvatarExpanded.style.display = "none";
+        }
+        if (navProfileAvatarImg) {
+            navProfileAvatarImg.style.display = "none";
+        }
+    }
+
+    async function fetchUserProfile() {
+        try {
+            const response = await fetch('/getUserProfile');
+            const userProfileData = await response.json();
+
+            if (userProfileData && userProfileData.profile_picture) {
+                console.log("Profile picture path:", userProfileData.profile_picture);
+                if (profileAvatarExpanded) {
+                    profileAvatarExpanded.src = userProfileData.profile_picture;
+                    profileAvatarExpanded.style.display = "block";
+                    profileInitials.style.display = "none";
                 }
-
-                const usernameResponse = await fetch(`/get-username?userId=${userId}`);
-                const usernameData = await usernameResponse.json();
-
-                if (usernameResponse.ok && usernameData.username) {
-                    console.log("Username fetched successfully:", usernameData.username);
-                    welcomeUsernameSpan.textContent = usernameData.username;
-
-                    const username = usernameData.username.trim();
-                    const initials = username.split(' ').map(name => name[0]).join('').toUpperCase();
-                    expandedInitials.textContent = initials;
-                    userFullName.textContent = username;
-                    profileIcon.textContent = initials.substring(0, 1); // Show first initial in navbar
-                    profileIcon.style.backgroundImage = '';
-                    profileIcon.style.backgroundColor = '#f167a1';
-                    profileIcon.style.color = 'white';
-                    profileIcon.style.display = 'flex';
-                    profileIcon.style.justifyContent = 'center';
-                    profileIcon.style.alignItems = 'center';
+                if (navProfileAvatarImg) {
+                    navProfileAvatarImg.src = userProfileData.profile_picture;
+                    navProfileAvatarImg.style.display = "block";
+                    profileIcon.textContent = ""; // Ensure no initials are shown if avatar is present
                 } else {
-                    console.error("API error:", usernameData.message);
-                    welcomeUsernameSpan.textContent = "Guest";
-                    profileIcon.textContent = "G";
-                    profileIcon.style.backgroundImage = '';
-                    profileIcon.style.backgroundColor = '#f167a1';
-                    profileIcon.style.color = 'white';
-                    profileIcon.style.display = 'flex';
-                    profileIcon.style.justifyContent = 'center';
-                    profileIcon.style.alignItems = 'center';
-                    expandedInitials.textContent = "G";
-                    userFullName.textContent = "Guest User";
-                    if (defaultProfileIconImg) {
-                        defaultProfileIconImg.style.display = "none"; // Hide default image
-                    }
+                    // If navProfileAvatarImg doesn't exist, fallback to initials
+                    profileIcon.textContent = profileInitials.textContent.substring(0, 1);
                 }
-
-                await fetchUserProfile();
-
-            } catch (error) {
-                console.error("Error fetching username:", error);
-                welcomeUsernameSpan.textContent = "Guest";
-                profileIcon.textContent = "G";
-                profileIcon.style.backgroundImage = '';
-                profileIcon.style.backgroundColor = '#f167a1';
-                profileIcon.style.color = 'white';
-                profileIcon.style.display = 'flex';
-                profileIcon.style.justifyContent = 'center';
-                profileIcon.style.alignItems = 'center';
-                expandedInitials.textContent = "G";
-                userFullName.textContent = "Guest User";
-                if (defaultProfileIconImg) {
-                    defaultProfileIconImg.style.display = "none"; // Hide default image
+                profileIcon.style.backgroundImage = `url('${userProfileData.profile_picture}')`;
+                profileIcon.style.backgroundSize = 'cover';
+                profileIcon.style.backgroundColor = 'transparent'; // Ensure background color doesn't hide image
+            } else {
+                console.log("No profile picture found, displaying initials.");
+                if (profileAvatarExpanded) {
+                    profileAvatarExpanded.style.display = "none";
+                    profileInitials.style.display = "flex";
                 }
                 if (navProfileAvatarImg) {
                     navProfileAvatarImg.style.display = "none";
                 }
-                if (profileAvatarExpanded) {
-                    profileAvatarExpanded.style.display = "none";
-                }
+                profileIcon.textContent = profileInitials.textContent.substring(0, 1);
+                profileIcon.style.backgroundImage = ''; // Remove any background image
+                profileIcon.style.backgroundColor = '#f167a1'; // Set default background color
             }
-
-            async function fetchUserProfile() {
-                try {
-                    const response = await fetch('/getUserProfile');
-                    const user = await response.json();
-                    const navProfileAvatarImg = document.getElementById("navProfileAvatar"); // Get the navigation bar avatar
-                    const profileInitialsExpanded = document.getElementById("profileInitials"); // Get initials in expanded menu
-                    const defaultProfileIconImg = document.getElementById("defaultProfileIcon");
-
-                    if (user.profile_picture) {
-                        console.log("Profile picture URL:", user.profile_picture);
-                        profileAvatar.src = user.profile_picture;
-                        profileAvatar.style.display = "block";
-                        if (navProfileAvatarImg) {
-                            navProfileAvatarImg.src = user.profile_picture;
-                            navProfileAvatarImg.style.display = "block";
-                        }
-                        profileIcon.textContent = ""; // Clear initials
-                        profileIcon.style.backgroundImage = `url('${user.profile_picture}')`;
-                        profileIcon.style.backgroundSize = 'cover';
-                        profileIcon.style.backgroundColor = 'transparent';
-                        if (profileInitialsExpanded) {
-                            profileInitialsExpanded.style.display = "none"; // Hide initials in expanded menu
-                        }
-                        if (defaultProfileIconImg) {
-                            defaultProfileIconImg.style.display = "none"; // Hide default image
-                        }
-                    } else {
-                        profileAvatar.style.display = "none";
-                        if (navProfileAvatarImg) {
-                            navProfileAvatarImg.src = "";
-                            navProfileAvatarImg.style.display = "none";
-                        }
-                        const username = document.getElementById("username").textContent;
-                        const initials = username.split(' ').map(name => name[0]).join('').toUpperCase();
-                        profileIcon.textContent = initials.substring(0, 1); // Show first initial in navbar
-                        profileIcon.style.backgroundImage = '';
-                        profileIcon.style.backgroundColor = '#f167a1';
-                        profileIcon.style.color = 'white';
-                        profileIcon.style.display = 'flex';
-                        profileIcon.style.justifyContent = 'center';
-                        profileIcon.style.alignItems = 'center';
-                        if (profileInitialsExpanded) {
-                            profileInitialsExpanded.style.display = "flex"; // Show initials in expanded menu
-                        }
-                        if (defaultProfileIconImg) {
-                            defaultProfileIconImg.style.display = "none"; // Hide default image
-                        }
-                    }
-                } catch (error) {
-                    console.error("Error loading profile picture:", error);
-                    profileAvatar.src = "default-avatar.png";
-                    profileAvatar.style.display = "none";
-                    const navProfileAvatarImg = document.getElementById("navProfileAvatar");
-                    if (navProfileAvatarImg) {
-                        navProfileAvatarImg.src = "";
-                        navProfileAvatarImg.style.display = "none";
-                    }
-                    const username = document.getElementById("username").textContent;
-                    const initials = username.split(' ').map(name => name[0]).join('').toUpperCase();
-                    profileIcon.textContent = initials.substring(0, 1); // Show first initial in navbar on error
-                    profileIcon.style.backgroundImage = '';
-                    profileIcon.style.backgroundColor = '#f167a1';
-                    profileIcon.style.color = 'white';
-                    profileIcon.style.display = 'flex';
-                    profileIcon.style.justifyContent = 'center';
-                    profileIcon.style.alignItems = 'center';
-                    const profileInitialsExpanded = document.getElementById("profileInitials");
-                    if (profileInitialsExpanded) {
-                        profileInitialsExpanded.style.display = "flex"; // Show initials in expanded menu on error
-                    }
-                    if (defaultProfileIconImg) {
-                        defaultProfileIconImg.style.display = "none"; // Hide default image
-                    }
-                }
+        } catch (error) {
+            console.error("Error loading profile picture:", error);
+            if (profileAvatarExpanded) {
+                profileAvatarExpanded.src = "default-avatar.png"; // Fallback image on error
+                profileAvatarExpanded.style.display = "block";
+                profileInitials.style.display = "none";
             }
+            if (navProfileAvatarImg) {
+                navProfileAvatarImg.style.display = "none";
+            }
+            profileIcon.textContent = profileInitials.textContent.substring(0, 1);
+            profileIcon.style.backgroundImage = '';
+            profileIcon.style.backgroundColor = '#f167a1';
+        }
+    }
 
-            const profileExpandedMenu = document.getElementById("profileExpandedMenu");
-            profileIcon.addEventListener("click", function (event) {
-                event.stopPropagation();
-                profileExpandedMenu.classList.toggle("show");
-            });
 
-            document.addEventListener("click", function (event) {
-                if (!profileExpandedMenu.contains(event.target) && event.target !== profileIcon) {
-                    profileExpandedMenu.classList.remove("show");
-                }
-            });
-        });
+    profileIcon.addEventListener("click", function (event) {
+        event.stopPropagation();
+        profileExpandedMenu.classList.toggle("show");
+    });
+
+    document.addEventListener("click", function (event) {
+        if (!profileExpandedMenu.contains(event.target) && event.target !== profileIcon) {
+            profileExpandedMenu.classList.remove("show");
+        }
+    });
+});
+
         // Fetch mood from query params
 const urlParams = new URLSearchParams(window.location.search);
-const mood = urlParams.get("mood") || "your mood";
-document.getElementById("pageTitle").textContent = `Ebooks for ${mood}`;
+const mood = urlParams.get("mood");
+const type = urlParams.get("type");
 
-// Fetch ebook results
-fetch(`/ebook-results?mood=${encodeURIComponent(mood)}`)
-    .then(response => {
-        if (!response.ok) {
-            throw new Error("No ebooks found for this mood.");
-        }
-        return response.json();
-    })
-    .then(data => {
-        const container = document.querySelector(".results-container");
+document.getElementById("pageTitle").textContent = `Ebooks for ${mood} (${type})`;
 
-        container.innerHTML = `
-            <h3>Google Books Recommendations:</h3>
-            <a href="${data.googlebookLinks[0]}" target="_blank">Google Book 1</a><br>
-            <a href="${data.googlebookLinks[1]}" target="_blank">Google Book 2</a>
-        `;
-    })
-    .catch(error => {
-        document.querySelector(".results-container").innerHTML = `<p>${error.message}</p>`;
-    });
+fetch(`/ebook-results?mood=${encodeURIComponent(mood)}&type=${encodeURIComponent(type)}`)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error("No ebooks found for this mood and type.");
+    }
+    return response.json();
+  })
+  .then(data => {
+    const container = document.querySelector(".results-container");
+    container.innerHTML = `
+      <div class="platform-container">
+        <i class="fas fa-book-open"></i>
+        <h3>Google Books</h3>
+        <p>Your recommended books:</p>
+        <a href="${data.googlebookLinks[0]}" class="btn" target="_blank"><i class="fas fa-book"></i> Book 1</a><br><br>
+        <a href="${data.googlebookLinks[1]}" class="btn" target="_blank"><i class="fas fa-book"></i> Book 2</a>
+      </div>
+    `;
+  })
+  .catch(error => {
+    document.querySelector(".results-container").innerHTML = `<p>${error.message}</p>`;
+  });
 
     </script>
 </body>

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Audible Results</title>
     <link rel="stylesheet" href="platforms.css">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
     <nav class="navbar">
@@ -181,11 +182,12 @@
             });
         // Fetch mood from query params
 const urlParams = new URLSearchParams(window.location.search);
-const mood = urlParams.get("mood") || "your mood";
-document.getElementById("pageTitle").textContent = `Audiobooks for ${mood}`;
+const mood = urlParams.get("mood");
+const type = urlParams.get("type");
+document.getElementById("pageTitle").textContent = `Audiobooks for ${mood} (${type})`;
 
 // Fetch audiobook results
-fetch(`/audiobook-results?mood=${encodeURIComponent(mood)}`)
+fetch(`/audiobook-results?mood=${encodeURIComponent(mood)}&type=${encodeURIComponent(type)}`)
     .then(response => {
         if (!response.ok) {
             throw new Error("No audiobooks found for this mood.");
@@ -196,9 +198,13 @@ fetch(`/audiobook-results?mood=${encodeURIComponent(mood)}`)
         const container = document.querySelector(".results-container");
 
         container.innerHTML = `
-            <h3>Audiobook Recommendations:</h3>
-            <a href="${data.audiobookLinks[0]}" target="_blank">Audiobook 1</a><br>
-            <a href="${data.audiobookLinks[1]}" target="_blank">Audiobook 2</a>
+            <div class="platform-container">
+        <i class="fas fa-headphones-alt"></i>
+        <h3>Audio Books</h3>
+        <p>Your recommended audiobooks:</p>
+        <a href="${data.audiobookLinks[0]}" class="btn" target="_blank"><i class="fas fa-headphones"></i> Audiobook 1</a><br><br>
+        <a href="${data.audiobookLinks[1]}" class="btn" target="_blank"><i class="fas fa-headphones"></i> Audiobook 2</a>
+      </div>
         `;
     })
     .catch(error => {

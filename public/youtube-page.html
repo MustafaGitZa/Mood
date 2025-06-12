@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>YouTube Results</title>
     <link rel="stylesheet" href="platforms.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
     <nav class="navbar">
@@ -225,87 +226,115 @@
                     }
                 });
             });
-           // Fetching parameters from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const mood = urlParams.get("mood") || "your mood";
-        const genre = urlParams.get("genre"); // Will be 'amapiano', 'kwaito', or 'global'
+          // Fetching parameters from URL
+// Fetching parameters from URL
+const urlParams = new URLSearchParams(window.location.search);
+const mood = urlParams.get("mood") || "your mood";
+const genre = urlParams.get("genre"); // 'amapiano', 'kwaito', or 'global'
 
-        // Update page title
-        document.getElementById("pageTitle").textContent = genre 
-            ? `YouTube ${genre} results for ${mood}`
-            : `YouTube results for ${mood}`;
+document.getElementById("pageTitle").textContent = genre
+    ? `YouTube ${genre} results for ${mood}`
+    : `YouTube results for ${mood}`;
 
-        // Fetch YouTube recommendations
-        fetch(`/music-recommendations?platform=youtube&mood=${encodeURIComponent(mood)}${genre ? `&genre=${genre}` : ''}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(response.status === 404 
-                        ? `No YouTube ${genre ? genre + ' ' : ''}playlists found for ${mood}`
-                        : "Failed to load YouTube recommendations");
-                }
-                return response.json();
-            })
-            .then(data => {
-                const container = document.querySelector(".results-container");
-                
-                // If genre is specified, show only that genre
-                if (genre) {
-                    const genreRec = data.recommendations.find(r => r.genre === genre) || data.recommendations[0];
-                    
-                    container.innerHTML = `
-                        <div class="recommendation-card">
-                            <h3><i class="fab fa-youtube"></i> ${genreRec.genre} Playlist</h3>
-                            <a href="${genreRec.playlistLink}" target="_blank" class="btn-youtube">
-                                Watch on YouTube
+fetch(`/music-recommendations?platform=youtube&mood=${encodeURIComponent(mood)}${genre ? `&genre=${genre}` : ''}`)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(response.status === 404
+                ? `No YouTube ${genre ? genre + ' ' : ''}playlists found for ${mood}`
+                : "Failed to load YouTube recommendations");
+        }
+        return response.json();
+    })
+    .then(data => {
+        const container = document.querySelector(".results-container");
+
+        if (data.recommendations.length === 0) {
+            container.innerHTML = `<p>No YouTube playlists found for ${mood}${genre ? ` in the ${genre} genre` : ''}.</p>`;
+            return;
+        }
+
+        // If genre specified, show only that genre's playlist
+        if (genre) {
+            const genreRec = data.recommendations.find(r => r.genre === genre) || data.recommendations[0];
+
+            container.innerHTML = `
+                <div class="recommendation-card">
+                    <h3><i class="fab fa-youtube youtube-icon"></i> ${genreRec.genre.charAt(0).toUpperCase() + genreRec.genre.slice(1)} Playlist</h3>
+                    <div class="video-preview">
+                        <iframe src="${convertPlaylistLinkToEmbed(genreRec.playlistLink)}" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    <a href="${genreRec.playlistLink}" target="_blank" class="btn-youtube">
+                        Watch on YouTube
+                    </a>
+                    ${genreRec.podcasts.length > 0 ? `
+                    <div class="podcast-links">
+                        <h4>Suggested Podcasts:</h4>
+                        ${genreRec.podcasts.map((podcast, i) => `
+                            <a href="${podcast}" target="_blank" class="podcast-link">
+                                <i class="fas fa-headphones"></i> Podcast ${i + 1}
                             </a>
-                            ${genreRec.podcasts.length > 0 ? `
+                        `).join('')}
+                    </div>` : ''}
+                </div>
+            `;
+        }
+        // Show all genres
+        else {
+            container.innerHTML = `
+                <h3>All YouTube Recommendations for ${mood}:</h3>
+                <div class="recommendations-grid">
+                    ${data.recommendations.map(rec => `
+                        <div class="recommendation-card">
+                            <h4><i class="fab fa-youtube youtube-icon"></i> ${rec.genre.charAt(0).toUpperCase() + rec.genre.slice(1)} Playlist</h4>
+                            <div class="video-preview">
+                                <iframe src="${convertPlaylistLinkToEmbed(rec.playlistLink)}" frameborder="0" allowfullscreen></iframe>
+                            </div>
+                            <a href="${rec.playlistLink}" target="_blank" class="btn-youtube">
+                                Watch ${rec.genre.charAt(0).toUpperCase() + rec.genre.slice(1)}
+                            </a>
+                            ${rec.podcasts.length > 0 ? `
                             <div class="podcast-links">
-                                <h4>Suggested Podcasts:</h4>
-                                ${genreRec.podcasts.map((podcast, i) => `
-                                    <a href="${podcast}" target="_blank">
-                                        <i class="fas fa-headphones"></i> Podcast ${i+1}
+                                <h5>Podcasts:</h5>
+                                ${rec.podcasts.map((podcast, i) => `
+                                    <a href="${podcast}" target="_blank" class="podcast-link">
+                                        <i class="fas fa-headphones"></i> Podcast ${i + 1}
                                     </a>
                                 `).join('')}
-                            </div>
-                            ` : ''}
+                            </div>` : ''}
                         </div>
-                    `;
-                }
-                // If no genre specified, show all
-                else {
-                    container.innerHTML = `
-                        <h3>All YouTube Recommendations for ${mood}:</h3>
-                        ${data.recommendations.map(rec => `
-                            <div class="recommendation-card">
-                                <h4>${rec.genre} Playlist</h4>
-                                <a href="${rec.playlistLink}" target="_blank" class="btn-youtube">
-                                    <i class="fab fa-youtube"></i> Watch ${rec.genre}
-                                </a>
-                                ${rec.podcasts.length > 0 ? `
-                                <div class="podcast-links">
-                                    <h5>Podcasts:</h5>
-                                    ${rec.podcasts.map((podcast, i) => `
-                                        <a href="${podcast}" target="_blank">
-                                            <i class="fas fa-headphones"></i> Podcast ${i+1}
-                                        </a>
-                                    `).join('')}
-                                </div>
-                                ` : ''}
-                            </div>
-                        `).join('')}
-                    `;
-                }
-            })
-            .catch(error => {
-                document.querySelector(".results-container").innerHTML = `
-                    <div class="error-message">
-                        <p>${error.message}</p>
-                        <button onclick="window.location.href='genre-selection.html?platform=youtube&mood=${encodeURIComponent(mood)}'">
-                            ← Back to Genre Selection
-                        </button>
-                    </div>
-                `;
-            });
+                    `).join('')}
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        document.querySelector(".results-container").innerHTML = `
+            <div class="error-message">
+                <p>${error.message}</p>
+                <button onclick="window.location.href='genre-selection.html?platform=youtube&mood=${encodeURIComponent(mood)}'">
+                    ← Back to Genre Selection
+                </button>
+            </div>
+        `;
+    });
+
+// Helper function to convert playlist link to embeddable URL for iframe
+function convertPlaylistLinkToEmbed(link) {
+    // Example input: https://www.youtube.com/playlist?list=PLxxxxxxx
+    // Embed URL: https://www.youtube.com/embed/videoseries?list=PLxxxxxxx
+    try {
+        const url = new URL(link);
+        const listId = url.searchParams.get('list');
+        if (listId) {
+            return `https://www.youtube.com/embed/videoseries?list=${listId}`;
+        }
+        // fallback, return original link (won't embed properly)
+        return link;
+    } catch {
+        return link;
+    }
+}
+
     </script>
 </body>
 </html>

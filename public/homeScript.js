@@ -201,3 +201,173 @@ document.addEventListener("DOMContentLoaded", async function () {
         console.error('Error fetching user role:', error);
       }
 });
+
+window.addEventListener("DOMContentLoaded", () => {
+  // Mood health modal check
+  fetch("/check-mood-health")
+  .then(response => response.json())
+  .then(data => {
+    const { shouldShowModal, count, threshold } = data;
+
+    if (!shouldShowModal) return;
+
+    const lastAckThreshold = parseInt(localStorage.getItem("lastMoodModalThreshold") || "0", 10);
+
+    if (threshold > lastAckThreshold) {
+      const modal = document.getElementById("moodModal");
+      modal.style.display = "flex";
+
+      const okBtn = document.getElementById("moodModalOkBtn");
+      okBtn.onclick = () => {
+        modal.style.display = "none";
+        localStorage.setItem("lastMoodModalThreshold", threshold);
+      };
+    }
+  })
+  .catch(err => console.error("Mood health check failed:", err));
+
+
+  // Fetch music genres and add click handlers to open playlists modal
+  fetch('/todays-genres')
+    .then(response => response.json())
+    .then(data => {
+      const list = document.getElementById('musicGenres');
+      list.innerHTML = '';
+      data.genres.forEach(genre => {
+        const li = document.createElement('li');
+        li.textContent = genre;
+        li.style.cursor = 'pointer';
+        li.title = `Click to see playlists for "${genre}"`;
+        li.onclick = () => openPlaylistModal(genre);
+        list.appendChild(li);
+      });
+    })
+    .catch(err => console.error("Failed to fetch genres:", err));
+
+  // Fetch recommended reads
+  fetch('/recommended-reads')
+    .then(response => response.json())
+    .then(data => {
+      const list = document.getElementById('bookPicks');
+      list.innerHTML = '';
+      data.recommendations.forEach(item => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <strong>${item.bookType} (${item.mood} mood)</strong><br>
+          Books: ${item.googleBooks.map(link => `<a href="${link}" target="_blank">Read</a>`).join(' | ')}<br>
+          Audiobooks: ${item.audiobooks.map(link => `<a href="${link}" target="_blank">Listen</a>`).join(' | ')}
+        `;
+        list.appendChild(li);
+      });
+    })
+    .catch(err => console.error("Failed to fetch reads:", err));
+});
+
+// Close modals
+function closeMoodModal() {
+  document.getElementById("moodModal").style.display = "none";
+}
+function closePlaylistModal() {
+  document.getElementById("playlistModal").style.display = "none";
+}
+
+function openPlaylistModal(genre) {
+  console.log("Opening modal for:", genre);
+  const modal = document.getElementById("playlistModal");
+  const title = document.getElementById("playlistModalTitle");
+  const list = document.getElementById("playlistList");
+
+  title.textContent = `Playlists for "${genre}"`;
+  list.innerHTML = '<li>Loading playlists...</li>';
+
+  modal.style.display = "flex";
+
+  fetch(`/playlists-for-genre?genre=${encodeURIComponent(genre)}`)
+    .then(response => response.json())
+    .then(data => {
+      list.innerHTML = '';
+      if (data.playlists && data.playlists.length > 0) {
+        data.playlists.forEach(pl => {
+          const li = document.createElement('li');
+          li.textContent = `${pl.mood_name} (${pl.platform})`;
+          li.style.cursor = 'pointer';
+          li.title = `Play on ${pl.platform}`;
+          li.onclick = () => {
+            console.log(`Playing playlist: ${pl.mood_name} on ${pl.platform}`);
+            window.open(pl.url, '_blank'); // or replace with your play handler
+          };
+          list.appendChild(li);
+        });
+      } else {
+        list.innerHTML = '<li>No playlists found for this genre.</li>';
+      }
+    })
+    .catch(err => {
+      console.error("Failed to fetch playlists:", err);
+      list.innerHTML = '<li>Error loading playlists.</li>';
+    });
+}
+
+
+
+
+
+window.addEventListener("DOMContentLoaded", () => {
+  fetch('/api/mood-trends')
+    .then(response => response.json())
+    .then(data => {
+      const trends = data.trends;
+      if (trends.length === 0) {
+        document.getElementById("moodBreakdownChart").outerHTML = "<p style='font-size:0.85rem;'>No mood data yet.</p>";
+        return;
+      }
+
+      const ctx = document.getElementById("moodBreakdownChart").getContext("2d");
+
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: trends.map(item => item.logged_mood),
+          datasets: [{
+            label: 'Entries',
+            data: trends.map(item => item.count),
+            backgroundColor: '#fa0803',
+            borderRadius: 8,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                color: '#eee',
+                font: { size: 10 }
+              },
+              grid: { display: false }
+            },
+            x: {
+              ticks: {
+                color: '#eee',
+                font: { size: 10 }
+              },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    })
+    .catch(err => {
+      console.error("Mood trends fetch failed:", err);
+      document.getElementById("moodBreakdownChart").outerHTML = "<p style='font-size:0.85rem;'>Error loading trends.</p>";
+    });
+});
+
+
+
+
+ // Replace 1 with actual user ID from session
