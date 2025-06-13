@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood Posts</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+               /* Mood Posts Page Styling */
+       /* Mood Posts Page Styling */
+            body {
+                font-family: 'Poppins', sans-serif;
+                margin: 0;
+                padding: 0;
+                background: linear-gradient(135deg, #e1c3ad, #e3c7ce);
+                color: #333;
+                transition: all 0.3s ease-in-out;
+                animation: gradientBackground 10s ease infinite;
+            }
+
+            /* Background Animation */
+            @keyframes gradientBackground {
+                0%, 100% {
+                    background: linear-gradient(135deg, #e3c1a8, #f7c8d3);
+                }
+
+                50% {
+                    background: linear-gradient(135deg, #f7d4e5, #ffe7ca);
+                }
+            }
+.navbar {
+    background-color: #9f2d2d; /* Dark red background */
+    width: 100%;
+    height: 50px; /* Reduce navbar height */
+    padding: 5px 15px; /* Slimmer padding */
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Navigation links */
+.nav-menu {
+    display: flex;
+    gap: 15px;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    font-size: 0.9em; /* Slightly smaller text */
+    padding: 8px 12px;
+}
+
+.navbar a:hover {
+    background-color: #f7c8d3;
+    color: #333;
+}
+
+/* Profile Icon Container */
+.profile-container {
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Profile Container - Adjusted for initials and expanded menu */
+.profile-container {
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    display: flex; /* To control icon and menu */
+    align-items: center;
+}
+
+/* Profile Icon (Small icon/initial shown) */
+.profile-icon {
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    border-radius: 50%;
+    /* Use a color that aligns with the general styling */
+    background-color: #f167a1; /* Primary app color */
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    border: 1px solid #e04e89; /* Slightly darker border */
+}
+
+.profile-container:hover .profile-icon {
+    transform: scale(1.1);
+}
+
+/* Profile Initials (Hidden when not expanded) */
+.profile-initials {
+    display: none; /* Initially hidden */
+}
+
+/* Expanded Menu */
+.profile-expanded-menu {
+    display: none;
+    position: absolute;
+    top: 100%; /* Position below the icon */
+    right: 0;
+    /* Use a light background that complements the app */
+    background-color: #f8f0fb; /* Light pinkish background */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    width: 180px; /* Adjust width as needed */
+    text-align: center;
+    padding: 15px;
+    z-index: 10;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+    border: 1px solid #e0e0e0; /* Light border */
+}
+
+.profile-container:hover .profile-expanded-menu {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.avatar-placeholder {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+    border: 1px solid #ddd;
+}
+
+.expanded-initials {
+    font-size: 24px;
+    font-weight: bold;
+    color: #f167a1; /* Use primary app color for initials */
+}
+
+.profile-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.user-info {
+    font-size: 14px;
+    color: #555;
+    font-weight: bold;
+}
+
+.menu-options {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    margin-top: 10px; /* Add some spacing */
+}
+
+.menu-options a {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+    text-align: left;
+    transition: background-color 0.3s ease;
+}
+
+.menu-options a:hover {
+    background-color: #f7c8d3; /* Light hover color */
+    color: #333;
+}
+
+/* Hide the original .profile-menu */
+.profile-menu {
+    display: none !important;
+}
+
+/* Responsiveness for Smaller Screens */
+@media (max-width: 768px) {
+    .profile-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+
+    .avatar-placeholder {
+        width: 50px;
+        height: 50px;
+    }
+
+    .expanded-initials {
+        font-size: 20px;
+    }
+
+    .profile-expanded-menu {
+        width: 150px;
+        font-size: 12px;
+    }
+}
+            /* Main Page Container */
+            h1 {
+        font-size: 2.5em;
+        color: #9f2d2d;
+        margin-bottom: 20px;
+        text-align: center;
+        font-weight: bold;
+    }
+
+
+            /* Footer Styling */
+            footer {
+                margin-top: 50px;
+                padding: 20px;
+                text-align: center;
+                font-size: 0.9em;
+                color: #555;
+            }
+
+
+            .mood-room-container {
+                padding: 80px 20px 20px;
+                max-width: 800px;
+                margin: auto;
+                text-align: center;
+                background: #f9f9f9;
+                border-radius: 24px;
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            }
+
+            .mood-room-container h1 {
+                font-size: 2.8em;
+                color: #9f2d2d;
+                margin-bottom: 16px;
+                font-weight: bold;
+            }
+
+            .mood-room-container p {
+                font-size: 1.2em;
+                color: #333;
+                margin-bottom: 30px;
+            }
+
+            .mood-sections {
+                display: flex;
+                flex-direction: column;
+                gap: 32px;
+                margin-top: 40px;
+                align-items: center;
+            }
+
+            .uplift-mood-container {
+                background: #ffe0f0;
+                padding: 20px;
+                border-radius: 16px;
+                text-align: center;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                max-width: 500px;
+                margin: 20px auto;
+                transition: transform 0.3s ease;
+            }
+
+            .uplift-mood-container:hover {
+                transform: translateY(-3px);
+            }
+
+            .uplift-mood-container h2 {
+                font-size: 22px;
+                color: #ff5f7e;
+                margin: 10px 0;
+            }
+
+            .uplift-mood-container p {
+                font-size: 15px;
+                color: #333;
+                margin-bottom: 16px;
+            }
+
+            .uplift-icon {
+                width: 42px;
+                height: 42px;
+                margin-bottom: 8px;
+            }
+
+            select, textarea, input[type="checkbox"] {
+                margin: 8px 0;
+                padding: 10px;
+                border: 2px solid #ccc;
+                border-radius: 8px;
+                font-size: 1em;
+                width: 80%;
+                max-width: 400px;
+            }
+
+            textarea {
+                resize: vertical;
+                min-height: 80px;
+            }
+
+            label {
+                font-size: 0.95em;
+                color: #555;
+            }
+
+            .primary-btn {
+                padding: 12px 22px;
+                background: linear-gradient(135deg, #bc2866, #c90602);
+                color: #fff;
+                font-size: 1em;
+                border: none;
+                border-radius: 12px;
+                cursor: pointer;
+                transition: background 0.3s ease, transform 0.2s ease;
+                box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+                margin-top: 10px;
+            }
+
+            .primary-btn:hover {
+                background: linear-gradient(135deg, #c90602, #9f2d2d);
+                transform: translateY(-2px);
+            }
+
+            .back-to-dashboard-btn {
+                padding: 12px 24px;
+                background: #104c90;
+                color: #fff;
+                border: none;
+                border-radius: 12px;
+                font-size: 1em;
+                cursor: pointer;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+                transition: background 0.3s ease, transform 0.2s ease;
+                margin-top: 30px;
+            }
+
+            .back-to-dashboard-btn:hover {
+                background: #0c3c75;
+                transform: translateY(-2px);
+            }
+
+            #post-feed {
+                max-height: 550px;
+                overflow-y: auto;
+                padding-right: 8px;
+                margin-top: 20px;
+                }
+            /* Individual Post Card Styling */
+            .post-card {
+                background: linear-gradient(135deg, #e3c1a8, #f7c8d3);
+                padding: 18px;
+                border-radius: 16px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                text-align: left;
+                transition: transform 0.3s ease;
+            }
+
+            .post-card:hover {
+                transform: translateY(-3px);
+            }
+
+            .post-card h3 {
+                font-size: 1.2em;
+                color: #ff5f7e;
+                margin-bottom: 8px;
+            }
+
+            .post-card p {
+                font-size: 0.95em;
+                color: #333;
+                margin-bottom: 4px;
+            }
+
+            .post-card small {
+                color: #777;
+                font-size: 0.8em;
+            }
+
+            .quote-btn {
+            display: block;
+            margin: 10px 0;
+            padding: 10px 16px;
+            background: linear-gradient(to right, #ff758c, #ff7eb3);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            font-size: 0.95em;
+            }
+
+            .quote-btn:hover {
+            transform: scale(1.03);
+            }
+
+            /* Mood Posts Feed Styles */
+    #post-feed {
+      max-height: 500px;
+      overflow-y: auto;
+      padding-right: 8px;
+      background: #f9f9f9;
+    }
+/* Constrain post-feed container width */
+#post-feed {
+  max-width: 600px;
+  margin: 0 auto;
+}
+    .mood-post-card {
+      background:linear-gradient(to right, #f3d7dc, #dfb0c4);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      animation: fadeIn 0.6s ease;
+    }
+
+  .post-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+    .avatar {
+  font-size: 2rem;
+  margin-right: 12px;
+}
+.user-info {
+  flex: 1;                  /* fill remaining space */
+  display: flex;
+  flex-direction: column;
+  align-items: center;      /* center username horizontally */
+  position: relative;       /* for positioning timestamp */
+}
+   .user-info h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #b3203b;
+}
+
+  .user-info small {
+  position: absolute;
+  right: 0;                 /* right edge inside user-info */
+  bottom: -1.2em;           /* below the username */
+  font-size: 0.85rem;
+  color: #625959;
+}
+
+    .post-content {
+      margin: 12px 0;
+      font-size: 1rem;
+      color: #333;
+    }
+
+   .post-actions {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 10px;
+}
+
+
+
+    .post-actions button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      color: #c22265;
+      transition: transform 0.2s;
+    }
+
+    .post-actions button:hover {
+      transform: scale(1.2);
+    }
+
+    .comments-container {
+      margin-top: 12px;
+      background: #f9f9f9;
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .comments-container .comment {
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .comment-input {
+      width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 8px;
+      margin-top: 8px;
+    }
+
+    .submit-comment-btn {
+      background: #f167a1;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      margin-top: 8px;
+      cursor: pointer;
+    }
+
+    .submit-comment-btn:hover {
+      background: #c22265;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+
+    .custom-modal {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background:#c22265;
+  color: #fff;
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+  font-size: 16px;
+
+
+}
+
+
+.tab-container {
+  display: flex;
+  justify-content: space-around;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px 20px;
+  background: #104c90;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1em;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.tab-btn i {
+  font-size: 1.2em;
+}
+
+.tab-btn.active {
+  background: #c22265;
+}
+
+.tab-btn:hover {
+  background: #0c3c75;
+}
+
+
+#tab-body {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.tab-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px; /* space between checkbox and text */
+  cursor: pointer;
+  margin-top: 8px; /* spacing from textarea */
+  user-select: none;
+}
+
+.checkbox-wrapper {
+  margin-top: 8px;
+}
+
+
+    </style>
+</head>
+<body>
+     <nav class="navbar">
+        <ul class="nav-menu">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="contact.html">Contact</a>
+            <a href="moodRoom.html">Mood Room</a>
+            <a href="admin.html" class="admin-link" style="display: none;">Admin</a>
+        </ul>
+        <div class="profile-container">
+            <div class="profile-icon" id="profileIcon">
+                <img id="defaultProfileIcon" src="/assets/boy.png" alt="Default User" style="display: none;">
+                <img id="navProfileAvatar" src="" alt="User Avatar" style="display: none;">
+            </div>
+            <div class="profile-expanded-menu" id="profileExpandedMenu">
+                <div class="avatar-section">
+                    <div class="avatar-placeholder">
+                        <div class="profile-initials" id="profileInitials"></div>
+                        <img src="default-avatar.png" alt="User Avatar" class="profile-avatar" id="profileAvatar">
+                    </div>
+                    <div class="user-info">
+                        <span id="userFullName"></span>
+                    </div>
+                </div>
+                <div class="menu-options">
+                    <a href="edit-profile.html">Edit Profile</a>
+                    <a href="login.html">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+  <!-- Mood Post Form -->
+ <div class="mood-room-container">
+  <h1>Community Mood Wall</h1>
+  <p>See how everyone’s feeling and leave your mark.</p>
+
+  <div class="tab-container">
+  <button class="tab-btn active" onclick="showTab('new-post')">
+    <i class="fas fa-plus-circle"></i> New Post
+  </button>
+  <button class="tab-btn" onclick="showTab('feed')">
+    <i class="fas fa-newspaper"></i> Feed
+  </button>
+</div>
+
+
+  <div id="new-post" class="tab-content">
+    <h2>Create a Post</h2>
+    <select id="mood-select">
+      <option value="Happy">Happy</option>
+      <option value="Sad">Sad</option>
+      <option value="Anxious">Anxious</option>
+      <option value="Excited">Excited</option>
+    </select>
+    <textarea id="post-content" maxlength="150" placeholder="Type your message..."></textarea>
+<div class="checkbox-wrapper">
+  <label for="anonymous-check" class="checkbox-label">
+    <input type="checkbox" id="anonymous-check" />
+    Post as Anonymous
+  </label>
+</div>
+
+    <button class="primary-btn" onclick="submitPost()">Post</button>
+  </div>
+
+  <div id="feed" class="tab-content" style="display: none;">
+    <div id="post-feed"></div>
+  </div>
+
+  <!--<button class="back-to-dashboard-btn" onclick="window.location.href='dashboard.html'">Back</button>-->
+</div>
+
+<div id="custom-modal" class="custom-modal">
+  <div class="modal-content">
+    <p id="modal-message"></p>
+  </div>
+</div>
+
+
+  <footer>
+    <p>&copy; 2025 MoodSync. All rights reserved.</p>
+  </footer>
+    <script>
+       
+document.addEventListener("DOMContentLoaded", async function () {
+    const profileIcon = document.getElementById("profileIcon");
+    const profileExpandedMenu = document.getElementById("profileExpandedMenu");
+    const profileInitials = document.getElementById("profileInitials");
+    const userFullNameDisplay = document.getElementById("userFullName");
+    const profileAvatarExpanded = document.getElementById("profileAvatar"); // Avatar in expanded menu
+    const navProfileAvatarImg = document.getElementById("navProfileAvatar"); // User avatar in navbar
+    const hoverTriggerButton = document.getElementById("hoverTriggerButton");
+   
+    try {
+        const userId = localStorage.getItem("userId");
+        console.log("Retrieved userId:", userId);
+
+        if (!userId) {
+            console.log("User not logged in.");
+            profileInitials.textContent = "GU";
+            profileIcon.textContent = "G";
+            profileIcon.style.display = "flex";
+            userFullNameDisplay.textContent = "Guest User";
+            if (profileAvatarExpanded) {
+                profileAvatarExpanded.style.display = "none";
+            }
+            if (navProfileAvatarImg) {
+                navProfileAvatarImg.style.display = "none";
+            }
+            return;
+        }
+
+        const usernameResponse = await fetch(`/get-username?userId=${userId}`);
+        const usernameData = await usernameResponse.json();
+
+        if (usernameResponse.ok && usernameData.username) {
+            console.log("Username fetched successfully:", usernameData.username);
+
+            const username = usernameData.username.trim();
+            const initials = username.split(' ').map(name => name[0]).join('').toUpperCase();
+            profileInitials.textContent = initials;
+            userFullNameDisplay.textContent = username;
+            profileIcon.textContent = ""; // We will use the image in the navbar
+            profileIcon.style.display = "flex";
+
+            await fetchUserProfile();
+        } else {
+            console.error("API error:", usernameData.message);
+            profileInitials.textContent = "GU";
+            profileIcon.textContent = "G";
+            profileIcon.style.display = "flex";
+            userFullNameDisplay.textContent = "Guest User";
+            if (profileAvatarExpanded) {
+                profileAvatarExpanded.style.display = "none";
+            }
+            if (navProfileAvatarImg) {
+                navProfileAvatarImg.style.display = "none";
+            }
+        }
+
+    } catch (error) {
+        console.error("Error fetching username:", error);
+        profileInitials.textContent = "GU";
+        profileIcon.textContent = "G";
+        profileIcon.style.display = "flex";
+        userFullNameDisplay.textContent = "Guest User";
+        if (profileAvatarExpanded) {
+            profileAvatarExpanded.style.display = "none";
+        }
+        if (navProfileAvatarImg) {
+            navProfileAvatarImg.style.display = "none";
+        }
+    }
+
+    async function fetchUserProfile() {
+        try {
+            const response = await fetch('/getUserProfile');
+            const userProfileData = await response.json();
+
+            if (userProfileData && userProfileData.profile_picture) {
+                console.log("Profile picture path:", userProfileData.profile_picture);
+                if (profileAvatarExpanded) {
+                    profileAvatarExpanded.src = userProfileData.profile_picture;
+                    profileAvatarExpanded.style.display = "block";
+                    profileInitials.style.display = "none";
+                }
+                if (navProfileAvatarImg) {
+                    navProfileAvatarImg.src = userProfileData.profile_picture;
+                    navProfileAvatarImg.style.display = "block";
+                    profileIcon.textContent = ""; // Ensure no initials are shown if avatar is present
+                } else {
+                    // If navProfileAvatarImg doesn't exist, fallback to initials
+                    profileIcon.textContent = profileInitials.textContent.substring(0, 1);
+                }
+                profileIcon.style.backgroundImage = `url('${userProfileData.profile_picture}')`;
+                profileIcon.style.backgroundSize = 'cover';
+                profileIcon.style.backgroundColor = 'transparent'; // Ensure background color doesn't hide image
+            } else {
+                console.log("No profile picture found, displaying initials.");
+                if (profileAvatarExpanded) {
+                    profileAvatarExpanded.style.display = "none";
+                    profileInitials.style.display = "flex";
+                }
+                if (navProfileAvatarImg) {
+                    navProfileAvatarImg.style.display = "none";
+                }
+                profileIcon.textContent = profileInitials.textContent.substring(0, 1);
+                profileIcon.style.backgroundImage = ''; // Remove any background image
+                profileIcon.style.backgroundColor = '#f167a1'; // Set default background color
+            }
+        } catch (error) {
+            console.error("Error loading profile picture:", error);
+            if (profileAvatarExpanded) {
+                profileAvatarExpanded.src = "default-avatar.png"; // Fallback image on error
+                profileAvatarExpanded.style.display = "block";
+                profileInitials.style.display = "none";
+            }
+            if (navProfileAvatarImg) {
+                navProfileAvatarImg.style.display = "none";
+            }
+            profileIcon.textContent = profileInitials.textContent.substring(0, 1);
+            profileIcon.style.backgroundImage = '';
+            profileIcon.style.backgroundColor = '#f167a1';
+        }
+    }
+
+
+    profileIcon.addEventListener("click", function (event) {
+        event.stopPropagation();
+        profileExpandedMenu.classList.toggle("show");
+    });
+
+    document.addEventListener("click", function (event) {
+        if (!profileExpandedMenu.contains(event.target) && event.target !== profileIcon) {
+            profileExpandedMenu.classList.remove("show");
+        }
+    });
+});
+
+
+  const quotesByMood = {
+    Happy: ["Happiness is a journey, not a destination.", "Spread sunshine wherever you go.", "Today is a good day to smile!"],
+    Excited: ["Great things are coming!", "Embrace the adventure.", "Your energy is contagious."],
+    Sad: ["It's okay not to be okay.", "Every storm runs out of rain.", "Better days are coming."],
+    Angry: ["Breathe. Let go of what you can't control.", "Even storms eventually pass.", "Turn your anger into motivation."],
+    Sleepy: ["Rest is productive too.", "Even the sun sets to rise again.", "You deserve to recharge."],
+    Celebrating: ["Cheers to this moment!", "Small victories count too.", "Make today worth celebrating."],
+    Surprised: ["Life is full of beautiful surprises.", "Sometimes the unexpected is the best thing.", "Embrace the unknown."],
+    Relaxed: ["Calm minds live best.", "Peace looks good on you.", "Slow down and just breathe."],
+    Anxious: ["One breath at a time.", "Your mind deserves peace.", "You are stronger than your anxiety."],
+    "In Love": ["Love makes the world brighter.", "Let your heart speak its truth.", "You glow differently when you're loved."],
+    Focused: ["Discipline is choosing what you want most.", "Focus beats talent when talent doesn't focus.", "One step at a time to greatness."],
+    Bored: ["Boredom is the birthplace of creativity.", "Time to learn something new.", "Turn boredom into opportunity."],
+    Energetic: ["Use that energy to build your future.", "Your vibe attracts your tribe.", "You are unstoppable today!"],
+    Nostalgic: ["Memories are treasures of the heart.", "It's okay to visit the past, just don't live there.", "Cherish the moments that made you smile."],
+    Lonely: ["You matter more than you realize.", "Someone out there cares for you.", "The sun will rise and so will you."]
+  };
+
+  // Update quote buttons when mood is selected
+  function updateQuoteOptions(mood) {
+    const container = document.getElementById('quoteOptions');
+    container.innerHTML = '';
+
+    if (quotesByMood[mood]) {
+      quotesByMood[mood].forEach(quote => {
+        const btn = document.createElement('button');
+        btn.textContent = quote;
+        btn.classList.add("quote-btn");
+        btn.onclick = () => {
+          document.getElementById('post-content').value = quote;
+        };
+        container.appendChild(btn);
+      });
+    }
+  }
+
+  // Mood select dropdown listener
+  document.getElementById('mood-select').addEventListener('change', function () {
+    updateQuoteOptions(this.value);
+  });
+
+  // Emoji button listener
+  document.querySelectorAll('.emoji-btn').forEach(button => {
+    button.addEventListener('click', function () {
+      const mood = this.getAttribute('data-meaning');
+      document.getElementById('mood-select').value = mood;
+      updateQuoteOptions(mood);
+    });
+  });
+
+  // Submit a post
+  function submitPost() {
+  const mood = document.getElementById('mood-select').value;
+  const content = document.getElementById('post-content').value.trim();
+  const isAnonymous = document.getElementById('anonymous-check').checked;
+
+  if (!mood || !content) {
+    alert("Please select a mood and write something.");
+    return;
+  }
+
+  const userId = localStorage.getItem("userId");
+  if (!userId) {
+    alert("You need to log in first.");
+    return;
+  }
+
+  fetch('/mood-posts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      userId: userId,
+      mood: mood,
+      content: content,
+      isAnonymous: isAnonymous
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      alert("Post created!");
+      document.getElementById('post-content').value = "";
+
+      // Hide the post form container
+      document.getElementById('post-form-container').style.display = 'none';
+
+      // Show latest posts
+      loadPosts();
+    } else {
+      alert("Error: " + data.message);
+    }
+  })
+  .catch(err => {
+    console.error("Failed to submit post:", err);
+    alert("Failed to submit post.");
+  });
+}
+
+
+  // Load existing posts
+  function loadPosts() {
+  fetch('/mood-posts')
+    .then(res => res.json())
+    .then(posts => {
+      const feed = document.getElementById('post-feed');
+      feed.innerHTML = "";
+
+      posts.forEach(post => {
+        const div = document.createElement('div');
+        div.classList.add("mood-post-card");
+
+        const moodEmojis = {
+          Happy: '😊', Excited: '😁', Sad: '😓', Angry: '😡',
+          Sleepy: '😴', Celebrating: '🥳', Surprised: '😲', Relaxed: '😌',
+          Anxious: '😬', "In Love": '😍', Focused: '🧐', Bored: '😐',
+          Energetic: '🤩', Nostalgic: '🥲', Lonely: '😔'
+        };
+        const emoji = moodEmojis[post.mood] || '💬';
+
+        div.innerHTML = `
+          <div class="post-header">
+            <span class="avatar">${emoji}</span>
+            <div class="user-info">
+              <h3>${post.is_anonymous ? 'Anonymous' : post.username}</h3>
+              <small>${new Date(post.post_date).toLocaleString()}</small>
+            </div>
+          </div>
+          <p class="post-content">"${post.content}"</p>
+
+          <div class="post-actions">
+            <button class="like-btn">❤️ <span>${post.likes || 0}</span></button>
+            <button class="comment-btn">💬 <span>${post.comments_count || 0}</span></button>
+            <button class="repost-btn">🔄 <span>${post.reposts || 0}</span></button>
+            <button class="delete-btn" title="Delete">🗑️</button>
+          </div>
+
+          <div class="comments-container" style="display:none;">
+            <textarea class="comment-input" placeholder="Write a comment..."></textarea>
+            <button class="submit-comment-btn">Post Comment</button>
+          </div>
+        `;
+
+        // Like button action
+        div.querySelector('.like-btn').addEventListener('click', () => {
+          const span = div.querySelector('.like-btn span');
+          span.textContent = parseInt(span.textContent) + 1;
+        });
+
+        // Comment toggle
+        div.querySelector('.comment-btn').addEventListener('click', () => {
+          const container = div.querySelector('.comments-container');
+          container.style.display = (container.style.display === 'none') ? 'block' : 'none';
+        });
+
+        // Submit comment action
+        div.querySelector('.submit-comment-btn').addEventListener('click', () => {
+          const commentInput = div.querySelector('.comment-input');
+          if (commentInput.value.trim() === '') return;
+
+          const commentDiv = document.createElement('div');
+          commentDiv.className = 'comment';
+          commentDiv.textContent = commentInput.value;
+          div.querySelector('.comments-container').prepend(commentDiv);
+
+          const commentCount = div.querySelector('.comment-btn span');
+          commentCount.textContent = parseInt(commentCount.textContent) + 1;
+
+          commentInput.value = '';
+        });
+
+        // Delete button action
+        div.querySelector('.delete-btn').addEventListener('click', () => {
+          if (!confirm("Are you sure you want to delete this post?")) return;
+
+          fetch(`/mood-posts/${post.id}`, {
+            method: 'DELETE'
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              div.remove();
+              showModal("🗑️ Post deleted successfully.");
+            } else {
+              showModal("❌ Failed to delete post.");
+            }
+          })
+          .catch(err => {
+            console.error("Delete failed", err);
+            showModal("❌ Delete request failed.");
+          });
+        });
+
+        feed.appendChild(div);
+      });
+    });
+}function loadPosts() {
+  fetch('/mood-posts')
+    .then(res => res.json())
+    .then(posts => {
+      const feed = document.getElementById('post-feed');
+      feed.innerHTML = "";
+
+      const moodEmojis = {
+        Happy: '😊', Excited: '😁', Sad: '😓', Angry: '😡',
+        Sleepy: '😴', Celebrating: '🥳', Surprised: '😲', Relaxed: '😌',
+        Anxious: '😬', "In Love": '😍', Focused: '🧐', Bored: '😐',
+        Energetic: '🤩', Nostalgic: '🥲', Lonely: '😔'
+      };
+
+      posts.forEach(post => {
+        const div = document.createElement('div');
+        div.classList.add("mood-post-card");
+
+        const emoji = moodEmojis[post.mood] || '💬';
+
+        div.innerHTML = `
+          <div class="post-header">
+            <span class="avatar">${emoji}</span>
+            <div class="user-info">
+              <h3>${post.is_anonymous ? 'Anonymous' : post.username}</h3>
+              <small>${new Date(post.post_date).toLocaleString()}</small>
+            </div>
+          </div>
+          <p class="post-content">"${post.content}"</p>
+
+          <div class="post-actions">
+            <button class="like-btn">❤️ <span>${post.likes || 0}</span></button>
+            <button class="comment-btn">💬 <span>${post.comments_count || 0}</span></button>
+            <button class="repost-btn">🔄 <span>${post.reposts || 0}</span></button>
+            <button class="delete-btn" title="Delete">🗑️</button>
+          </div>
+
+          <div class="comments-container" style="display:none;">
+            <textarea class="comment-input" placeholder="Write a comment..."></textarea>
+            <button class="submit-comment-btn">Post Comment</button>
+          </div>
+        `;
+
+        // Like button action
+        div.querySelector('.like-btn').addEventListener('click', () => {
+          const span = div.querySelector('.like-btn span');
+          span.textContent = parseInt(span.textContent) + 1;
+        });
+
+        // Comment toggle
+        div.querySelector('.comment-btn').addEventListener('click', () => {
+          const container = div.querySelector('.comments-container');
+          container.style.display = (container.style.display === 'none') ? 'block' : 'none';
+        });
+
+        // Submit comment action
+        div.querySelector('.submit-comment-btn').addEventListener('click', () => {
+          const commentInput = div.querySelector('.comment-input');
+          if (commentInput.value.trim() === '') return;
+
+          const commentDiv = document.createElement('div');
+          commentDiv.className = 'comment';
+          commentDiv.textContent = commentInput.value;
+          div.querySelector('.comments-container').prepend(commentDiv);
+
+          const commentCount = div.querySelector('.comment-btn span');
+          commentCount.textContent = parseInt(commentCount.textContent) + 1;
+
+          commentInput.value = '';
+        });
+
+        // Delete button action
+        div.querySelector('.delete-btn').addEventListener('click', () => {
+          if (!confirm("Are you sure you want to delete this post?")) return;
+
+          fetch(`/mood-posts/${post.post_id}`, { // <-- corrected here
+            method: 'DELETE'
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              div.remove();
+              showModal("🗑️ Post deleted successfully.");
+            } else {
+              showModal("❌ Failed to delete post.");
+            }
+          })
+          .catch(err => {
+            console.error("Delete failed", err);
+            showModal("❌ Delete request failed.");
+          });
+        });
+
+        feed.appendChild(div);
+      });
+    });
+}
+
+
+function showModal(message) {
+  const modal = document.getElementById('custom-modal');
+  const msg = document.getElementById('modal-message');
+  msg.textContent = message;
+  modal.style.display = 'block';
+
+  setTimeout(() => {
+    modal.style.display = 'none';
+  }, 2000);
+}
+
+// TAB SYSTEM LOGIC
+function showTab(tabId) {
+  // Hide all tab contents
+  document.querySelectorAll('.tab-content').forEach(tab => {
+    tab.style.display = 'none';
+  });
+
+  // Remove 'active' class from all buttons
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+
+  // Show selected tab content
+  document.getElementById(tabId).style.display = 'block';
+
+  // Add 'active' class to selected button
+  const button = document.querySelector(`.tab-btn[onclick="showTab('${tabId}')"]`);
+  if (button) {
+    button.classList.add('active');
+  }
+
+  // If it's the feed tab, load posts
+  if (tabId === 'feed') {
+    loadPosts();
+  }
+}
+
+// Load default tab on page load
+document.addEventListener('DOMContentLoaded', () => {
+  showTab('new-post');
+});
+
+function likePost(postId, userId) {
+  fetch(`/mood-posts/${postId}/like`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      document.querySelector(`#like-count-${postId}`).textContent = data.like_count;
+    } else {
+      alert(data.message);
+    }
+  });
+}
+
+function repostPost(postId, userId) {
+  fetch(`/mood-posts/${postId}/repost`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      document.querySelector(`#repost-count-${postId}`).textContent = data.repost_count;
+    } else {
+      alert(data.message);
+    }
+  });
+}
+
+function submitComment(postId, userId, text) {
+  fetch(`/mood-posts/${postId}/comment`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId, text })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      const commentCountEl = document.querySelector(`#comment-count-${postId}`);
+      commentCountEl.textContent = data.comments_count;
+
+      // Optionally add new comment to UI immediately
+    } else {
+      alert("Failed to post comment.");
+    }
+  });
+}
+
+
+</script>
+
+</body>
+</html>

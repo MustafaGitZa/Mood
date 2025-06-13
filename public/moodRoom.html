@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>Mood Room | MoodSync</title>
     <link rel="stylesheet" href="dashboardStyles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
 </head>
 <body>
     <!-- Reuse your existing navbar -->
@@ -35,32 +37,41 @@
         </div>
     </nav>
 
-    <div class="mood-room-container">
+        <div class="mood-room-container">
         <h1>Welcome to Your Mood Room</h1>
         <p>Relax, reflect, and elevate your mood with personalized content.</p>
 
         <div class="uplift-mood-container">
-            <img src="https://img.icons8.com/color/96/happy--v1.png" alt="Uplifting Icon" class="uplift-icon">
+            <i class="fa-solid fa-face-smile fa-3x" style="color: rgb(56, 53, 53);"></i>
             <h2>Need a Boost?</h2>
             <p>Feeling a little off? Spin the wellness wheel and get a fresh pick-me-up activity!</p>
             <button class="primary-btn" onclick="window.location.href='moodWheel.html'">Uplift My Mood</button>
         </div>
+
         <div class="uplift-mood-container">
-            <img src="https://img.icons8.com/color/96/happy--v1.png" alt="Uplifting Icon" class="uplift-icon">
-            <h2>Need someone to talk to??</h2>
-            <p>Ourc Chat box is here to listen and interact with your conversation!!</p>
-            <button class="primary-btn" onclick="window.location.href='chatbot.html'">Chat box</button>
+            <i class="fa-solid fa-comments fa-3x" style="color:rgb(56, 53, 53);"></i>
+            <h2>Need someone to talk to?</h2>
+            <p>Our Chatbox is here to listen and interact with your conversation!</p>
+            <button class="primary-btn" onclick="window.location.href='chatbot.html'">Chat Box</button>
         </div>
+
         <div class="uplift-mood-container">
-            <img src="https://img.icons8.com/color/96/happy--v1.png" alt="Uplifting Icon" class="uplift-icon">
+            <i class="fa-solid fa-pen-to-square fa-3x" style="color: rgb(56, 53, 53);"></i>
             <h2>Need to write down those emotions?</h2>
-            <p>GOT YOU!!below is our journal sapce to express your emotions in a way that are comfortable in,this is a safe space</p>
+            <p>Got you! Below is our journal space to express your emotions in a way that’s comfortable for you — this is a safe space.</p>
             <button class="primary-btn" onclick="window.location.href='journal.html'">Journal</button>
         </div>
-        
-    
-        <button class="back-to-dashboard-btn" onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
-    </div>
+
+        <div class="uplift-mood-container">
+            <i class="fa-solid fa-users fa-3x" style="color: rgb(56, 53, 53);"></i>
+            <h2>Share Your Mood</h2>
+            <p>Pick a quote or write your own (150 characters max) and share it with our community wall!</p>
+            <button class="primary-btn" onclick="window.location.href='moodPosts.html'">Share a Mood Post</button>
+        </div>
+
+        <!--<button class="back-to-dashboard-btn" onclick="window.location.href='dashboard.html'">Back to Dashboard</button>-->
+        </div>
+
     
     
 

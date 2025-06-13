@@ -207,24 +207,26 @@ window.addEventListener("DOMContentLoaded", () => {
   fetch("/check-mood-health")
   .then(response => response.json())
   .then(data => {
-    const { shouldShowModal, count, threshold } = data;
+    const { shouldShowModal } = data;
 
     if (!shouldShowModal) return;
 
-    const lastAckThreshold = parseInt(localStorage.getItem("lastMoodModalThreshold") || "0", 10);
+    const hasSeenModal = localStorage.getItem("hasSeenMoodModal");
 
-    if (threshold > lastAckThreshold) {
-      const modal = document.getElementById("moodModal");
-      modal.style.display = "flex";
+    if (hasSeenModal === "true") return;
 
-      const okBtn = document.getElementById("moodModalOkBtn");
-      okBtn.onclick = () => {
-        modal.style.display = "none";
-        localStorage.setItem("lastMoodModalThreshold", threshold);
-      };
-    }
+    // Show the modal
+    const modal = document.getElementById("moodModal");
+    modal.style.display = "flex";
+
+    const okBtn = document.getElementById("moodModalOkBtn");
+    okBtn.onclick = () => {
+      modal.style.display = "none";
+      localStorage.setItem("hasSeenMoodModal", "true");
+    };
   })
   .catch(err => console.error("Mood health check failed:", err));
+
 
 
   // Fetch music genres and add click handlers to open playlists modal
@@ -366,6 +368,49 @@ window.addEventListener("DOMContentLoaded", () => {
       document.getElementById("moodBreakdownChart").outerHTML = "<p style='font-size:0.85rem;'>Error loading trends.</p>";
     });
 });
+
+function loadRecentMoodPost() {
+  fetch('/mood-posts')
+    .then(res => res.json())
+    .then(posts => {
+      const container = document.getElementById('recentMoodPost');
+      if (posts.length === 0) {
+        container.innerHTML = "<p>No posts yet. Be the first!</p>";
+        return;
+      }
+
+      const moodEmojis = {
+        Happy: '😊', Excited: '😁', Sad: '😓', Angry: '😡',
+        Sleepy: '😴', Celebrating: '🥳', Surprised: '😲', Relaxed: '😌',
+        Anxious: '😬', "In Love": '😍', Focused: '🧐', Bored: '😐',
+        Energetic: '🤩', Nostalgic: '🥲', Lonely: '😔'
+      };
+
+      const post = posts[0];
+      const emoji = moodEmojis[post.mood] || '💬';
+      const username = post.is_anonymous ? 'Anonymous' : post.username;
+
+      container.innerHTML = `
+        <div class="recent-post-card" style="border:1px solid #ccc; padding:10px; border-radius:5px; max-width:400px;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+            <div style="font-size:1.8rem;">${emoji}</div>
+            <div>
+              <strong>${username}</strong> <span style="color:#666;">(${post.mood})</span>
+              <br>
+              <small style="color:#999;">${new Date(post.post_date).toLocaleString()}</small>
+            </div>
+          </div>
+          <p style="font-style:italic;">"${post.content}"</p>
+        </div>
+      `;
+    })
+    .catch(err => {
+      console.error("Failed to load recent post:", err);
+    });
+}
+
+
+window.onload = loadRecentMoodPost;
 
 
 

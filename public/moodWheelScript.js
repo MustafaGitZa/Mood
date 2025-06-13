@@ -205,7 +205,7 @@ document.getElementById("spinWheelButton").addEventListener("click", () => {
     setTimeout(() => {
         if (spinCount >= 3 && remainingActivities.length >= 2) {
             if (confirm("😞 Still not feeling better? Would you like to talk to a professional?")) {
-                window.location.href = "helpResources.html";
+                window.location.href = "chatbot.html";
             }
         }
     }, 3500);

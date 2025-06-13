@@ -295,6 +295,37 @@
   text-decoration: underline;
 }
 
+.recent-post-content {
+  background: rgba(241, 103, 161, 0.08);
+  padding: 16px;
+  border-radius: 12px;
+  margin: 15px 0;
+  text-align: left;
+  color: #333;
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.05);
+}
+
+    .recent-post-content p {
+      margin: 8px 0;
+    }
+
+    .recent-post-content small {
+      color: #888;
+      font-size: 0.8rem;
+    }
+
+    .explore-link {
+      display: inline-block;
+      margin-top: 10px;
+      color: #104c90;
+      font-weight: bold;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .explore-link:hover {
+      color: #fa0803;
+    }
 
 
     </style>
@@ -335,6 +366,15 @@
         <h1 class="welcome-title">Welcome, <span id="username" onclick="console.log('Username clicked:', this.textContent)">User</span>!</h1>
        
         <div id="previewCard" class="recommendations-container">
+          <div class="rec-card">
+            <i class="fa-solid fa-message rec-icon"></i>
+            <h3>Recent Mood Post</h3>
+            <div id="recentMoodPost" class="recent-post-content">
+              <p>No posts yet. Be the first!</p>
+            </div>
+            <a href="/moodposts.html" class="explore-link">View all posts →</a>
+          </div>
+
         <div class="rec-card">
         <i class="fa-solid fa-chart-line rec-icon"></i>
         <h3>Mood Trend</h3>
