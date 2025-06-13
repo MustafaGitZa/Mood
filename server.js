@@ -1567,9 +1567,8 @@ app.get("/check-mood-health", checkDbConnection, (req, res) => {
 
   const negativeMoods = ['sad', 'angry'];
   const threshold = 5;
-  const days = 30;
 
-  // Generate placeholders like (?, ?, ?)
+  // Generate placeholders for the IN clause
   const placeholders = negativeMoods.map(() => '?').join(', ');
 
   const moodCheckQuery = `
@@ -1577,10 +1576,9 @@ app.get("/check-mood-health", checkDbConnection, (req, res) => {
     FROM moodlogs
     WHERE user_id = ?
       AND LOWER(TRIM(logged_mood)) IN (${placeholders})
-      AND log_date >= DATE_SUB(NOW(), INTERVAL ? DAY)
   `;
 
-  const queryParams = [userId, ...negativeMoods, days];
+  const queryParams = [userId, ...negativeMoods];
 
   db.query(moodCheckQuery, queryParams, (err, results) => {
     if (err) {
@@ -1597,6 +1595,7 @@ app.get("/check-mood-health", checkDbConnection, (req, res) => {
     });
   });
 });
+
 
 
 
@@ -1706,6 +1705,146 @@ app.get('/api/mood-trends', (req, res) => {
     }
 
     res.json({ trends: results });
+  });
+});
+
+app.get("/mood-posts", (req, res) => {
+  const query = `
+    SELECT mood_post.*, users.username 
+    FROM mood_post 
+    INNER JOIN users ON mood_post.user_id = users.user_id
+    ORDER BY post_date DESC
+    LIMIT 5
+  `;
+  
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching mood posts:", err);
+      return res.status(500).json({ message: "Failed to fetch posts" });
+    }
+    res.json(results);
+  });
+});
+
+
+
+app.post("/mood-posts", checkDbConnection, (req, res) => {
+  const { userId, mood, content, isAnonymous } = req.body;
+
+  if (!userId || !mood || !content) {
+    return res.status(400).json({ success: false, message: "Missing required fields." });
+  }
+
+  const query = "INSERT INTO mood_post (user_id, mood, content, is_anonymous) VALUES (?, ?, ?, ?)";
+  db.query(query, [userId, mood, content, isAnonymous], (err, result) => {
+    if (err) {
+      console.error("Failed to insert mood post:", err);
+      return res.status(500).json({ success: false, message: "Failed to save post." });
+    }
+
+    res.json({ success: true, message: "Post created." });
+  });
+});
+
+app.delete('/mood-posts/:postId', (req, res) => {
+  const postId = req.params.postId;
+
+  const deleteQuery = 'DELETE FROM mood_post WHERE post_id = ?';
+
+  db.query(deleteQuery, [postId], (err, result) => {
+    if (err) {
+      console.error('Failed to delete post:', err);
+      return res.status(500).json({ success: false, message: 'Failed to delete post.' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Post not found.' });
+    }
+
+    res.json({ success: true, message: 'Post deleted successfully.' });
+  });
+});
+
+
+app.post('/mood-posts/:id/like', (req, res) => {
+  const postId = parseInt(req.params.id);
+  const { userId } = req.body;
+
+  const getLikesQuery = `SELECT likes FROM mood_post WHERE post_id = ?`;
+  db.query(getLikesQuery, [postId], (err, results) => {
+    if (err) return res.status(500).json({ success: false, message: 'Error fetching post' });
+
+    if (results.length === 0) return res.status(404).json({ success: false, message: 'Post not found' });
+
+    let likes = JSON.parse(results[0].likes || '[]');
+
+    if (likes.includes(userId)) {
+      return res.json({ success: false, message: 'Already liked' });
+    }
+
+    likes.push(userId);
+
+    const updateQuery = `UPDATE mood_post SET likes = ? WHERE post_id = ?`;
+    db.query(updateQuery, [JSON.stringify(likes), postId], (err) => {
+      if (err) return res.status(500).json({ success: false, message: 'Error updating likes' });
+      res.json({ success: true, like_count: likes.length });
+    });
+  });
+});
+
+
+app.post('/mood-posts/:id/repost', (req, res) => {
+  const postId = parseInt(req.params.id);
+  const { userId } = req.body;
+
+  const getRepostsQuery = `SELECT reposts FROM mood_post WHERE post_id = ?`;
+  db.query(getRepostsQuery, [postId], (err, results) => {
+    if (err) return res.status(500).json({ success: false, message: 'Error fetching post' });
+
+    if (results.length === 0) return res.status(404).json({ success: false, message: 'Post not found' });
+
+    let reposts = JSON.parse(results[0].reposts || '[]');
+
+    if (reposts.includes(userId)) {
+      return res.json({ success: false, message: 'Already reposted' });
+    }
+
+    reposts.push(userId);
+
+    const updateQuery = `UPDATE mood_post SET reposts = ? WHERE post_id = ?`;
+    db.query(updateQuery, [JSON.stringify(reposts), postId], (err) => {
+      if (err) return res.status(500).json({ success: false, message: 'Error updating reposts' });
+      res.json({ success: true, repost_count: reposts.length });
+    });
+  });
+});
+
+
+app.post('/mood-posts/:id/comment', (req, res) => {
+  const postId = parseInt(req.params.id);
+  const { userId, text } = req.body;
+
+  const getCommentsQuery = `SELECT comments FROM mood_post WHERE post_id = ?`;
+  db.query(getCommentsQuery, [postId], (err, results) => {
+    if (err) return res.status(500).json({ success: false, message: 'Error fetching post' });
+
+    if (results.length === 0) return res.status(404).json({ success: false, message: 'Post not found' });
+
+    let comments = JSON.parse(results[0].comments || '[]');
+
+    const newComment = {
+      userId,
+      text,
+      timestamp: new Date().toISOString()
+    };
+
+    comments.push(newComment);
+
+    const updateQuery = `UPDATE mood_post SET comments = ? WHERE post_id = ?`;
+    db.query(updateQuery, [JSON.stringify(comments), postId], (err) => {
+      if (err) return res.status(500).json({ success: false, message: 'Error updating comments' });
+      res.json({ success: true, comments_count: comments.length });
+    });
   });
 });
 
