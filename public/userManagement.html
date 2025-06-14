@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Management</title>
+  
+  <style>
+    /* General Styles */
+body {
+    font-family: 'Poppins', sans-serif; /* Clean modern font */
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #e3c1a8, #f7c8d3); /* Nude pastel gradient */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100vh; /* Full viewport height */
+    color: #333; /* Subtle dark text color for better readability */
+    transition: all 0.3s ease-in-out; /* Smooth transitions for any updates */
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #f167a1;
+    font-size: 2.5em;
+    font-weight: 600;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 1s ease-in-out;
+}
+
+/* Navbar Styles */
+.navbar {
+  background-color: #9f2d2d;
+  width: 100%;
+  height: 50px;
+  padding: 5px 15px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-menu {
+  display: flex;
+  gap: 15px;
+  margin-left: 20px;
+}
+
+.nav-menu a {
+  color: white;
+  text-decoration: none;
+  font-size: 0.9em;
+  padding: 8px 12px;
+}
+
+.nav-menu a:hover {
+  background-color: #f7c8d3;
+  color: #333;
+}
+
+.profile-container {
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    display: flex; /* To control icon and menu */
+    align-items: center;
+}
+
+.profile-icon {
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    border-radius: 50%;
+    background-color: transparent; /* Ensure image is visible */
+    color: white; /* Fallback text color */
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* Clip content to circle */
+    transition: transform 0.3s ease;
+    border: 1px solid #e04e89; /* Border */
+    position: relative; /* For absolute positioning of image */
+}
+
+.profile-icon img#defaultProfileIcon,
+.profile-icon img#navProfileAvatar {
+    display: none; /* Initially hidden, controlled by JS */
+    width: 100%; /* Fill the profile-icon */
+    height: 100%;
+    object-fit: cover; /* Cover the circle */
+    border-radius: 50%; /* Make it circular */
+    position: absolute; /* Position within the profile-icon */
+    top: 0;
+    left: 0;
+}
+
+.profile-container:hover .profile-icon {
+    transform: scale(1.1);
+}
+
+.profile-icon {
+    /* ... other styles ... */
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* ... other styles ... */
+}
+
+/* Expanded Menu */
+.profile-expanded-menu {
+    display: none;
+    position: absolute;
+    top: 100%; /* Position below the icon */
+    right: 0;
+    /* Use a light background that complements the app */
+    background-color: #f8f0fb; /* Light pinkish background */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    width: 180px; /* Adjust width as needed */
+    text-align: center;
+    padding: 15px;
+    z-index: 10;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+    border: 1px solid #e0e0e0; /* Light border */
+}
+
+.profile-container:hover .profile-expanded-menu {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+.profile-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.avatar-placeholder {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+    border: 1px solid #ddd;
+}
+
+.expanded-initials {
+    font-size: 24px;
+    font-weight: bold;
+    color: #f167a1; /* Use primary app color for initials */
+}
+
+.profile-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.user-info {
+    font-size: 14px;
+    color: #555;
+    font-weight: bold;
+}
+
+.menu-options {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    margin-top: 10px; /* Add some spacing */
+}
+
+.menu-options a {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+    text-align: left;
+    transition: background-color 0.3s ease;
+}
+
+.menu-options a:hover {
+    background-color: #f7c8d3; /* Light hover color */
+    color: #333;
+}
+
+/* Hide the original .profile-menu */
+.profile-menu {
+    display: none !important;
+}
+
+/* Responsiveness for Smaller Screens */
+@media (max-width: 768px) {
+    .profile-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+
+    .avatar-placeholder {
+        width: 50px;
+        height: 50px;
+    }
+
+    .expanded-initials {
+        font-size: 20px;
+    }
+
+    .profile-expanded-menu {
+        width: 150px;
+        font-size: 12px;
+    }
+}
+
+/* Sidebar Styles */
+.sidebar {
+  position: fixed;
+  top: 50px; /* below navbar */
+  left: -260px; /* hidden by default */
+  width: 240px;
+  height: calc(100vh - 50px);
+  background: linear-gradient(135deg, #f7c8d3, #e3c1a8);
+  padding: 20px;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  transition: left 0.3s ease;
+  z-index: 999;
+  border-top-right-radius: 12px;
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+.sidebar-header h2 {
+  color: #9f2d2d;
+  margin-bottom: 20px;
+  font-size: 1.3em;
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar-menu li {
+  margin-bottom: 15px;
+}
+
+.sidebar-menu a {
+  color: #333;
+  text-decoration: none;
+  font-size: 1em;
+  padding: 10px 12px;
+  display: block;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.sidebar-menu a:hover {
+  background-color: #f7c8d3;
+  color: #9f2d2d;
+}
+
+/* Hamburger Menu Icon */
+.hamburger {
+  font-size: 26px;
+  color: white;
+  cursor: pointer;
+  display: block;
+}
+/* Responsive sidebar handling */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px;
+  }
+
+  .admin-flex-container.shifted {
+    margin-left: 200px;
+  }
+
+  .hamburger {
+    font-size: 24px;
+  }
+}
+
+
+/* Dropdown container */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Dropdown button */
+.dropbtn {
+    background-color: #9f2d2d; /* Dark red background to match navbar */
+    color: white;
+    padding: 8px 16px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+/* Hover effect for dropdown button */
+.dropbtn:hover {
+    background-color: #f7c8d3; /* Light pink hover color */
+    color: #333; /* Dark text color */
+}
+
+/* Dropdown content (hidden by default) */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white; /* White background for dropdown */
+    min-width: 120px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    z-index: 1;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid #ddd; /* Light border */
+}
+
+/* Dropdown links */
+.dropdown-content a {
+    color: #333; /* Dark text color */
+    padding: 10px 12px;
+    text-decoration: none;
+    display: block;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+/* Hover effect for dropdown links */
+.dropdown-content a:hover {
+    background-color: #f7c8d3; /* Light pink hover color */
+    color: #333; /* Dark text color */
+}
+
+/* Show dropdown content on hover */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Search Bar Styles */
+#userSearch {
+    width: 30%; /* Full width */
+    padding: 10px; /* Add padding inside the input */
+    margin-bottom: 15px; /* Add spacing below the search bar */
+    border: 1px solid #ddd; /* Light border */
+    border-radius: 4px; /* Rounded corners */
+    font-size: 14px; /* Match font size with the rest of the page */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+}
+
+/* Search Bar Focus Effect */
+#userSearch:focus {
+    border-color: #9f2d2d; /* Dark red border on focus */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Slightly stronger shadow */
+    outline: none; /* Remove default outline */
+}
+
+/* Card Styles */
+.card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  padding: 20px;
+  margin: 20px 0;
+  width: 100%;
+  max-width: 100%; /* Let cards fill container width */
+  overflow-x: auto;
+  min-height: 200px;
+  box-sizing: border-box;
+}
+ /* Main container override */
+  #user-management-container {
+    display: block;
+    width: 80%;
+  }
+
+  /* Card style */
+  .card {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    background: #fff;
+    padding: 20px;
+    margin-bottom: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+  }
+
+ /* User Management container */
+#user-management-container {
+  display: block;
+  width: 100%;
+  max-width: 1200px; /* Optional: to cap it on large screens */
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Make the registered-users card stretch full width */
+#user-management-container .registered-users {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 20px;
+  margin-bottom: 30px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+}
+
+/* Tables inside user management container */
+#user-management-container table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+#user-management-container table th,
+#user-management-container table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+#user-management-container table th {
+  background-color: #104c90;
+  color: #fff;
+}
+
+#user-management-container table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+#user-management-container table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Inputs, labels, and buttons scoped for user management */
+#user-management-container input[type="text"],
+#user-management-container input[type="email"],
+#user-management-container textarea {
+  width: 100%;
+  padding: 8px 10px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+#user-management-container label {
+  font-weight: bold;
+}
+
+#user-management-container .update-button {
+  padding: 10px 20px;
+  background-color: #104c90;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 12px;
+}
+
+#user-management-container .update-button:hover {
+  background-color: #0d3c74;
+}
+
+
+.user-management-title {
+  text-align: center;
+  color: #104c90;
+  margin: 80px 0 20px 0; /* push it down by 80px */
+  font-size: 34px;
+  font-weight: bold;
+  width: 100%;
+  display: block;
+}
+
+
+</style>
+
+</head>
+<body>
+    <!-- Navbar -->
+  <nav class="navbar">
+  <div class="nav-left">
+    <div class="hamburger" id="hamburger">&#9776;</div>
+
+    <div class="nav-menu">
+        <a href="home.html">Home</a>
+       <a href="contact.html">Contact</a>
+        <a href="about.html">About</a>
+    </div>
+  </div>
+
+<div class="profile-container">
+    <div class="profile-icon" id="profileIcon">
+        <img id="defaultProfileIcon" src="/assets/boy.png" alt="Default User" style="display: none;">
+        <img id="navProfileAvatar" src="" alt="User Avatar" style="display: none;">
+    </div>
+    <div class="profile-expanded-menu" id="profileExpandedMenu">
+        <div class="avatar-section">
+            <div class="avatar-placeholder">
+                <div class="profile-initials" id="profileInitials"></div>
+                <img src="/assets/default-avatar.png" alt="User Avatar" class="profile-avatar" id="profileAvatar">
+            </div>
+            <div class="user-info">
+                <span id="userFullName"></span>
+            </div>
+        </div>
+        <div class="menu-options">
+            <a href="edit-profile.html">Edit Profile</a>
+            <a href="login.html">Logout</a>
+        </div>
+    </div>
+</div>
+</nav>
+
+
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2>Admin Menu</h2>
+    </div>
+    <ul class="sidebar-menu">
+      <li><a href="admin.html">Dashboard Overview</a></li>
+      <li><a href="userManagement.html">User management</a></li>
+      <li><a href="stats.html">Statistics</a></li>
+      <li><a href="spotifyPlaylists.html">Spotify Playlists</a></li>
+      <li><a href="youtubePlaylists.html">YouTube Playlists</a></li>
+      <li><a href="booksPlaylist.html">Books List</a></li>
+      <li><a href="ebooks.html">Ebooks</a></li>
+    </ul>
+  </aside>
+
+ <div id="user-management-page">
+  <h2 class="user-management-title">User Management</h2>
+
+  <div id="user-management-container">
+
+    <div id="registered-users" class="registered-users card">
+      <div id="totalUsers"></div>
+      <h3>Registered Users</h3>
+
+      <label for="userSearch">Search Users:</label>
+      <input type="text" id="userSearch" placeholder="Search for a user..." />
+      <table id="userTable">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Surname</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Created</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="user-details card">
+      <div id="activeUsers"></div>
+      <h3>Active Users (Last 7 Days)</h3>
+      <table id="activeUserTable">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Surname</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Last Login</th>
+            <th>Reports</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="admin-details card">
+      <h3>Admin Details</h3>
+      <label for="adminSearch">Search for admin:</label>
+      <input type="text" id="adminSearch" placeholder="Search for admin..." />
+      <table id="adminTable">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Surname</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Created At</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <button id="downloadAdminReport" class="update-button">Download Admin Report</button>
+    </div>
+
+    <div class="email-users card">
+      <h3>Send Email to Registered Users</h3>
+      <form id="emailUsersForm">
+        <label for="recipientEmail">Recipient Email:</label>
+        <input type="text" id="recipientEmail" name="recipientEmail" placeholder="Enter user's email" required>
+        <label for="emailSubject">Subject:</label>
+        <input type="text" id="emailSubject" name="subject" required>
+        <label for="emailBody">Message:</label>
+        <textarea id="emailBody" name="body" rows="6" cols="50" required></textarea>
+        <button type="submit" class="update-button">Send Email</button>
+      </form>
+      <div id="emailStatus"></div>
+    </div>
+
+  </div>
+</div>
+
+  <script>
+     // Sidebar Toggle
+    const hamburger = document.getElementById('hamburger');
+    const sidebar = document.getElementById('sidebar');
+    const flexContainer = document.getElementById('flexContainer');
+
+    hamburger.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      flexContainer.classList.toggle('shifted');
+    });
+
+    // Profile Menu Toggle (optional hover behavior)
+    const profileIcon = document.getElementById('profileIcon');
+    const profileMenu = document.getElementById('profileMenu');
+
+    profileIcon.addEventListener('click', () => {
+      profileMenu.classList.toggle('open');
+    });
+
+    // Close menu if clicking elsewhere
+    window.addEventListener('click', (e) => {
+      if (!profileIcon.contains(e.target) && !profileMenu.contains(e.target)) {
+        profileMenu.classList.remove('open');
+      }
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+
+  // === Registered Users ===
+  let allUsers = [];
+
+  async function fetchRegisteredUsers() {
+    try {
+      const res = await fetch('/admin/registered-users');
+      const users = await res.json();
+      allUsers = users;
+
+      document.getElementById('totalUsers').textContent = `Total Registered Users: ${users.length}`;
+      renderUserTable(users);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  function renderUserTable(users) {
+    const tbody = document.querySelector('#userTable tbody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+
+    users.forEach(user => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${user.name}</td>
+        <td>${user.surname}</td>
+        <td>${user.username}</td>
+        <td>${user.email}</td>
+        <td>${new Date(user.created_at).toLocaleString()}</td>
+        <td>
+          <div class="dropdown">
+            <button class="dropbtn">${user.role || 'user'}</button>
+            <div class="dropdown-content">
+              <a href="#" class="role-user">User</a>
+              <a href="#" class="role-admin">Admin</a>
+            </div>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(row);
+
+      row.querySelector('.role-user').addEventListener('click', e => {
+        e.preventDefault();
+        updateUserRole(user.user_id, 'user');
+      });
+
+      row.querySelector('.role-admin').addEventListener('click', e => {
+        e.preventDefault();
+        updateUserRole(user.user_id, 'admin');
+      });
+    });
+  }
+
+   // Role update (sample stub)
+  async function updateUserRole(userId, newRole) {
+    try {
+      const response = await fetch('/admin/update-role', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, newRole }),
+      });
+      const result = await response.json();
+      alert(result.message);
+      fetchRegisteredUsers();
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      alert('Error updating role.');
+    }
+  }
+
+
+  document.getElementById('userSearch').addEventListener('input', () => {
+    const query = document.getElementById('userSearch').value.toLowerCase();
+    const filtered = allUsers.filter(user =>
+      user.name.toLowerCase().includes(query) ||
+      user.surname.toLowerCase().includes(query) ||
+      user.username.toLowerCase().includes(query) ||
+      user.email.toLowerCase().includes(query)
+    );
+    renderUserTable(filtered);
+  });
+
+  // === Active Users ===
+  async function fetchActiveUsers() {
+    try {
+      const res = await fetch('/admin/active-users');
+      const users = await res.json();
+
+      document.getElementById('activeUsers').textContent = `Active Users in the last 7 days: ${users.length}`;
+      const tbody = document.querySelector('#activeUserTable tbody');
+      tbody.innerHTML = '';
+
+      users.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${user.name}</td>
+          <td>${user.surname}</td>
+          <td>${user.username}</td>
+          <td>${user.email}</td>
+          <td>${new Date(user.last_login).toLocaleString()}</td>
+          <td>${user.reports_count}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  // === Admin Details ===
+  let adminUsers = [];
+
+  async function fetchAdmins() {
+        try {
+            const response = await fetch('/admin/admin-details');
+            if (!response.ok) throw new Error('Failed to fetch admin details');
+            const admins = await response.json();
+            allAdmins = admins;
+            renderAdmins(admins);
+        } catch (error) {
+            console.error('Error fetching admin details:', error);
+        }
+    }
+  document.getElementById('adminSearch').addEventListener('input', () => {
+    const query = document.getElementById('adminSearch').value.toLowerCase();
+    const filtered = adminUsers.filter(user =>
+      user.name.toLowerCase().includes(query) ||
+      user.surname.toLowerCase().includes(query) ||
+      user.username.toLowerCase().includes(query) ||
+      user.email.toLowerCase().includes(query)
+    );
+    renderAdminTable(filtered);
+  });
+
+  function renderAdmins(admins) {
+        const adminTableBody = document.querySelector('#adminTable tbody');
+        adminTableBody.innerHTML = '';
+        admins.forEach(admin => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${admin.name}</td>
+                <td>${admin.surname}</td>
+                <td>${admin.username}</td>
+                <td>${admin.email}</td>
+                <td>${new Date(admin.registration_date).toLocaleString()}</td>
+            `;
+            adminTableBody.appendChild(row);
+        });
+    }
+
+    function filterAdmins() {
+        const searchInput = document.getElementById('adminSearch').value.toLowerCase();
+        const filtered = allAdmins.filter(admin =>
+            admin.name.toLowerCase().includes(searchInput) ||
+            admin.surname.toLowerCase().includes(searchInput) ||
+            admin.username.toLowerCase().includes(searchInput) ||
+            admin.email.toLowerCase().includes(searchInput)
+        );
+        renderAdmins(filtered);
+    }
+
+  // === Email Users Form ===
+  document.getElementById('emailUsersForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const formData = {
+      email: document.getElementById('recipientEmail').value,
+      subject: document.getElementById('emailSubject').value,
+      body: document.getElementById('emailBody').value
+    };
+
+    try {
+      const res = await fetch('/admin/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      const result = await res.json();
+      document.getElementById('emailStatus').textContent = result.message;
+    } catch (err) {
+      console.error(err);
+      document.getElementById('emailStatus').textContent = 'Failed to send email.';
+    }
+  });
+
+  // === Load data on page load ===
+  fetchRegisteredUsers();
+  fetchActiveUsers();
+  fetchAdmins()
+});
+
+  </script>
+</body>
+</html>
