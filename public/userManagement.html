@@ -468,7 +468,7 @@ h1 {
 }
 
 #user-management-container table th {
-  background-color: #104c90;
+  background-color: #df3952;
   color: #fff;
 }
 
@@ -575,7 +575,7 @@ h1 {
       <li><a href="spotifyPlaylists.html">Spotify Playlists</a></li>
       <li><a href="youtubePlaylists.html">YouTube Playlists</a></li>
       <li><a href="booksPlaylist.html">Books List</a></li>
-      <li><a href="ebooks.html">Ebooks</a></li>
+      
     </ul>
   </aside>
 
@@ -715,7 +715,7 @@ h1 {
         <td>${user.surname}</td>
         <td>${user.username}</td>
         <td>${user.email}</td>
-        <td>${new Date(user.created_at).toLocaleString()}</td>
+        <td>${new Date(user.registration_date).toLocaleString()}</td>
         <td>
           <div class="dropdown">
             <button class="dropbtn">${user.role || 'user'}</button>

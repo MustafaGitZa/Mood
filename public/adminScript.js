@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <td>${user.surname}</td>
         <td>${user.username}</td>
         <td>${user.email}</td>
-        <td>${new Date(user.created_at).toLocaleString()}</td>
+        <td>${new Date(user.registration_date).toLocaleString()}</td>
         <td>
           <div class="dropdown">
             <button class="dropbtn">${user.role || 'user'}</button>
@@ -77,6 +77,33 @@ document.addEventListener('DOMContentLoaded', () => {
     renderUsers(filtered);
   }
 
+  // === Active Users ===
+  async function fetchActiveUsers() {
+    try {
+      const res = await fetch('/admin/active-users');
+      const users = await res.json();
+
+      document.getElementById('activeUsers').textContent = `Active Users in the last 7 days: ${users.length}`;
+      const tbody = document.querySelector('#activeUserTable tbody');
+      tbody.innerHTML = '';
+
+      users.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${user.name}</td>
+          <td>${user.surname}</td>
+          <td>${user.username}</td>
+          <td>${user.email}</td>
+          <td>${new Date(user.last_login).toLocaleString()}</td>
+          <td>${user.reports_count}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   // Role update (sample stub)
   async function updateUserRole(userId, newRole) {
     try {
@@ -102,6 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load users on page load
   fetchRegisteredUsers();
+  fetchActiveUsers();
 });
 
   

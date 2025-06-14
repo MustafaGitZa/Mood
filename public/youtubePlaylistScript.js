@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   loadYouTubePlaylists();
 
+  // Download button listener
   document.getElementById("downloadYouTubeExcel").addEventListener("click", () => {
     window.open("/admin/playlists/export?platform=youtube", "_blank");
   });
@@ -21,9 +22,9 @@ function loadYouTubePlaylists() {
             row.innerHTML = `
               <td>${mood.mood_name}</td>
               <td>${genre.genre}</td>
-              <td><input type="text" id="yt_playlist_${item.id}" value="${item.playlist_link}" /></td>
-              <td><input type="text" id="yt_podcast1_${item.id}" value="${item.podcasts[0] || ''}" /></td>
-              <td><input type="text" id="yt_podcast2_${item.id}" value="${item.podcasts[1] || ''}" /></td>
+              <td><input type="text" id="playlist_${item.id}" value="${item.playlist_link}" /></td>
+              <td><input type="text" id="podcast1_${item.id}" value="${item.podcasts[0] || ''}" /></td>
+              <td><input type="text" id="podcast2_${item.id}" value="${item.podcasts[1] || ''}" /></td>
               <td>
                 <button onclick="updateYouTubePlaylist(${item.id}, '${escapeQuotes(mood.mood_name)}', '${escapeQuotes(genre.genre)}')">Update</button>
               </td>
@@ -35,15 +36,15 @@ function loadYouTubePlaylists() {
       });
     })
     .catch(err => {
-      console.error("Failed to load YouTube playlists:", err);
+      console.error("Failed to load playlists:", err);
       alert("Failed to load YouTube playlists.");
     });
 }
 
 function updateYouTubePlaylist(id, moodName, genre) {
-  const playlistLink = document.getElementById(`yt_playlist_${id}`).value;
-  const podcast1 = document.getElementById(`yt_podcast1_${id}`).value;
-  const podcast2 = document.getElementById(`yt_podcast2_${id}`).value;
+  const playlistLink = document.getElementById(`playlist_${id}`).value;
+  const podcast1 = document.getElementById(`podcast1_${id}`).value;
+  const podcast2 = document.getElementById(`podcast2_${id}`).value;
 
   fetch('/admin/playlists/update', {
     method: 'POST',

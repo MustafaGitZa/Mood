@@ -1350,6 +1350,91 @@ app.post('/admin/playlists/update', (req, res) => {
   });
 });
 
+app.get('/admin/ebook-recommendations', (req, res) => {
+  const { mood, book_type } = req.query;
+
+  let sql = `SELECT * FROM mood_ebook_audio WHERE 1=1`;
+  const params = [];
+
+  if (mood) {
+    sql += ' AND mood_name = ?';
+    params.push(mood);
+  }
+
+  if (book_type) {
+    sql += ' AND book_type = ?';
+    params.push(book_type);
+  }
+
+  sql += ' ORDER BY mood_name, book_type';
+
+  db.query(sql, params, (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({
+        error: "No recommendations found",
+        suggestion: "Try a different mood or book type combination"
+      });
+    }
+
+    // Format response
+    const response = results.map(item => ({
+      id: item.id,
+      mood_name: item.mood_name,
+      book_type: item.book_type,
+      googlebook_links: [item.googlebook_link_1, item.googlebook_link_2].filter(Boolean),
+      audiobook_links: [item.audiobook_link_1, item.audiobook_link_2].filter(Boolean)
+    }));
+
+    res.json(response);
+  });
+});
+
+
+app.post('/admin/ebook-recommendations/update', (req, res) => {
+  const {
+    id,
+    mood_name,
+    book_type,
+    googlebook_link_1,
+    googlebook_link_2,
+    audiobook_link_1,
+    audiobook_link_2
+  } = req.body;
+
+  const sql = `
+    UPDATE mood_ebook_audio
+    SET 
+      mood_name = ?,
+      book_type = ?,
+      googlebook_link_1 = ?,
+      googlebook_link_2 = ?,
+      audiobook_link_1 = ?,
+      audiobook_link_2 = ?
+    WHERE id = ?
+  `;
+
+  db.query(sql, 
+    [mood_name, book_type, googlebook_link_1, googlebook_link_2, audiobook_link_1, audiobook_link_2, id],
+    (err, result) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).send("Database error");
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).send("Ebook recommendation not found");
+      }
+
+      res.send("Ebook recommendation updated successfully");
+  });
+});
+
+
 
 // Route to get the logged-in user's role
 app.get('/api/user-role', (req, res) => {
