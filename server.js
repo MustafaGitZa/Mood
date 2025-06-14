@@ -285,7 +285,8 @@ app.post("/register", checkDbConnection, upload.single("profile_picture"), async
 // Login Route (POST) - with DB check
 app.post("/login", checkDbConnection, (req, res) => {
   console.log('Login route hit');
-  const { username, password } = req.body;
+  const { username, password, role } = req.body;
+
 
   console.log("Received login request for username:", username);
 
@@ -293,55 +294,36 @@ app.post("/login", checkDbConnection, (req, res) => {
     return res.redirect("/login?error=Username and password are required.");
   }
 
-  const query = "SELECT * FROM users WHERE username = ?";
-  console.log('Executing query:', query, 'with username:', username);
-  db.query(query, [username], async (err, results) => {
-    if (err) {
-      console.error("Error during login:", err);
-      res.status(500).json({ message: "Error during login. Please try again later." });
-    } else if (results.length === 0) {
-      console.log('No user found with username:', username); // Log when no user is found
-      res.status(401).json({ message: "Invalid username or password." });
+  const query = "SELECT * FROM users WHERE username = ? AND role = ?";
+db.query(query, [username, role], async (err, results) => {
+  if (err) {
+    console.error("Error during login:", err);
+    res.status(500).json({ message: "Error during login. Please try again later." });
+  } else if (results.length === 0) {
+    res.status(401).json({ message: "Invalid username, password or role." });
+  } else {
+    const user = results[0];
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (isMatch) {
+      req.session.userId = user.user_id;
+      req.session.username = user.username;
+      req.session.role = user.role;
+
+      // Update last_login
+      db.query("UPDATE users SET last_login = NOW() WHERE user_id = ?", [user.user_id]);
+
+      // Redirect based on role
+      if (user.role === "admin") {
+        res.status(200).json({ message: "Login successful!", userId: user.user_id, username: user.username, redirectUrl: "/admin" });
+      } else {
+        res.status(200).json({ message: "Login successful!", userId: user.user_id, username: user.username, redirectUrl: "/home" });
+      }
     } else {
-      const user = results[0];
-      console.log('User found:', user);
-
-      // Fallback: Set role to "user" if it is null or undefined
-      if (!user.role) {
-        console.log(`User ${user.username} has no role set. Defaulting to "user".`);
-        user.role = "user";
-      }
-
-      try {
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (isMatch) {
-          // Store user details in the session
-          req.session.userId = user.user_id;
-          req.session.username = user.username;
-          req.session.role = user.role; // Store the user's role in the session
-          console.log("Password match successful. Sending userId:", user.user_id);
-          console.log('Password match successful for user:', user.username);
-
-          // Update last_login time
-          db.query("UPDATE users SET last_login = NOW() WHERE user_id = ?", [user.user_id], (err) => {
-            if (err) console.error("Failed to update last_login:", err);
-          });
-
-          // Redirect based on role
-          if (user.role === "admin") {
-            res.status(200).json({ message: "Login successful!", userId: user.user_id, username: user.username, redirectUrl: "/admin" });
-          } else {
-            res.status(200).json({ message: "Login successful!", userId: user.user_id, username: user.username, redirectUrl: "/home" });
-          }
-        } else {
-          res.status(401).json({ message: "Invalid username or password." });
-        }
-      } catch (error) {
-        console.error("Error comparing passwords:", error);
-        res.status(500).json({ message: "Internal server error." });
-      }
+      res.status(401).json({ message: "Invalid username or password." });
     }
-  });
+  }
+});
+
 });
 
 

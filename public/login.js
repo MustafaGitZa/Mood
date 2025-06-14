@@ -1,57 +1,69 @@
 const loginForm = document.getElementById('loginForm');
 const loginSuccessModal = document.getElementById('loginSuccessModal');
-const okButton = document.querySelector('.ok-button'); // Get the OK button. This is correct.
-const loginFailedModal = document.getElementById('loginFailedModal'); //Get the loginFailedModal
+const okButton = document.querySelector('.ok-button');
+const loginFailedModal = document.getElementById('loginFailedModal');
+const clientTab = document.getElementById('clientTab');
+const adminTab = document.getElementById('adminTab');
+const loginRole = document.getElementById('loginRole');
 
+// Toggle tabs
+clientTab.addEventListener('click', () => {
+  loginRole.value = "user";
+  clientTab.classList.add("active");
+  adminTab.classList.remove("active");
+});
+
+adminTab.addEventListener('click', () => {
+  loginRole.value = "admin";
+  adminTab.classList.add("active");
+  clientTab.classList.remove("active");
+});
 
 loginForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
+  event.preventDefault();
 
-    const username = document.getElementById('loginUsername').value;
-    const password = document.getElementById('loginPassword').value;
+  const username = document.getElementById('loginUsername').value;
+  const password = document.getElementById('loginPassword').value;
+  const role = loginRole.value;
 
-    try {
-        const response = await fetch("/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password })
-        });
-
-        const data = await response.json();
-
-        console.log("Login Response:", data);
-
-        if (response.ok) {
-            console.log("Storing userId & username in localStorage:", data.userId, data.username);
-            localStorage.setItem("userId", data.userId);
-            localStorage.setItem("username", data.username);
-            loginSuccessModal.style.display = "flex"; // Show the success modal
-
-             // Redirect based on the role (redirectUrl provided by the server)
-             window.location.href = data.redirectUrl;
-        } else {
-            // alert(data.message);  // Remove alert
-            loginFailedModal.style.display = "flex"; // Show the error modal
-        }
-    } catch (error) {
-        console.error("Error:", error);
-        alert("An error occurred. Please try again.");
-    }
-});
-
-//  Add event listener to the OK button to close the modal and redirect.
-okButton.addEventListener('click', () => {
-    loginSuccessModal.style.display = 'none';
-    window.location.href = '/home.html';
-});
-
-// Add event listener for the OK button in the error modal
-const errorOkButton = document.querySelector('.error-ok-button');  // Select the correct button
-if (errorOkButton) {  //check if the button exists
-    errorOkButton.addEventListener('click', () => {
-        loginFailedModal.style.display = 'none';
-        window.location.href = '/login.html';  // Go back to login page
+  try {
+    const response = await fetch("/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password, role })
     });
+
+    const data = await response.json();
+    console.log("Login Response:", data);
+
+    if (response.ok) {
+      console.log("Storing userId & username in localStorage:", data.userId, data.username);
+      localStorage.setItem("userId", data.userId);
+      localStorage.setItem("username", data.username);
+      loginSuccessModal.style.display = "flex";
+
+      // Redirect immediately to the server-specified URL
+      window.location.href = data.redirectUrl;
+    } else {
+      loginFailedModal.style.display = "flex";
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    alert("An error occurred. Please try again.");
+  }
+});
+
+// Success modal OK button
+okButton.addEventListener('click', () => {
+  loginSuccessModal.style.display = 'none';
+  window.location.href = '/home.html';
+});
+
+// Error modal OK button
+const errorOkButton = document.querySelector('.error-ok-button');
+if (errorOkButton) {
+  errorOkButton.addEventListener('click', () => {
+    loginFailedModal.style.display = 'none';
+    window.location.href = '/login.html';
+  });
 }
-
-

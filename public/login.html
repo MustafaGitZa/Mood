@@ -1,56 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log In</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log In</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <div class="form-container">
-            <form id="loginForm">
-                <h1>Log In</h1>
-               
-                <div class="form-group">
-                    <label for="loginUsername">Username</label>
-                    <input type="text" id="loginUsername" placeholder="Enter your username" required>
-                </div>
-                <div class="form-group">
-                    <label for="loginPassword">Password</label>
-                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
-                </div>
-                <!-- Add space between Forgot Password link and Login button -->
-                <button type="submit" id="loginBtn">LOG IN</button>
-                <p><a href="forgotPassword.html" class="forgot-password-link">Forgot Password?</a></p>
-                <p>Don't have an account? <a href="register.html">Register here</a></p>
-            </form>
+  <div class="container">
+    <div class="form-container">
 
-            <!-- Success Modal -->
-            <div id="loginSuccessModal" class="modal">
-                <div class="modal-content">
-                    <span class="close-button">&times;</span>
-                    <h2>Login Successful</h2>
-                    <p>Welcome! You are now logged in.</p>
-                    <button class="ok-button">OK</button>
-                </div>
-            </div>
+      <!-- Role Tabs -->
+      <div class="tab-buttons">
+        <button type="button" id="clientTab" class="active">Client Login</button>
+        <button type="button" id="adminTab">Admin Login</button>
+      </div>
 
-            <!-- Failed Login Modal -->
-            <div id="loginFailedModal" class="modal">
-                <div class="modal-content">
-                    <span class="close-button">&times;</span>
-                    <h2>Login Failed</h2>
-                    <!-- Dynamic error message will be inserted here -->
-                    <p class="error-message">Incorrect username or password. Please try again.</p>
-                    <button class="error-ok-button">Re-try</button>
-                </div>
-            </div>
+      <form id="loginForm">
+        <h1>Log In</h1>
+
+        <!-- Hidden input for role -->
+        <input type="hidden" id="loginRole" value="user">
+
+        <div class="form-group">
+          <label for="loginUsername">Username</label>
+          <input type="text" id="loginUsername" placeholder="Enter your username" required>
         </div>
-    </div>
 
-    <script src="login.js"></script>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter your password" required>
+        </div>
+
+        <button type="submit" id="loginBtn">LOG IN</button>
+        <p><a href="forgotPassword.html" class="forgot-password-link">Forgot Password?</a></p>
+        <p>Don't have an account? <a href="register.html">Register here</a></p>
+      </form>
+
+      <!-- Success Modal -->
+      <div id="loginSuccessModal" class="modal">
+        <div class="modal-content">
+          <span class="close-button">&times;</span>
+          <h2>Login Successful</h2>
+          <p>Welcome! You are now logged in.</p>
+          <button class="ok-button">OK</button>
+        </div>
+      </div>
+
+      <!-- Failed Login Modal -->
+      <div id="loginFailedModal" class="modal">
+        <div class="modal-content">
+          <span class="close-button">&times;</span>
+          <h2>Login Failed</h2>
+          <p class="error-message">Incorrect username, password or role. Please try again.</p>
+          <button class="error-ok-button">Re-try</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="login.js"></script>
 </body>
 </html>
-
-
