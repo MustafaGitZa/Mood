@@ -1,15 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin Dashboard</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"/>
-  <link rel="stylesheet" href="adminStyles.css" />
-   <script src="adminScript.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics Dashboard</title>
+    <link rel="stylesheet" href="adminStyles.css">
 </head>
 <body>
-  <!-- Navbar -->
-  <nav class="navbar">
+    <nav class="navbar">
   <div class="nav-left">
     <div class="hamburger" id="hamburger">&#9776;</div>
 
@@ -43,10 +41,7 @@
 </div>
 </nav>
 
-
-
-  <!-- Sidebar -->
-  <aside class="sidebar" id="sidebar">
+<aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <h2>Admin Menu</h2>
     </div>
@@ -59,84 +54,37 @@
       <li><a href="booksPlaylist.html">Books List</a></li>
     </ul>
   </aside>
-
-  <!-- Dashboard Grid + Content -->
-  <div class="admin-flex-container" id="flexContainer">
+    <div class="admin-flex-container">
+        
         <div class="admin-dashboard-grid">
             <div class="admin-dashboard-container">
-                            <h1>Admin Dashboard</h1>
-                            <p>Welcome to the admin dashboard. Here you can manage user feedback and view statistics.</p>
+                <h1>Book Playlist Dashboard</h1>
+                <p>Welcome to the Book Playlist dashboard.</p>
             </div>
 
-        <!-- Stat Cards -->
-        <div class="stats-grid">
-            <div class="stat-card">
-            <h3>Registered Users</h3>
-            <p>120</p>
-            </div>
-            <div class="stat-card">
-            <h3>Active Users</h3>
-            <p>78</p>
-            </div>
-            <div class="stat-card">
-            <h3>Total Playlists</h3>
-            <p>45</p>
-            </div>
-            <div class="stat-card">
-            <h3>Ebooks</h3>
-            <p>32</p>
-            </div>
-        </div>
-
-       <!-- Data Tables Row -->
-<div class="data-tables-row">
-    <!-- Registered Users -->
-    <div id="registered-users" class="registered-users card">
-        <div id="totalUsers"></div>
-        <h3>Registered Users</h3>
-        <label for="userSearch">Search Users:</label>
-        <input type="text" id="userSearch" placeholder="Search for a user..." />
-        <table id="userTable" border="1" cellspacing="0" cellpadding="8">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Surname</th>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Created</th>
-                    <th>Role</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-
-    <!-- Active Users -->
-    <div id="active-users" class="active-users card">
-        <div id="activeUsers"></div>
-        <h3>Active Users (Last 7 Days)</h3>
-        <table id="activeUserTable" border="1" cellspacing="0" cellpadding="8">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Surname</th>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Last Login</th>
-                    <th>Reports</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-</div>
-
+            <div class="book-management card">
+                    <h3>Manage Books and Audio Books</h3>
+                    <table id="bookTable" border="1" cellspacing="0" cellpadding="8">
+                        <thead>
+                            <tr>
+                                <th>Mood Name</th>
+                                <th>Google Book Link 1</th>
+                                <th>Google Book Link 2</th>
+                                <th>Audio Book Link 1</th>
+                                <th>Audio Book Link 2</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be dynamically populated -->
+                        </tbody>
+                    </table>
+                    <button id="downloadBookExcel" class="download-report-btn btn-excel">Download Excel</button>
+                </div>
 
         </div>
-  </div>
-
-  <!-- JavaScript -->
-  <script>
+    </div>
+ <script>
     // Sidebar Toggle
     const hamburger = document.getElementById('hamburger');
     const sidebar = document.getElementById('sidebar');
@@ -162,6 +110,9 @@
       }
     });
   </script>
-   
+
+    <script src="booksScript.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
