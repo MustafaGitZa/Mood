@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics Dashboard</title>
+    <link rel="stylesheet" href="adminStyles.css">
+</head>
+<body>
+      <!-- Navbar -->
+  <nav class="navbar">
+  <div class="nav-left">
+    <div class="hamburger" id="hamburger">&#9776;</div>
+
+    <div class="nav-menu">
+        <a href="home.html">Home</a>
+       <a href="contact.html">Contact</a>
+        <a href="about.html">About</a>
+    </div>
+  </div>
+
+<div class="profile-container">
+    <div class="profile-icon" id="profileIcon">
+        <img id="defaultProfileIcon" src="/assets/boy.png" alt="Default User" style="display: none;">
+        <img id="navProfileAvatar" src="" alt="User Avatar" style="display: none;">
+    </div>
+    <div class="profile-expanded-menu" id="profileExpandedMenu">
+        <div class="avatar-section">
+            <div class="avatar-placeholder">
+                <div class="profile-initials" id="profileInitials"></div>
+                <img src="/assets/default-avatar.png" alt="User Avatar" class="profile-avatar" id="profileAvatar">
+            </div>
+            <div class="user-info">
+                <span id="userFullName"></span>
+            </div>
+        </div>
+        <div class="menu-options">
+            <a href="edit-profile.html">Edit Profile</a>
+            <a href="login.html">Logout</a>
+        </div>
+    </div>
+</div>
+</nav>
+      <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2>Admin Menu</h2>
+    </div>
+    <ul class="sidebar-menu">
+      <li><a href="admin.html">Dashboard Overview</a></li>
+      <li><a href="userManagement.html">User management</a></li>
+      <li><a href="stats.html">Statistics</a></li>
+      <li><a href="spotifyPlaylists.html">Spotify Playlists</a></li>
+      <li><a href="youtubePlaylists.html">YouTube Playlists</a></li>
+      <li><a href="booksPlaylist.html">Books List</a></li>
+    </ul>
+  </aside>
+
+
+    <div class="admin-flex-container">
+       
+        <div class="admin-dashboard-grid">
+            <div class="admin-dashboard-container">
+                <h1>Statistics Dashboard</h1>
+                <p>Welcome to the Statistics dashboard.</p>
+            </div>
+            <!-- Mood Stats Card -->
+            <div id="stats" class="mood-stats card">
+                <h3>Mood Statistics (All Users)</h3>
+                <canvas id="moodStatsChart" width="400" height="200"></canvas>
+            </div>
+
+            <div id="platform-popularity" class="platform-popularity card">
+                <h3>Platform Popularity (All Users)</h3>
+                <canvas id="platformPopularityChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+<script>
+    // Sidebar Toggle
+    const hamburger = document.getElementById('hamburger');
+    const sidebar = document.getElementById('sidebar');
+    const flexContainer = document.getElementById('flexContainer');
+
+    hamburger.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      flexContainer.classList.toggle('shifted');
+    });
+
+    // Profile Menu Toggle (optional hover behavior)
+    const profileIcon = document.getElementById('profileIcon');
+    const profileMenu = document.getElementById('profileMenu');
+
+    profileIcon.addEventListener('click', () => {
+      profileMenu.classList.toggle('open');
+    });
+
+    // Close menu if clicking elsewhere
+    window.addEventListener('click', (e) => {
+      if (!profileIcon.contains(e.target) && !profileMenu.contains(e.target)) {
+        profileMenu.classList.remove('open');
+      }
+    });
+  </script>
+    <script src="statsScript.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>

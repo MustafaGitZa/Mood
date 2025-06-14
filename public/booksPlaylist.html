@@ -5,6 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Statistics Dashboard</title>
     <link rel="stylesheet" href="adminStyles.css">
+    <style>
+        #bookTable {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#bookTable th, #bookTable td {
+  border: 1px solid #ccc;
+  padding: 5px;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#bookTable a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+#bookTable button {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+#bookTable th {
+  background: #df3952;
+}
+
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -64,21 +94,23 @@
 
             <div class="book-management card">
                     <h3>Manage Books and Audio Books</h3>
-                    <table id="bookTable" border="1" cellspacing="0" cellpadding="8">
+                    <table id="bookTable" border="1" cellspacing="0" cellpadding="5"
+                        style="font-size: 13px; width: 100%; table-layout: fixed;">
                         <thead>
                             <tr>
-                                <th>Mood Name</th>
-                                <th>Google Book Link 1</th>
-                                <th>Google Book Link 2</th>
-                                <th>Audio Book Link 1</th>
-                                <th>Audio Book Link 2</th>
-                                <th>Actions</th>
+                                <th style="width: 14%;">Mood</th>
+                                <th style="width: 17%;">Google Book 1</th>
+                                <th style="width: 17%;">Google Book 2</th>
+                                <th style="width: 17%;">Audiobook 1</th>
+                                <th style="width: 17%;">Audiobook 2</th>
+                                <th style="width: 10%;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Rows will be dynamically populated -->
+                            <!-- Rows populate here -->
                         </tbody>
                     </table>
+
                     <button id="downloadBookExcel" class="download-report-btn btn-excel">Download Excel</button>
                 </div>
 
