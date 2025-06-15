@@ -162,7 +162,7 @@ app.post("/facialRecognition", checkDbConnection, (req, res) => {
   }
 
   const query = `
-    INSERT INTO moodlogs (user_id, type, logged_mood, log_date)
+    INSERT INTO moodlog (user_id, type, logged_mood, log_date)
     VALUES (?, ?, ?, NOW())
   `;
 
@@ -193,7 +193,7 @@ app.post("/save-emoji", checkDbConnection, (req, res) => {
   }
 
   const query = `
-    INSERT INTO moodlogs (user_id, type, logged_mood, log_date)
+    INSERT INTO moodlog (user_id, type, logged_mood, log_date)
     VALUES (?, ?, ?, NOW())
   `;
 
@@ -254,7 +254,7 @@ app.post("/register", checkDbConnection, upload.single("profile_picture"), async
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const query = `
-      INSERT INTO users (username, password, email, name, surname, profile_picture, age, role)
+      INSERT INTO user (username, password, email, name, surname, profile_picture, age, role)
       VALUES (?, ?, ?, ?, ?, ?, ?, 'user')
     `;
 
@@ -295,7 +295,7 @@ app.post("/login", checkDbConnection, (req, res) => {
     return res.redirect("/login?error=Username and password are required.");
   }
 
-  const query = "SELECT * FROM users WHERE username = ? AND role = ?";
+  const query = "SELECT * FROM user WHERE username = ? AND role = ?";
 db.query(query, [username, role], async (err, results) => {
   if (err) {
     console.error("Error during login:", err);
@@ -311,7 +311,7 @@ db.query(query, [username, role], async (err, results) => {
       req.session.role = user.role;
 
       // Update last_login
-      db.query("UPDATE users SET last_login = NOW() WHERE user_id = ?", [user.user_id]);
+      db.query("UPDATE user SET last_login = NOW() WHERE user_id = ?", [user.user_id]);
 
       // Redirect based on role
       if (user.role === "admin") {
@@ -337,7 +337,7 @@ app.get("/get-profile", checkDbConnection, (req, res) => {
       return res.status(400).json({ message: "User ID is required." });
   }
 
-  const query = "SELECT username, name, surname, email FROM users WHERE user_id = ?";
+  const query = "SELECT username, name, surname, email FROM user WHERE user_id = ?";
   db.query(query, [userId], (err, results) => {
       if (err) {
           console.error("Error fetching profile:", err);
@@ -365,7 +365,7 @@ app.post("/update-profile", checkDbConnection, upload.single('profile_picture'),
   }
 
   const query = `
-      UPDATE users 
+      UPDATE user
       SET name = ?, surname = ?, email = ?, username = ?, 
           profile_picture = COALESCE(?, profile_picture) 
       WHERE user_id = ?
@@ -397,7 +397,7 @@ app.get("/get-username", checkDbConnection, (req, res) => {
       return res.status(400).json({ message: "User ID is required." });
   }
 
-  const query = "SELECT username FROM users WHERE user_id = ?";
+  const query = "SELECT username FROM user WHERE user_id = ?";
   db.query(query, [userId], (err, results) => {
       if (err) {
           console.error("Error fetching username:", err);
@@ -423,7 +423,7 @@ app.get("/getUserProfile", checkDbConnection, (req, res) => {
       return res.status(401).json({ message: "User not authenticated." });
   }
 
-  db.query("SELECT profile_picture FROM users WHERE user_id = ?", [userId], (err, results) => {
+  db.query("SELECT profile_picture FROM user WHERE user_id = ?", [userId], (err, results) => {
       if (err) {
           console.error("Error fetching user profile:", err);
           return res.status(500).json({ message: "Database error fetching user profile." });
@@ -446,7 +446,7 @@ app.delete("/delete-profile", checkDbConnection, (req, res) => {
       return res.status(400).json({ message: "User ID is required." });
   }
 
-  const query = "DELETE FROM users WHERE user_id = ?";
+  const query = "DELETE FROM user WHERE user_id = ?";
   db.query(query, [userId], (err, result) => {
       if (err) {
           console.error("Error deleting profile:", err);
@@ -484,7 +484,7 @@ app.get("/ratings", checkDbConnection, (req, res) => {
       SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'excited' THEN 1 ELSE 0 END) AS excited,
       SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'neutral' THEN 1 ELSE 0 END) AS neutral,
       SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'surprised' THEN 1 ELSE 0 END) AS surprised
-    FROM moodlogs
+    FROM moodlog
     WHERE user_id = ?
       AND log_date BETWEEN ? AND ?
   `;
@@ -493,7 +493,7 @@ app.get("/ratings", checkDbConnection, (req, res) => {
     SELECT 
       log_date AS dateTime, 
       logged_mood AS emotion
-    FROM moodlogs
+    FROM moodlog
     WHERE user_id = ?
       AND log_date BETWEEN ? AND ?
     ORDER BY log_date DESC
@@ -528,8 +528,8 @@ app.get('/moodlogs/:date', checkDbConnection, async (req, res) => {
     const [moodLogs] = await db.promise().query(
       `
       SELECT ml.logged_mood, mlt.type_name, ml.log_date
-      FROM moodlogs ml
-      JOIN moodlog_types mlt ON ml.type_id = mlt.type_id
+      FROM moodlog ml
+      JOIN moodlog_types mlt ON ml.user_id = mlt.user_id
       WHERE ml.user_id = ? AND DATE(ml.log_date) = ?
       ORDER BY ml.log_date DESC
       `,
@@ -545,7 +545,7 @@ app.get('/moodlogs/:date', checkDbConnection, async (req, res) => {
         SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'excited' THEN 1 ELSE 0 END) AS excited,
         SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'neutral' THEN 1 ELSE 0 END) AS neutral,
         SUM(CASE WHEN LOWER(TRIM(logged_mood)) = 'surprised' THEN 1 ELSE 0 END) AS surprised
-      FROM moodlogs
+      FROM moodlog
       WHERE user_id = ?
       `,
       [userId]
@@ -556,7 +556,7 @@ app.get('/moodlogs/:date', checkDbConnection, async (req, res) => {
       SELECT 
         log_date AS dateTime, 
         logged_mood AS emotion
-      FROM moodlogs
+      FROM moodlog
       WHERE user_id = ?
       ORDER BY log_date DESC
       `,
@@ -610,7 +610,7 @@ app.post("/send-report", checkDbConnection, async (req, res) => {
     return res.status(403).json({ message: "User not authenticated." });
   }
 
-  const getEmailQuery = "SELECT email FROM users WHERE user_id = ?";
+  const getEmailQuery = "SELECT email FROM user WHERE user_id = ?";
   db.query(getEmailQuery, [userId], async (err, results) => {
     if (err) {
       console.error("Error fetching user email:", err);
@@ -812,7 +812,7 @@ const { v4: uuidv4 } = require('uuid'); // for generating unique tokens
 app.post('/forgot-password', checkDbConnection, async (req, res) => {
   const { email } = req.body;
   
-  db.query("SELECT user_id FROM users WHERE email = ?", [email], (err, result) => {
+  db.query("SELECT user_id FROM user WHERE email = ?", [email], (err, result) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ message: 'Error querying the database' });
@@ -853,7 +853,7 @@ app.post('/reset-password', checkDbConnection, async (req, res) => {
 
   try {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    const updateQuery = 'UPDATE users SET password = ? WHERE user_id = ?';
+    const updateQuery = 'UPDATE user SET password = ? WHERE user_id = ?';
 
     db.query(updateQuery, [hashedPassword, userId], (err, result) => {
       if (err) {
@@ -880,7 +880,7 @@ app.get("/get-profile", (req, res) => {
     return res.status(400).json({ message: "User ID is required." });
   }
 
-  const query = "SELECT name, surname, email, username FROM users WHERE user_id = ?";
+  const query = "SELECT name, surname, email, username FROM user WHERE user_id = ?";
   db.query(query, [userId], (err, results) => {
     if (err) {
       console.error("Error fetching profile:", err);
@@ -974,7 +974,7 @@ app.post("/validate-email", checkDbConnection, express.json(), (req, res) => {
   }
 
   // Modified query to exclude current user's email from duplication check
-  const query = "SELECT user_id FROM users WHERE email = ? AND user_id != ?";
+  const query = "SELECT user_id FROM user WHERE email = ? AND user_id != ?";
   db.query(query, [email, userId], (err, results) => {
     if (err) {
       console.error("Error validating email:", err);
@@ -994,7 +994,7 @@ app.post("/check-email", checkDbConnection, express.json(), (req, res) => {
     return res.status(400).json({ error: "Email is required" });
   }
 
-  const query = "SELECT email FROM users WHERE email = ?";
+  const query = "SELECT email FROM user WHERE email = ?";
   db.query(query, [email], (err, results) => {
     if (err) {
       console.error("Error checking email:", err);
@@ -1064,7 +1064,7 @@ app.post("/send-badge", async (req, res) =>{
 app.get("/admin/active-users", checkDbConnection, (req, res) => {
   const query = `
       SELECT user_id, name, surname, username, email, last_login 
-      FROM users 
+      FROM user
       WHERE last_login >= NOW() - INTERVAL 7 DAY
       ORDER BY last_login DESC
   `;
@@ -1081,7 +1081,7 @@ app.get("/admin/active-users", checkDbConnection, (req, res) => {
 app.get("/admin/registered-users", checkDbConnection, (req, res) => {
   const query = `
   SELECT user_id, name, surname, username, email, registration_date, role
-  FROM users
+  FROM user
   ORDER BY user_id ASC 
   `;
   db.query(query, (err, results) => {
@@ -1103,7 +1103,7 @@ app.post("/admin/update-role", checkDbConnection, checkAdminRole, (req, res) => 
     return res.status(400).json({ message: "Invalid role specified." });
   }
 
-  const query = "UPDATE users SET role = ? WHERE user_id = ?";
+  const query = "UPDATE user SET role = ? WHERE user_id = ?";
   db.query(query, [newRole, userId], (err, result) => {
     if (err) {
       console.error("Error updating user role:", err);
@@ -1119,7 +1119,7 @@ app.post("/admin/update-role", checkDbConnection, checkAdminRole, (req, res) => 
         const insertAdminQuery = `
           INSERT INTO admin (name, surname, username, email, password, registration_date)
           SELECT name, surname, username, email, password, registration_date
-          FROM users
+          FROM user
           WHERE user_id = ?
           ON DUPLICATE KEY UPDATE 
             name = VALUES(name), 
@@ -1139,7 +1139,7 @@ app.post("/admin/update-role", checkDbConnection, checkAdminRole, (req, res) => 
 
         // If the role is changed to "user", remove the user from the `admin` table
       if (newRole === "user") {
-        const deleteAdminQuery = "DELETE FROM admin WHERE username = (SELECT username FROM users WHERE user_id = ?)";
+        const deleteAdminQuery = "DELETE FROM admin WHERE username = (SELECT username FROM user WHERE user_id = ?)";
         db.query(deleteAdminQuery, [userId], (err) => {
           if (err) {
             console.error("Error removing user from admin table:", err);
@@ -1427,7 +1427,7 @@ app.get('/api/user-role', (req, res) => {
 
   const userId = req.session.userId;
 
-  const query = "SELECT role FROM users WHERE user_id = ?";
+  const query = "SELECT role FROM user WHERE user_id = ?";
   db.query(query, [userId], (err, results) => {
     if (err) {
       console.error("Error fetching user role:", err);
@@ -1447,7 +1447,7 @@ app.get('/admin/user-report/:userId', checkDbConnection, (req, res) => {
 
   const query = `
       SELECT name, surname, username, email, last_login
-      FROM users
+      FROM user
       WHERE user_id = ?
   `;
 
@@ -1563,7 +1563,7 @@ app.post("/search-mood", checkDbConnection, (req, res) => {
 
   const query = `
     SELECT logged_mood, log_date
-    FROM moodlogs
+    FROM moodlog
     WHERE user_id = ? AND logged_mood LIKE ?
     ORDER BY log_date DESC
   `;
@@ -1596,7 +1596,7 @@ app.post('/journal', async (req, res) => {
 
   try {
     await db.execute(
-      'INSERT INTO journal_entries (user_id, mood, entry, created_at) VALUES (?, ?, ?, ?)',
+      'INSERT INTO journal_entry (user_id, mood, entry, created_at) VALUES (?, ?, ?, ?)',
       [userId, mood, entry, saTime]
     );
     res.json({ message: 'Journal entry saved successfully.' });
@@ -1616,7 +1616,7 @@ app.get('/journal', (req, res) => {
         return res.status(401).json({ message: 'User not logged in' });
     }
 
-    const query = `SELECT mood, entry, created_at FROM journal_entries WHERE user_id = ? ORDER BY created_at DESC`;
+    const query = `SELECT mood, entry, created_at FROM journal_entry WHERE user_id = ? ORDER BY created_at DESC`;
     db.query(query, [userId], (err, results) => {
         if (err) {
             return res.status(500).json({ message: 'Error fetching entries' });
@@ -1641,7 +1641,7 @@ app.get("/check-mood-health", checkDbConnection, (req, res) => {
 
   const moodCheckQuery = `
     SELECT COUNT(*) AS negativeCount
-    FROM moodlogs
+    FROM moodlog
     WHERE user_id = ?
       AND LOWER(TRIM(logged_mood)) IN (${placeholders})
   `;
@@ -1759,7 +1759,7 @@ app.get('/api/mood-trends', (req, res) => {
       logged_mood, 
       DATE(log_date) AS day, 
       COUNT(*) AS count
-    FROM moodlogs
+    FROM moodlog
     WHERE user_id = ?
       AND log_date >= DATE_SUB(NOW(), INTERVAL 7 DAY)
     GROUP BY logged_mood, day
