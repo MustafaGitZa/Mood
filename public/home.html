@@ -20,17 +20,22 @@
 .nav-right {
   display: flex;
   align-items: center;
+  gap: 20px;
+}
+
+.messages-container-icon {
+  position: relative;
 }
 
 .user-messages-icon {
   position: relative;
-  cursor: pointer;
-  margin-right: 20px;
+  color: #fff;
+  font-size: 20px;
+  text-decoration: none;
 }
 
 .user-messages-icon i {
-  font-size: 20px;
-  color: white;
+  font-size: 24px;
 }
 
 #userMessageCount {
@@ -38,12 +43,13 @@
   top: -6px;
   right: -10px;
   background: #fa0803;
-  color: white;
+  color: #fff;
+  padding: 2px 6px;
   border-radius: 50%;
-  padding: 2px 7px;
   font-size: 12px;
-  font-weight: bold;
+  display: none;
 }
+
 
         .welcome-title {
             font-size: 2.4rem;
@@ -376,35 +382,37 @@
   </ul>
 
   <div class="nav-right">
+  <div class="messages-container-icon">
     <a href="myMessages.html" class="user-messages-icon" id="userMessagesIcon">
       <i class="fas fa-envelope"></i>
       <span id="userMessageCount">0</span>
     </a>
+  </div>
 
+  <div class="profile-container">
+    <div class="profile-icon" id="profileIcon">
+      <img id="defaultProfileIcon" src="/assets/boy.png" alt="Default User">
+      <img id="navProfileAvatar" src="" alt="User Avatar" style="display: none;">
+    </div>
 
-    <div class="profile-container">
-      <div class="profile-icon" id="profileIcon">
-        <img id="defaultProfileIcon" src="/assets/boy.png" alt="Default User" style="display: none;">
-        <img id="navProfileAvatar" src="" alt="User Avatar" style="display: none;">
+    <div class="profile-expanded-menu" id="profileExpandedMenu">
+      <div class="avatar-section">
+        <div class="avatar-placeholder">
+          <div class="profile-initials" id="profileInitials"></div>
+          <img src="default-avatar.png" alt="User Avatar" class="profile-avatar" id="profileAvatar">
+        </div>
+        <div class="user-info">
+          <span id="userFullName"></span>
+        </div>
       </div>
-
-      <div class="profile-expanded-menu" id="profileExpandedMenu">
-        <div class="avatar-section">
-          <div class="avatar-placeholder">
-            <div class="profile-initials" id="profileInitials"></div>
-            <img src="default-avatar.png" alt="User Avatar" class="profile-avatar" id="profileAvatar">
-          </div>
-          <div class="user-info">
-            <span id="userFullName"></span>
-          </div>
-        </div>
-        <div class="menu-options">
-          <a href="edit-profile.html">Edit Profile</a>
-          <a href="login.html">Logout</a>
-        </div>
+      <div class="menu-options">
+        <a href="edit-profile.html">Edit Profile</a>
+        <a href="login.html">Logout</a>
       </div>
     </div>
   </div>
+</div>
+
 </nav>
 
 
