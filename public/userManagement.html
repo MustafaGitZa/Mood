@@ -597,11 +597,12 @@ h1 {
             <th>Surname</th>
             <th>Username</th>
             <th>Email</th>
-            <th>Created</th>
+            <th>Registered At</th>
             <th>Role</th>
-            
+            <th>Download</th> <!-- Added this -->
           </tr>
         </thead>
+
         <tbody></tbody>
       </table>
     </div>
@@ -630,15 +631,17 @@ h1 {
       <label for="adminSearch">Search for admin:</label>
       <input type="text" id="adminSearch" placeholder="Search for admin..." />
       <table id="adminTable">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Surname</th>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Created At</th>
-          </tr>
-        </thead>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Surname</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Created At</th>
+          <th>Download</th>
+        </tr>
+      </thead>
+
         <tbody></tbody>
       </table>
       <button id="downloadAdminReport" class="update-button">Download Admin Report</button>
@@ -687,7 +690,6 @@ h1 {
       }
     });
     document.addEventListener('DOMContentLoaded', () => {
-
   // === Registered Users ===
   let allUsers = [];
 
@@ -703,46 +705,45 @@ h1 {
       console.error(err);
     }
   }
+function renderUserTable(users) {
+  const tbody = document.querySelector('#userTable tbody');
+  if (!tbody) return;
 
-  function renderUserTable(users) {
-    const tbody = document.querySelector('#userTable tbody');
-    if (!tbody) return;
+  tbody.innerHTML = '';
 
-    tbody.innerHTML = '';
-
-    users.forEach(user => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${user.name}</td>
-        <td>${user.surname}</td>
-        <td>${user.username}</td>
-        <td>${user.email}</td>
-        <td>${new Date(user.registration_date).toLocaleString()}</td>
-        <td>
-          <div class="dropdown">
-            <button class="dropbtn">${user.role || 'user'}</button>
-            <div class="dropdown-content">
-              <a href="#" class="role-user">User</a>
-              <a href="#" class="role-admin">Admin</a>
-            </div>
+  users.forEach(user => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${user.name}</td>
+      <td>${user.surname}</td>
+      <td>${user.username}</td>
+      <td>${user.email}</td>
+      <td>${new Date(user.registration_date).toLocaleString()}</td>
+      <td>
+        <div class="dropdown">
+          <button class="dropbtn">${user.role || 'user'}</button>
+          <div class="dropdown-content">
+            <a href="#" class="role-user" data-userid="${user.user_id}">User</a>
+            <a href="#" class="role-admin" data-userid="${user.user_id}">Admin</a>
           </div>
-        </td>
-      `;
-      tbody.appendChild(row);
+        </div>
+      </td>
+      <td>
+        <div class="dropdown">
+          <button class="dropbtn">📥</button>
+          <div class="dropdown-content">
+            <a href="#" class="download-report" data-userid="${user.user_id}" data-format="pdf">PDF</a>
+            <a href="#" class="download-report" data-userid="${user.user_id}" data-format="excel">Excel</a>
+            <a href="#" class="download-report" data-userid="${user.user_id}" data-format="word">Word</a>
+          </div>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
 
-      row.querySelector('.role-user').addEventListener('click', e => {
-        e.preventDefault();
-        updateUserRole(user.user_id, 'user');
-      });
 
-      row.querySelector('.role-admin').addEventListener('click', e => {
-        e.preventDefault();
-        updateUserRole(user.user_id, 'admin');
-      });
-    });
-  }
-
-   // Role update (sample stub)
   async function updateUserRole(userId, newRole) {
     try {
       const response = await fetch('/admin/update-role', {
@@ -759,7 +760,6 @@ h1 {
     }
   }
 
-
   document.getElementById('userSearch').addEventListener('input', () => {
     const query = document.getElementById('userSearch').value.toLowerCase();
     const filtered = allUsers.filter(user =>
@@ -773,65 +773,56 @@ h1 {
 
   // === Active Users ===
   async function fetchActiveUsers() {
-  try {
-    const res = await fetch('/admin/active-users');
-    const users = await res.json();
+    try {
+      const res = await fetch('/admin/active-users');
+      const users = await res.json();
 
-    document.getElementById('activeUsers').textContent = `Active Users in the last 7 days: ${users.length}`;
-    const tbody = document.querySelector('#activeUserTable tbody');
-    tbody.innerHTML = '';
+      document.getElementById('activeUsers').textContent = `Active Users in the last 7 days: ${users.length}`;
+      const tbody = document.querySelector('#activeUserTable tbody');
+      tbody.innerHTML = '';
 
-    users.forEach(user => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${user.name}</td>
-        <td>${user.surname}</td>
-        <td>${user.username}</td>
-        <td>${user.email}</td>
-        <td>${new Date(user.last_login).toLocaleString()}</td>
-        <td>
-          <div class="dropdown">
-            <button class="dropbtn">📥</button>
-            <div class="dropdown-content">
-              <a href="#" class="download-report" data-userid="${user.user_id}" data-format="pdf">PDF</a>
-              <a href="#" class="download-report" data-userid="${user.user_id}" data-format="excel">Excel</a>
-              <a href="#" class="download-report" data-userid="${user.user_id}" data-format="word">Word</a>
+      users.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${user.name}</td>
+          <td>${user.surname}</td>
+          <td>${user.username}</td>
+          <td>${user.email}</td>
+          <td>${new Date(user.last_login).toLocaleString()}</td>
+          <td>
+            <div class="dropdown">
+              <button class="dropbtn">📥</button>
+              <div class="dropdown-content">
+                <a href="#" class="download-report" data-userid="${user.user_id}" data-format="pdf">PDF</a>
+                <a href="#" class="download-report" data-userid="${user.user_id}" data-format="excel">Excel</a>
+                <a href="#" class="download-report" data-userid="${user.user_id}" data-format="word">Word</a>
+              </div>
             </div>
-          </div>
-        </td>
-      `;
-      tbody.appendChild(row);
-    });
-
-    // Attach download handlers
-    document.querySelectorAll('.download-report').forEach(link => {
-      link.addEventListener('click', e => {
-        e.preventDefault();
-        const userId = e.target.getAttribute('data-userid');
-        const format = e.target.getAttribute('data-format');
-        downloadReport(userId, format);
+          </td>
+        `;
+        tbody.appendChild(row);
       });
-    });
 
-  } catch (err) {
-    console.error(err);
+    } catch (err) {
+      console.error(err);
+    }
   }
-}
 
   // === Admin Details ===
   let adminUsers = [];
 
   async function fetchAdmins() {
-        try {
-            const response = await fetch('/admin/admin-details');
-            if (!response.ok) throw new Error('Failed to fetch admin details');
-            const admins = await response.json();
-            allAdmins = admins;
-            renderAdmins(admins);
-        } catch (error) {
-            console.error('Error fetching admin details:', error);
-        }
+    try {
+      const response = await fetch('/admin/admin-details');
+      if (!response.ok) throw new Error('Failed to fetch admin details');
+      const admins = await response.json();
+      adminUsers = admins;
+      renderAdmins(adminUsers);
+    } catch (error) {
+      console.error('Error fetching admin details:', error);
     }
+  }
+
   document.getElementById('adminSearch').addEventListener('input', () => {
     const query = document.getElementById('adminSearch').value.toLowerCase();
     const filtered = adminUsers.filter(user =>
@@ -840,58 +831,61 @@ h1 {
       user.username.toLowerCase().includes(query) ||
       user.email.toLowerCase().includes(query)
     );
-    renderAdminTable(filtered);
+    renderAdmins(filtered);
   });
 
   function renderAdmins(admins) {
-  const tbody = document.querySelector('#adminTable tbody');
-  if (!tbody) return;
+    const tbody = document.querySelector('#adminTable tbody');
+    if (!tbody) return;
 
-  tbody.innerHTML = '';
+    tbody.innerHTML = '';
 
-  admins.forEach(admin => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${admin.name}</td>
-      <td>${admin.surname}</td>
-      <td>${admin.username}</td>
-      <td>${admin.email}</td>
-      <td>${new Date(admin.registration_date).toLocaleString()}</td>
-      <td>
-        <div class="dropdown">
-          <button class="dropbtn">📥</button>
-          <div class="dropdown-content">
-            <a href="#" class="download-report" data-userid="${admin.user_id}" data-format="pdf">PDF</a>
-            <a href="#" class="download-report" data-userid="${admin.user_id}" data-format="excel">Excel</a>
-            <a href="#" class="download-report" data-userid="${admin.user_id}" data-format="word">Word</a>
+    admins.forEach(admin => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${admin.name}</td>
+        <td>${admin.surname}</td>
+        <td>${admin.username}</td>
+        <td>${admin.email}</td>
+        <td>${new Date(admin.registration_date).toLocaleString()}</td>
+        <td>
+          <div class="dropdown">
+            <button class="dropbtn">📥</button>
+            <div class="dropdown-content">
+              <a href="#" class="download-report" data-userid="${admin.user_id}" data-format="pdf">PDF</a>
+              <a href="#" class="download-report" data-userid="${admin.user_id}" data-format="excel">Excel</a>
+              <a href="#" class="download-report" data-userid="${admin.user_id}" data-format="word">Word</a>
+            </div>
           </div>
-        </div>
-      </td>
-    `;
-    tbody.appendChild(row);
-  });
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
 
-  // Attach download handlers
-  document.querySelectorAll('.download-report').forEach(link => {
-    link.addEventListener('click', e => {
+  // === Download Report Handler (Event Delegation) ===
+  document.body.addEventListener('click', e => {
+    if (e.target.classList.contains('download-report')) {
       e.preventDefault();
       const userId = e.target.getAttribute('data-userid');
       const format = e.target.getAttribute('data-format');
       downloadReport(userId, format);
-    });
-  });
-}
-
-    function filterAdmins() {
-        const searchInput = document.getElementById('adminSearch').value.toLowerCase();
-        const filtered = allAdmins.filter(admin =>
-            admin.name.toLowerCase().includes(searchInput) ||
-            admin.surname.toLowerCase().includes(searchInput) ||
-            admin.username.toLowerCase().includes(searchInput) ||
-            admin.email.toLowerCase().includes(searchInput)
-        );
-        renderAdmins(filtered);
     }
+    if (e.target.classList.contains('role-user')) {
+      e.preventDefault();
+      const userId = e.target.getAttribute('data-userid');
+      updateUserRole(userId, 'user');
+    }
+    if (e.target.classList.contains('role-admin')) {
+      e.preventDefault();
+      const userId = e.target.getAttribute('data-userid');
+      updateUserRole(userId, 'admin');
+    }
+  });
+
+  function downloadReport(userId, format) {
+    window.open(`/admin/download-report?userId=${userId}&format=${format}`, '_blank');
+  }
 
   // === Email Users Form ===
   document.getElementById('emailUsersForm').addEventListener('submit', async e => {
@@ -910,6 +904,7 @@ h1 {
       });
       const result = await res.json();
       document.getElementById('emailStatus').textContent = result.message;
+      document.getElementById('emailUsersForm').reset();
     } catch (err) {
       console.error(err);
       document.getElementById('emailStatus').textContent = 'Failed to send email.';
@@ -919,7 +914,7 @@ h1 {
   // === Load data on page load ===
   fetchRegisteredUsers();
   fetchActiveUsers();
-  fetchAdmins()
+  fetchAdmins();
 });
 
   </script>
