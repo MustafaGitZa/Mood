@@ -23,15 +23,16 @@
   gap: 20px;
 }
 
+/* Message Icon container */
 .messages-container-icon {
   position: relative;
 }
 
 .user-messages-icon {
-  position: relative;
-  color: #fff;
-  font-size: 20px;
+  color: white;
+  font-size: 22px;
   text-decoration: none;
+  position: relative;
 }
 
 .user-messages-icon i {
@@ -40,8 +41,8 @@
 
 #userMessageCount {
   position: absolute;
-  top: -6px;
-  right: -10px;
+  top: -8px;
+  right: -12px;
   background: #fa0803;
   color: #fff;
   padding: 2px 6px;
@@ -382,38 +383,26 @@
   </ul>
 
   <div class="nav-right">
-  <div class="messages-container-icon">
-    <a href="myMessages.html" class="user-messages-icon" id="userMessagesIcon">
-      <i class="fas fa-envelope"></i>
-      <span id="userMessageCount">0</span>
-    </a>
-  </div>
-
-  <div class="profile-container">
-    <div class="profile-icon" id="profileIcon">
-      <img id="defaultProfileIcon" src="/assets/boy.png" alt="Default User">
-      <img id="navProfileAvatar" src="" alt="User Avatar" style="display: none;">
+    <div class="messages-container-icon">
+      <a href="myMessages.html" class="user-messages-icon" id="userMessagesIcon">
+        <i class="fas fa-envelope"></i>
+        <span id="userMessageCount">0</span>
+      </a>
     </div>
 
-    <div class="profile-expanded-menu" id="profileExpandedMenu">
-      <div class="avatar-section">
-        <div class="avatar-placeholder">
-          <div class="profile-initials" id="profileInitials"></div>
-          <img src="default-avatar.png" alt="User Avatar" class="profile-avatar" id="profileAvatar">
-        </div>
-        <div class="user-info">
-          <span id="userFullName"></span>
-        </div>
+    <div class="profile-container">
+      <div class="profile-icon" id="profileIcon">
+        <img id="defaultProfileIcon" src="/assets/boy.png" alt="Default User">
+        <img id="navProfileAvatar" src="" alt="User Avatar" style="display: none;">
       </div>
-      <div class="menu-options">
-        <a href="edit-profile.html">Edit Profile</a>
-        <a href="login.html">Logout</a>
+
+      <div class="profile-expanded-menu" id="profileExpandedMenu">
+        <!-- content -->
       </div>
     </div>
   </div>
-</div>
-
 </nav>
+
 
 
     <div class="welcome-container">
