@@ -12,9 +12,7 @@ const fs = require("fs");
 const https = require('https');
 const ExcelJS = require('exceljs');
 const { Document, Packer, Paragraph, Table, TableRow, TableCell, WidthType, BorderStyle, TextRun } = require('docx');
-app.get('/adminMessages.html', (req, res) => {
-  res.sendFile(__dirname + '/public/adminMessages.html');
-});
+
 
 
 
@@ -156,6 +154,11 @@ app.get("/facial-recognition", (req, res) => {
 // Serve Emoji Selector Page
 app.get("/emoji-selector", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "emojiSelector.html"));
+});
+
+// then your route
+app.get('/adminMessages.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'adminMessages.html'));
 });
 
 // Helper function to check database connection for API routes
