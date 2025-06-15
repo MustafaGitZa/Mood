@@ -771,15 +771,20 @@ h1 {
 }
 
 .nav-right {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 20px; /* spacing between message icon and profile icon */
 }
 
 .message-icon-container {
   position: relative;
   cursor: pointer;
-  color: #f167a1;
+  color: #fff;
+  font-size: 20px;
 }
 
 .message-icon-container i {
@@ -788,12 +793,11 @@ h1 {
 
 .message-badge {
   position: absolute;
-  top: -6px;
-  right: -6px;
-  background-color: #f167a1;
+  top: -5px;
+  right: -10px;
+  background: #ff4757;
   color: #fff;
-  font-size: 11px;
-  padding: 3px 6px;
   border-radius: 50%;
-  display: none;
+  padding: 3px 6px;
+  font-size: 10px;
 }
