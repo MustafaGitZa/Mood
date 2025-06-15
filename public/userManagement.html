@@ -616,7 +616,8 @@ h1 {
             <th>Username</th>
             <th>Email</th>
             <th>Last Login</th>
-            <th>Reports</th>
+            <th>Download Report</th>
+
           </tr>
         </thead>
         <tbody></tbody>
@@ -771,30 +772,51 @@ h1 {
 
   // === Active Users ===
   async function fetchActiveUsers() {
-    try {
-      const res = await fetch('/admin/active-users');
-      const users = await res.json();
+  try {
+    const res = await fetch('/admin/active-users');
+    const users = await res.json();
 
-      document.getElementById('activeUsers').textContent = `Active Users in the last 7 days: ${users.length}`;
-      const tbody = document.querySelector('#activeUserTable tbody');
-      tbody.innerHTML = '';
+    document.getElementById('activeUsers').textContent = `Active Users in the last 7 days: ${users.length}`;
+    const tbody = document.querySelector('#activeUserTable tbody');
+    tbody.innerHTML = '';
 
-      users.forEach(user => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${user.name}</td>
-          <td>${user.surname}</td>
-          <td>${user.username}</td>
-          <td>${user.email}</td>
-          <td>${new Date(user.last_login).toLocaleString()}</td>
-          <td>${user.reports_count}</td>
-        `;
-        tbody.appendChild(row);
+    users.forEach(user => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${user.name}</td>
+        <td>${user.surname}</td>
+        <td>${user.username}</td>
+        <td>${user.email}</td>
+        <td>${new Date(user.last_login).toLocaleString()}</td>
+        <td>${user.reports_count}</td>
+        <td>
+          <div class="dropdown">
+            <button class="dropbtn">📥</button>
+            <div class="dropdown-content">
+              <a href="#" class="download-report" data-userid="${user.user_id}" data-format="pdf">PDF</a>
+              <a href="#" class="download-report" data-userid="${user.user_id}" data-format="excel">Excel</a>
+              <a href="#" class="download-report" data-userid="${user.user_id}" data-format="word">Word</a>
+            </div>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    // Attach download handlers
+    document.querySelectorAll('.download-report').forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const userId = e.target.getAttribute('data-userid');
+        const format = e.target.getAttribute('data-format');
+        downloadReport(userId, format);
       });
-    } catch (err) {
-      console.error(err);
-    }
+    });
+
+  } catch (err) {
+    console.error(err);
   }
+}
 
   // === Admin Details ===
   let adminUsers = [];
@@ -822,20 +844,43 @@ h1 {
   });
 
   function renderAdmins(admins) {
-        const adminTableBody = document.querySelector('#adminTable tbody');
-        adminTableBody.innerHTML = '';
-        admins.forEach(admin => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${admin.name}</td>
-                <td>${admin.surname}</td>
-                <td>${admin.username}</td>
-                <td>${admin.email}</td>
-                <td>${new Date(admin.registration_date).toLocaleString()}</td>
-            `;
-            adminTableBody.appendChild(row);
-        });
-    }
+  const tbody = document.querySelector('#adminTable tbody');
+  if (!tbody) return;
+
+  tbody.innerHTML = '';
+
+  admins.forEach(admin => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${admin.name}</td>
+      <td>${admin.surname}</td>
+      <td>${admin.username}</td>
+      <td>${admin.email}</td>
+      <td>${new Date(admin.registration_date).toLocaleString()}</td>
+      <td>
+        <div class="dropdown">
+          <button class="dropbtn">📥</button>
+          <div class="dropdown-content">
+            <a href="#" class="download-report" data-userid="${admin.user_id}" data-format="pdf">PDF</a>
+            <a href="#" class="download-report" data-userid="${admin.user_id}" data-format="excel">Excel</a>
+            <a href="#" class="download-report" data-userid="${admin.user_id}" data-format="word">Word</a>
+          </div>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+
+  // Attach download handlers
+  document.querySelectorAll('.download-report').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const userId = e.target.getAttribute('data-userid');
+      const format = e.target.getAttribute('data-format');
+      downloadReport(userId, format);
+    });
+  });
+}
 
     function filterAdmins() {
         const searchInput = document.getElementById('adminSearch').value.toLowerCase();
