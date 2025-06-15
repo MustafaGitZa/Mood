@@ -10,6 +10,7 @@ const crypto = require("crypto");
 const router = express.Router();
 const fs = require("fs");
 const https = require('https');
+const ExcelJS = require('exceljs');
 
 
 const resetTokens = {}; // { token: email }
@@ -1925,6 +1926,122 @@ app.post('/mood-posts/:id/comment', (req, res) => {
     db.query(updateQuery, [JSON.stringify(comments), postId], (err) => {
       if (err) return res.status(500).json({ success: false, message: 'Error updating comments' });
       res.json({ success: true, comments_count: comments.length });
+    });
+  });
+});
+
+const ExcelJS = require('exceljs');
+
+app.get('/admin/export-user-report/:userId/excel', checkDbConnection, (req, res) => {
+  const userId = req.params.userId;
+
+  const query = `SELECT name, surname, username, email, last_login FROM user WHERE user_id = ?`;
+  const moodQuery = `SELECT logged_mood, log_date FROM moodlog WHERE user_id = ? ORDER BY log_date DESC`;
+
+  db.query(query, [userId], (err, userResults) => {
+    if (err) return res.status(500).send('Error fetching data');
+
+    const user = userResults[0];
+    db.query(moodQuery, [userId], async (err, moodResults) => {
+      if (err) return res.status(500).send('Error fetching moods');
+
+      const workbook = new ExcelJS.Workbook();
+      const sheet = workbook.addWorksheet('User Report');
+
+      sheet.addRow(['Name', 'Surname', 'Username', 'Email', 'Last Login']);
+      sheet.addRow([user.name, user.surname, user.username, user.email, user.last_login]);
+
+      sheet.addRow([]);
+      sheet.addRow(['Logged Mood', 'Date']);
+      moodResults.forEach(m => {
+        sheet.addRow([m.logged_mood, m.log_date]);
+      });
+
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="user-report-${userId}.xlsx"`);
+
+      await workbook.xlsx.write(res);
+      res.end();
+    });
+  });
+});
+
+const PDFDocument = require('pdfkit');
+
+app.get('/admin/export-user-report/:userId/pdf', checkDbConnection, (req, res) => {
+  const userId = req.params.userId;
+
+  const query = `SELECT name, surname, username, email, last_login FROM user WHERE user_id = ?`;
+  const moodQuery = `SELECT logged_mood, log_date FROM moodlog WHERE user_id = ? ORDER BY log_date DESC`;
+
+  db.query(query, [userId], (err, userResults) => {
+    if (err) return res.status(500).send('Error fetching data');
+
+    const user = userResults[0];
+    db.query(moodQuery, [userId], (err, moodResults) => {
+      if (err) return res.status(500).send('Error fetching moods');
+
+      const doc = new PDFDocument();
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="user-report-${userId}.pdf"`);
+
+      doc.pipe(res);
+      doc.fontSize(18).text('User Report', { align: 'center' });
+      doc.moveDown();
+
+      doc.fontSize(12).text(`Name: ${user.name}`);
+      doc.text(`Surname: ${user.surname}`);
+      doc.text(`Username: ${user.username}`);
+      doc.text(`Email: ${user.email}`);
+      doc.text(`Last Login: ${user.last_login}`);
+      doc.moveDown();
+
+      doc.fontSize(14).text('Mood Logs:');
+      moodResults.forEach(m => {
+        doc.fontSize(12).text(`${m.logged_mood} - ${m.log_date}`);
+      });
+
+      doc.end();
+    });
+  });
+});
+
+const { Document, Packer, Paragraph, TextRun } = require('docx');
+
+app.get('/admin/export-user-report/:userId/word', checkDbConnection, (req, res) => {
+  const userId = req.params.userId;
+
+  const query = `SELECT name, surname, username, email, last_login FROM user WHERE user_id = ?`;
+  const moodQuery = `SELECT logged_mood, log_date FROM moodlog WHERE user_id = ? ORDER BY log_date DESC`;
+
+  db.query(query, [userId], (err, userResults) => {
+    if (err) return res.status(500).send('Error fetching data');
+
+    const user = userResults[0];
+    db.query(moodQuery, [userId], async (err, moodResults) => {
+      if (err) return res.status(500).send('Error fetching moods');
+
+      const doc = new Document();
+
+      doc.addSection({
+        children: [
+          new Paragraph({ text: 'User Report', heading: 'Title' }),
+          new Paragraph(`Name: ${user.name}`),
+          new Paragraph(`Surname: ${user.surname}`),
+          new Paragraph(`Username: ${user.username}`),
+          new Paragraph(`Email: ${user.email}`),
+          new Paragraph(`Last Login: ${user.last_login}`),
+          new Paragraph(''),
+          new Paragraph({ text: 'Mood Logs:', heading: 'Heading1' }),
+          ...moodResults.map(m => new Paragraph(`${m.logged_mood} - ${m.log_date}`)),
+        ],
+      });
+
+      const buffer = await Packer.toBuffer(doc);
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+      res.setHeader('Content-Disposition', `attachment; filename="user-report-${userId}.docx"`);
+
+      res.send(buffer);
     });
   });
 });
