@@ -2024,20 +2024,21 @@ app.get('/admin/export-user-report/:userId/word', checkDbConnection, (req, res) 
     db.query(moodQuery, [userId], async (err, moodResults) => {
       if (err) return res.status(500).send('Error fetching moods');
 
-     const doc = new Document({});
-
-
-      doc.addSection({
-        children: [
-          new Paragraph({ text: 'User Report', heading: 'Title' }),
-          new Paragraph(`Name: ${user.name}`),
-          new Paragraph(`Surname: ${user.surname}`),
-          new Paragraph(`Username: ${user.username}`),
-          new Paragraph(`Email: ${user.email}`),
-          new Paragraph(`Last Login: ${user.last_login}`),
-          new Paragraph(''),
-          new Paragraph({ text: 'Mood Logs:', heading: 'Heading1' }),
-          ...moodResults.map(m => new Paragraph(`${m.logged_mood} - ${m.log_date}`)),
+      const doc = new Document({
+        sections: [
+          {
+            children: [
+              new Paragraph({ text: 'User Report', heading: 'Title' }),
+              new Paragraph(`Name: ${user.name}`),
+              new Paragraph(`Surname: ${user.surname}`),
+              new Paragraph(`Username: ${user.username}`),
+              new Paragraph(`Email: ${user.email}`),
+              new Paragraph(`Last Login: ${user.last_login}`),
+              new Paragraph(''),
+              new Paragraph({ text: 'Mood Logs:', heading: 'Heading1' }),
+              ...moodResults.map(m => new Paragraph(`${m.logged_mood} - ${m.log_date}`)),
+            ],
+          },
         ],
       });
 
@@ -2049,6 +2050,7 @@ app.get('/admin/export-user-report/:userId/word', checkDbConnection, (req, res) 
     });
   });
 });
+
 
 
 
