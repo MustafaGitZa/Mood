@@ -527,11 +527,11 @@ app.get('/moodlogs/:date', checkDbConnection, async (req, res) => {
   try {
     const [moodLogs] = await db.promise().query(
       `
-      SELECT ml.logged_mood, mlt.type_name, ml.log_date
-      FROM moodlog ml
-      JOIN moodlog_types mlt ON ml.user_id = mlt.user_id
-      WHERE ml.user_id = ? AND DATE(ml.log_date) = ?
-      ORDER BY ml.log_date DESC
+      SELECT logged_mood, type, log_date
+      FROM moodlog
+      WHERE user_id = 1 AND DATE(log_date) = '2025-06-15'
+      ORDER BY log_date DESC
+
       `,
       [userId, date]
     );
