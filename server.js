@@ -12,6 +12,9 @@ const fs = require("fs");
 const https = require('https');
 const ExcelJS = require('exceljs');
 const { Document, Packer, Paragraph, Table, TableRow, TableCell, WidthType, BorderStyle, TextRun } = require('docx');
+app.get('/adminMessages.html', (req, res) => {
+  res.sendFile(__dirname + '/public/adminMessages.html');
+});
 
 
 
@@ -2188,7 +2191,7 @@ app.post('/api/contact', (req, res) => {
     return res.status(400).json({ error: "Message cannot be empty." });
   }
 
-  const sql = `INSERT INTO contact_messages (user_id, subject, message) VALUES (?, ?, ?)`;
+  const sql = `INSERT INTO contact_message (user_id, subject, message) VALUES (?, ?, ?)`;
   db.query(sql, [userId, subject, message], (err, result) => {
     if (err) {
       console.error("Database error adding contact message:", err);
@@ -2211,7 +2214,7 @@ app.get('/api/contact-messages', (req, res) => {
   const sql = `
     SELECT 
       cm.message_id, u.name, u.email, cm.subject, cm.message, cm.sent_at
-    FROM contact_messages cm
+    FROM contact_message cm
     JOIN user u ON cm.user_id = u.user_id
     ORDER BY cm.sent_at DESC
   `;
@@ -2227,7 +2230,7 @@ app.get('/api/contact-messages', (req, res) => {
 });
 
 app.get('/api/messages/count', (req, res) => {
-  const sql = `SELECT COUNT(*) AS unreadCount FROM contact_messages WHERE status = 'unread'`;
+  const sql = `SELECT COUNT(*) AS unreadCount FROM contact_message WHERE status = 'unread'`;
 
   db.query(sql, (err, results) => {
     if (err) {
@@ -2248,7 +2251,7 @@ app.get('/api/messages/all', (req, res) => {
       c.status, 
       c.created_at,
       u.name, u.surname 
-    FROM contact_messages c
+    FROM contact_message c
     JOIN user u ON c.user_id = u.user_id
     ORDER BY c.created_at DESC
   `;
@@ -2265,7 +2268,7 @@ app.get('/api/messages/all', (req, res) => {
 
 app.post('/api/messages/mark-read/:id', (req, res) => {
   const { id } = req.params;
-  const sql = `UPDATE contact_messages SET status = 'read' WHERE message_id = ?`;
+  const sql = `UPDATE contact_message SET status = 'read' WHERE message_id = ?`;
 
   db.query(sql, [id], err => {
     if (err) {
@@ -2276,6 +2279,31 @@ app.post('/api/messages/mark-read/:id', (req, res) => {
   });
 });
 
+app.get('/api/admin/messages', (req, res) => {
+  const sql = 'SELECT * FROM contact_message ORDER BY created_at DESC';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Fetch messages error:", err);
+      return res.status(500).json({ error: "Failed to fetch messages" });
+    }
+    res.json({ messages: results });
+  });
+});
+
+app.post('/api/admin/messages/respond/:id', (req, res) => {
+  const messageId = req.params.id;
+  const responseText = req.body.response;
+
+  // Example — update status only (for now)
+  const sql = "UPDATE contact_message SET status = 'responded' WHERE id = ?";
+  db.query(sql, [messageId], (err) => {
+    if (err) {
+      console.error("Respond error:", err);
+      return res.status(500).json({ error: "Failed to respond to message" });
+    }
+    res.json({ message: "Response sent & status updated!" });
+  });
+});
 
 
 const PORT = process.env.PORT || 3000;

@@ -550,6 +550,10 @@ function downloadReport(userId, format) {
   }
 });
 
+document.getElementById('messageIconContainer').addEventListener('click', () => {
+  window.location.href = '/adminMessages.html';
+});
+
   
   document.addEventListener('DOMContentLoaded', function () {
   const messageBadge = document.getElementById('messageBadge');
