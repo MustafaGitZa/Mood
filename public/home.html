@@ -10,6 +10,41 @@
 
     <style>
 
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 30px;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+}
+
+.user-messages-icon {
+  position: relative;
+  cursor: pointer;
+  margin-right: 20px;
+}
+
+.user-messages-icon i {
+  font-size: 20px;
+  color: white;
+}
+
+#userMessageCount {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  background: #fa0803;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 7px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
         .welcome-title {
             font-size: 2.4rem;
             font-weight: 700;
@@ -333,34 +368,45 @@
 </head>
 <body>
     <nav class="navbar">
-        <ul class="nav-menu">
-            <a href="dashboard.html">Dashboard</a>
-            <a href="contact.html">Contact</a>
-            <a href="about.html">About</a>
-            <a href="admin.html" class="admin-link" style="display: none;">Admin</a>
-        </ul>
-        <div class="profile-container">
-            <div class="profile-icon" id="profileIcon">
-                <img id="defaultProfileIcon" src="/assets/boy.png" alt="Default User" style="display: none;">
-                <img id="navProfileAvatar" src="" alt="User Avatar" style="display: none;">
-            </div>
-            <div class="profile-expanded-menu" id="profileExpandedMenu">
-                <div class="avatar-section">
-                    <div class="avatar-placeholder">
-                        <div class="profile-initials" id="profileInitials"></div>
-                        <img src="default-avatar.png" alt="User Avatar" class="profile-avatar" id="profileAvatar">
-                    </div>
-                    <div class="user-info">
-                        <span id="userFullName"></span>
-                    </div>
-                </div>
-                <div class="menu-options">
-                    <a href="edit-profile.html">Edit Profile</a>
-                    <a href="login.html">Logout</a>
-                </div>
-            </div>
+  <ul class="nav-menu">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="contact.html">Contact</a>
+    <a href="about.html">About</a>
+    <a href="admin.html" class="admin-link" style="display: none;">Admin</a>
+  </ul>
+
+  <div class="nav-right">
+    <a href="myMessages.html" class="user-messages-icon" id="userMessagesIcon">
+      <i class="fas fa-envelope"></i>
+      <span id="userMessageCount">0</span>
+    </a>
+
+
+    <div class="profile-container">
+      <div class="profile-icon" id="profileIcon">
+        <img id="defaultProfileIcon" src="/assets/boy.png" alt="Default User" style="display: none;">
+        <img id="navProfileAvatar" src="" alt="User Avatar" style="display: none;">
+      </div>
+
+      <div class="profile-expanded-menu" id="profileExpandedMenu">
+        <div class="avatar-section">
+          <div class="avatar-placeholder">
+            <div class="profile-initials" id="profileInitials"></div>
+            <img src="default-avatar.png" alt="User Avatar" class="profile-avatar" id="profileAvatar">
+          </div>
+          <div class="user-info">
+            <span id="userFullName"></span>
+          </div>
         </div>
-    </nav>
+        <div class="menu-options">
+          <a href="edit-profile.html">Edit Profile</a>
+          <a href="login.html">Logout</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
 
     <div class="welcome-container">
         <h1 class="welcome-title">Welcome, <span id="username" onclick="console.log('Username clicked:', this.textContent)">User</span>!</h1>

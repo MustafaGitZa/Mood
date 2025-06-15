@@ -2309,6 +2309,35 @@ app.post('/api/admin/messages/respond/:id', (req, res) => {
 });
 
 
+app.post('/respond-to-message', (req, res) => {
+  const { messageId, responseText } = req.body;
+
+  const sql = `
+    UPDATE contact_message
+    SET response = ?, status = 'responded'
+    WHERE id = ?
+  `;
+
+  db.query(sql, [responseText, messageId], (err, result) => {
+    if (err) {
+      console.error("Error responding to message:", err);
+      return res.status(500).json({ success: false, error: err });
+    }
+    res.json({ success: true });
+  });
+});
+
+app.get('/my-unread-messages-count', (req, res) => {
+  const { email } = req.query;
+  const sql = "SELECT COUNT(*) AS unreadCount FROM contact_message WHERE email = ? AND status = 'unread'";
+  db.query(sql, [email], (err, results) => {
+    if (err) return res.status(500).json({ error: 'Failed to fetch count' });
+    res.json(results[0]);
+  });
+});
+
+
+
 const PORT = process.env.PORT || 3000;
 
 server.listen(3000, () => {
