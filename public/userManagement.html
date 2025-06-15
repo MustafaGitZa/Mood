@@ -584,26 +584,26 @@ h1 {
 
   <div id="user-management-container">
 
-     <!-- Registered Users -->
     <div id="registered-users" class="registered-users card">
-        <div id="totalUsers"></div>
-        <h3>Registered Users</h3>
-        <label for="userSearch">Search Users:</label>
-        <input type="text" id="userSearch" placeholder="Search for a user..." />
-        <table id="userTable" border="1" cellspacing="0" cellpadding="8">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Surname</th>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Created</th>
-                    <th>Role</th>
-                    <th>Download Report</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+      <div id="totalUsers"></div>
+      <h3>Registered Users</h3>
+
+      <label for="userSearch">Search Users:</label>
+      <input type="text" id="userSearch" placeholder="Search for a user..." />
+      <table id="userTable">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Surname</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Created</th>
+            <th>Role</th>
+            
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
 
     <div class="user-details card">
@@ -637,7 +637,6 @@ h1 {
             <th>Username</th>
             <th>Email</th>
             <th>Created At</th>
-            
           </tr>
         </thead>
         <tbody></tbody>
@@ -690,22 +689,24 @@ h1 {
     document.addEventListener('DOMContentLoaded', () => {
 
   // === Registered Users ===
-  let allUsers = [];
+ // Globals for search filtering
+let allRegisteredUsers = [];
+let allAdmins = [];
 
-  async function fetchRegisteredUsers() {
-    try {
-      const res = await fetch('/admin/registered-users');
-      const users = await res.json();
-      allUsers = users;
-
-      document.getElementById('totalUsers').textContent = `Total Registered Users: ${users.length}`;
-      renderUserTable(users);
-    } catch (err) {
-      console.error(err);
-    }
+// Fetch and render Registered Users
+async function fetchRegisteredUsers() {
+  try {
+    const res = await fetch('/admin/registered-users');
+    const users = await res.json();
+    allRegisteredUsers = users;
+    document.getElementById('totalUsers').textContent = `Total Registered Users: ${users.length}`;
+    renderUserTable(users);
+  } catch (err) {
+    console.error('Failed to fetch registered users', err);
   }
+}
 
-  function renderUsers(users) {
+function renderUserTable(users) {
   const tbody = document.querySelector('#userTable tbody');
   if (!tbody) return;
 
@@ -725,13 +726,6 @@ h1 {
           <div class="dropdown-content">
             <a href="#" class="role-user">User</a>
             <a href="#" class="role-admin">Admin</a>
-          </div>
-        </div>
-      </td>
-      <td>
-        <div class="dropdown">
-          <button class="dropbtn">📥</button>
-          <div class="dropdown-content">
             <a href="#" class="download-report" data-userid="${user.user_id}" data-format="pdf">PDF</a>
             <a href="#" class="download-report" data-userid="${user.user_id}" data-format="excel">Excel</a>
             <a href="#" class="download-report" data-userid="${user.user_id}" data-format="word">Word</a>
@@ -741,7 +735,6 @@ h1 {
     `;
     tbody.appendChild(row);
 
-    // Role actions
     row.querySelector('.role-user').addEventListener('click', e => {
       e.preventDefault();
       updateUserRole(user.user_id, 'user');
@@ -753,49 +746,11 @@ h1 {
     });
   });
 
-  // Attach download handlers
-  document.querySelectorAll('.download-report').forEach(link => {
-    link.addEventListener('click', e => {
-      e.preventDefault();
-      const userId = e.target.getAttribute('data-userid');
-      const format = e.target.getAttribute('data-format');
-      downloadReport(userId, format);
-    });
-  });
+  attachDownloadHandlers(); // Attach handlers for newly added download links
 }
 
-
-   // Role update (sample stub)
-  async function updateUserRole(userId, newRole) {
-    try {
-      const response = await fetch('/admin/update-role', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, newRole }),
-      });
-      const result = await response.json();
-      alert(result.message);
-      fetchRegisteredUsers();
-    } catch (error) {
-      console.error('Error updating user role:', error);
-      alert('Error updating role.');
-    }
-  }
-
-
-  document.getElementById('userSearch').addEventListener('input', () => {
-    const query = document.getElementById('userSearch').value.toLowerCase();
-    const filtered = allUsers.filter(user =>
-      user.name.toLowerCase().includes(query) ||
-      user.surname.toLowerCase().includes(query) ||
-      user.username.toLowerCase().includes(query) ||
-      user.email.toLowerCase().includes(query)
-    );
-    renderUserTable(filtered);
-  });
-
-  // === Active Users ===
-  async function fetchActiveUsers() {
+// Fetch and render Active Users (already has export dropdown)
+async function fetchActiveUsers() {
   try {
     const res = await fetch('/admin/active-users');
     const users = await res.json();
@@ -826,47 +781,26 @@ h1 {
       tbody.appendChild(row);
     });
 
-    // Attach download handlers
-    document.querySelectorAll('.download-report').forEach(link => {
-      link.addEventListener('click', e => {
-        e.preventDefault();
-        const userId = e.target.getAttribute('data-userid');
-        const format = e.target.getAttribute('data-format');
-        downloadReport(userId, format);
-      });
-    });
-
+    attachDownloadHandlers();
   } catch (err) {
     console.error(err);
   }
 }
 
-  // === Admin Details ===
-  let adminUsers = [];
+// Fetch and render Admins
+async function fetchAdmins() {
+  try {
+    const response = await fetch('/admin/admin-details');
+    if (!response.ok) throw new Error('Failed to fetch admin details');
+    const admins = await response.json();
+    allAdmins = admins;
+    renderAdmins(admins);
+  } catch (error) {
+    console.error('Error fetching admin details:', error);
+  }
+}
 
-  async function fetchAdmins() {
-        try {
-            const response = await fetch('/admin/admin-details');
-            if (!response.ok) throw new Error('Failed to fetch admin details');
-            const admins = await response.json();
-            allAdmins = admins;
-            renderAdmins(admins);
-        } catch (error) {
-            console.error('Error fetching admin details:', error);
-        }
-    }
-  document.getElementById('adminSearch').addEventListener('input', () => {
-    const query = document.getElementById('adminSearch').value.toLowerCase();
-    const filtered = adminUsers.filter(user =>
-      user.name.toLowerCase().includes(query) ||
-      user.surname.toLowerCase().includes(query) ||
-      user.username.toLowerCase().includes(query) ||
-      user.email.toLowerCase().includes(query)
-    );
-    renderAdminTable(filtered);
-  });
-
-  function renderAdmins(admins) {
+function renderAdmins(admins) {
   const tbody = document.querySelector('#adminTable tbody');
   if (!tbody) return;
 
@@ -894,7 +828,38 @@ h1 {
     tbody.appendChild(row);
   });
 
-  // Attach download handlers
+  attachDownloadHandlers();
+}
+
+document.getElementById('adminSearch').addEventListener('input', () => {
+  const query = document.getElementById('adminSearch').value.toLowerCase();
+  const filtered = allAdmins.filter(user =>
+    user.name.toLowerCase().includes(query) ||
+    user.surname.toLowerCase().includes(query) ||
+    user.username.toLowerCase().includes(query) ||
+    user.email.toLowerCase().includes(query)
+  );
+  renderAdmins(filtered);
+});
+
+document.getElementById('userSearch').addEventListener('input', () => {
+  const query = document.getElementById('userSearch').value.toLowerCase();
+  const filtered = allRegisteredUsers.filter(user =>
+    user.name.toLowerCase().includes(query) ||
+    user.surname.toLowerCase().includes(query) ||
+    user.username.toLowerCase().includes(query) ||
+    user.email.toLowerCase().includes(query)
+  );
+  renderUserTable(filtered);
+});
+
+// Attach download report event handlers to all download links
+function attachDownloadHandlers() {
+  document.querySelectorAll('.download-report').forEach(link => {
+    // Remove any existing handlers to avoid duplicates
+    link.replaceWith(link.cloneNode(true));
+  });
+
   document.querySelectorAll('.download-report').forEach(link => {
     link.addEventListener('click', e => {
       e.preventDefault();
@@ -905,45 +870,76 @@ h1 {
   });
 }
 
-    function filterAdmins() {
-        const searchInput = document.getElementById('adminSearch').value.toLowerCase();
-        const filtered = allAdmins.filter(admin =>
-            admin.name.toLowerCase().includes(searchInput) ||
-            admin.surname.toLowerCase().includes(searchInput) ||
-            admin.username.toLowerCase().includes(searchInput) ||
-            admin.email.toLowerCase().includes(searchInput)
-        );
-        renderAdmins(filtered);
-    }
-
-  // === Email Users Form ===
-  document.getElementById('emailUsersForm').addEventListener('submit', async e => {
-    e.preventDefault();
-    const formData = {
-      email: document.getElementById('recipientEmail').value,
-      subject: document.getElementById('emailSubject').value,
-      body: document.getElementById('emailBody').value
-    };
-
-    try {
-      const res = await fetch('/admin/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      const result = await res.json();
-      document.getElementById('emailStatus').textContent = result.message;
-    } catch (err) {
-      console.error(err);
-      document.getElementById('emailStatus').textContent = 'Failed to send email.';
-    }
-  });
-
-  // === Load data on page load ===
-  fetchRegisteredUsers();
-  fetchActiveUsers();
-  fetchAdmins()
+// Download all Admins report
+document.getElementById('downloadAdminReport').addEventListener('click', () => {
+  downloadReport(null, 'admin_all'); // We'll handle this on server or client
 });
+
+// Download all Registered Users report
+document.getElementById('downloadRegisteredReport').addEventListener('click', () => {
+  downloadReport(null, 'registered_all'); // We'll handle this on server or client
+});
+
+// Stub for downloadReport function
+// You should implement actual fetch or window.location logic here based on your backend routes
+function downloadReport(userId, format) {
+  if (format === 'admin_all') {
+    window.open('/admin/export-admin-report/all', '_blank');
+  } else if (format === 'registered_all') {
+    window.open('/admin/export-registered-report/all', '_blank');
+  } else {
+    // Single user export by ID and format
+    window.open(`/admin/export-user-report/${userId}/${format}`, '_blank');
+  }
+}
+
+// Role update function (stub)
+function updateUserRole(userId, role) {
+  fetch(`/admin/update-role/${userId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ role })
+  })
+    .then(res => {
+      if (!res.ok) throw new Error('Failed to update role');
+      alert(`User role updated to ${role}`);
+      fetchRegisteredUsers();
+      fetchAdmins();
+    })
+    .catch(err => {
+      alert('Error updating role');
+      console.error(err);
+    });
+}
+
+// Email Users Form (unchanged)
+document.getElementById('emailUsersForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const formData = {
+    email: document.getElementById('recipientEmail').value,
+    subject: document.getElementById('emailSubject').value,
+    body: document.getElementById('emailBody').value
+  };
+
+  try {
+    const res = await fetch('/admin/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+    const result = await res.json();
+    document.getElementById('emailStatus').textContent = result.message;
+  } catch (err) {
+    console.error(err);
+    document.getElementById('emailStatus').textContent = 'Failed to send email.';
+  }
+});
+
+// Initial data load
+fetchRegisteredUsers();
+fetchActiveUsers();
+fetchAdmins();
+  });
 
   </script>
 </body>
