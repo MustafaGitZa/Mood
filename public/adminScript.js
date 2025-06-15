@@ -176,9 +176,15 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function downloadReport(userId, format) {
-  const url = `/admin/download-report?userId=${userId}&format=${format}`;
+  const validFormats = ['pdf', 'excel', 'word'];
+  if (!validFormats.includes(format)) {
+    alert('Unsupported format selected.');
+    return;
+  }
+  const url = `/admin/export-user-report/${userId}/${format}`;
   window.open(url, '_blank');
 }
+
 
 
   
