@@ -2226,6 +2226,58 @@ app.get('/api/contact-messages', (req, res) => {
   });
 });
 
+app.get('/api/messages/count', (req, res) => {
+  const sql = `SELECT COUNT(*) AS unreadCount FROM contact_messages WHERE status = 'unread'`;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error fetching message count:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+
+    res.json({ unreadCount: results[0].unreadCount });
+  });
+});
+
+app.get('/api/messages/all', (req, res) => {
+  const sql = `
+    SELECT 
+      c.message_id, 
+      c.subject, 
+      c.message, 
+      c.status, 
+      c.created_at,
+      u.name, u.surname 
+    FROM contact_messages c
+    JOIN user u ON c.user_id = u.user_id
+    ORDER BY c.created_at DESC
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error fetching messages:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+
+    res.json({ messages: results });
+  });
+});
+
+app.post('/api/messages/mark-read/:id', (req, res) => {
+  const { id } = req.params;
+  const sql = `UPDATE contact_messages SET status = 'read' WHERE message_id = ?`;
+
+  db.query(sql, [id], err => {
+    if (err) {
+      console.error('Error updating message status:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json({ message: 'Message marked as read' });
+  });
+});
+
+
+
 const PORT = process.env.PORT || 3000;
 
 server.listen(3000, () => {
