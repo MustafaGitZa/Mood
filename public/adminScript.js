@@ -25,42 +25,64 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderUsers(users) {
-    const tbody = document.querySelector('#userTable tbody');
-    if (!tbody) return;
+  const tbody = document.querySelector('#userTable tbody');
+  if (!tbody) return;
 
-    tbody.innerHTML = '';
+  tbody.innerHTML = '';
 
-    users.forEach(user => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${user.name}</td>
-        <td>${user.surname}</td>
-        <td>${user.username}</td>
-        <td>${user.email}</td>
-        <td>${new Date(user.registration_date).toLocaleString()}</td>
-        <td>
-          <div class="dropdown">
-            <button class="dropbtn">${user.role || 'user'}</button>
-            <div class="dropdown-content">
-              <a href="#" class="role-user">User</a>
-              <a href="#" class="role-admin">Admin</a>
-            </div>
+  users.forEach(user => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${user.name}</td>
+      <td>${user.surname}</td>
+      <td>${user.username}</td>
+      <td>${user.email}</td>
+      <td>${new Date(user.registration_date).toLocaleString()}</td>
+      <td>
+        <div class="dropdown">
+          <button class="dropbtn">${user.role || 'user'}</button>
+          <div class="dropdown-content">
+            <a href="#" class="role-user">User</a>
+            <a href="#" class="role-admin">Admin</a>
           </div>
-        </td>
-      `;
-      tbody.appendChild(row);
+        </div>
+      </td>
+      <td>
+        <div class="dropdown">
+          <button class="dropbtn">📥</button>
+          <div class="dropdown-content">
+            <a href="#" class="download-report" data-userid="${user.user_id}" data-format="pdf">PDF</a>
+            <a href="#" class="download-report" data-userid="${user.user_id}" data-format="excel">Excel</a>
+            <a href="#" class="download-report" data-userid="${user.user_id}" data-format="word">Word</a>
+          </div>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(row);
 
-      row.querySelector('.role-user').addEventListener('click', e => {
-        e.preventDefault();
-        updateUserRole(user.user_id, 'user');
-      });
-
-      row.querySelector('.role-admin').addEventListener('click', e => {
-        e.preventDefault();
-        updateUserRole(user.user_id, 'admin');
-      });
+    // Role actions
+    row.querySelector('.role-user').addEventListener('click', e => {
+      e.preventDefault();
+      updateUserRole(user.user_id, 'user');
     });
-  }
+
+    row.querySelector('.role-admin').addEventListener('click', e => {
+      e.preventDefault();
+      updateUserRole(user.user_id, 'admin');
+    });
+  });
+
+  // Attach download handlers
+  document.querySelectorAll('.download-report').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const userId = e.target.getAttribute('data-userid');
+      const format = e.target.getAttribute('data-format');
+      downloadReport(userId, format);
+    });
+  });
+}
+
 
   function filterUsers() {
     const searchInput = document.getElementById('userSearch');
@@ -79,30 +101,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // === Active Users ===
   async function fetchActiveUsers() {
-    try {
-      const res = await fetch('/admin/active-users');
-      const users = await res.json();
+  try {
+    const res = await fetch('/admin/active-users');
+    const users = await res.json();
 
-      document.getElementById('activeUsers').textContent = `Active Users in the last 7 days: ${users.length}`;
-      const tbody = document.querySelector('#activeUserTable tbody');
-      tbody.innerHTML = '';
+    document.getElementById('activeUsers').textContent = `Active Users in the last 7 days: ${users.length}`;
+    const tbody = document.querySelector('#activeUserTable tbody');
+    tbody.innerHTML = '';
 
-      users.forEach(user => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${user.name}</td>
-          <td>${user.surname}</td>
-          <td>${user.username}</td>
-          <td>${user.email}</td>
-          <td>${new Date(user.last_login).toLocaleString()}</td>
-          <td>${user.reports_count}</td>
-        `;
-        tbody.appendChild(row);
+    users.forEach(user => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${user.name}</td>
+        <td>${user.surname}</td>
+        <td>${user.username}</td>
+        <td>${user.email}</td>
+        <td>${new Date(user.last_login).toLocaleString()}</td>
+        <td>${user.reports_count}</td>
+        <td>
+          <div class="dropdown">
+            <button class="dropbtn">📥</button>
+            <div class="dropdown-content">
+              <a href="#" class="download-report" data-userid="${user.user_id}" data-format="pdf">PDF</a>
+              <a href="#" class="download-report" data-userid="${user.user_id}" data-format="excel">Excel</a>
+              <a href="#" class="download-report" data-userid="${user.user_id}" data-format="word">Word</a>
+            </div>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    // Attach download handlers
+    document.querySelectorAll('.download-report').forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const userId = e.target.getAttribute('data-userid');
+        const format = e.target.getAttribute('data-format');
+        downloadReport(userId, format);
       });
-    } catch (err) {
-      console.error(err);
-    }
+    });
+
+  } catch (err) {
+    console.error(err);
   }
+}
+
 
   // Role update (sample stub)
   async function updateUserRole(userId, newRole) {
