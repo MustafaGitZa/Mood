@@ -8,6 +8,8 @@ const { initializeModels, detectMood } = require("./detectMood.js");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const router = express.Router();
+const fs = require("fs");
+const https = require('https');
 
 
 const resetTokens = {}; // { token: email }
@@ -49,6 +51,15 @@ const storage = multer.diskStorage({
 });
 // Initialize multer with the storage configuration
 const upload = multer({ storage: storage });
+
+// SSL options
+const sslOptions = {
+  key: fs.readFileSync(path.join(__dirname, 'server.key')),
+  cert: fs.readFileSync(path.join(__dirname, 'server.cert'))
+};
+
+// Serve your app via HTTPS
+const server = https.createServer(sslOptions, app);
 
 // Global database connection flag and variable
 let databaseConnected = false;
@@ -149,6 +160,8 @@ function checkDbConnection(req, res, next) {
   }
   next();
 }
+
+
 
 // Save Mood Data Route (POST) - with DB check
 app.post("/facialRecognition", checkDbConnection, (req, res) => {
@@ -1920,6 +1933,6 @@ app.post('/mood-posts/:id/comment', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on port ${PORT}`);
+server.listen(3000, () => {
+  console.log('Secure server running at https://localhost:3000');
 });
