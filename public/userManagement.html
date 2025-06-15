@@ -911,6 +911,15 @@ function renderUserTable(users) {
     }
   });
 
+  function downloadReport(userId, format) {
+  const validFormats = ['pdf', 'excel', 'word'];
+  if (!validFormats.includes(format)) {
+    alert('Unsupported format selected.');
+    return;
+  }
+  const url = `/admin/export-user-report/${userId}/${format}`;
+  window.open(url, '_blank');
+}
   // === Load data on page load ===
   fetchRegisteredUsers();
   fetchActiveUsers();
