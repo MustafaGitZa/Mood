@@ -412,6 +412,28 @@ function loadRecentMoodPost() {
 
 window.onload = loadRecentMoodPost;
 
+function fetchUserMessageCount(userEmail) {
+  fetch(`/user-message-count?email=${userEmail}`)
+    .then(res => res.json())
+    .then(data => {
+      const badge = document.getElementById('userMessageCount');
+      badge.innerText = data.count;
+      badge.style.display = data.count > 0 ? 'inline-block' : 'none';
+    });
+}
+
+// Example: fetch on load if user logged in
+document.addEventListener('DOMContentLoaded', () => {
+  const userEmail = localStorage.getItem('userEmail');
+  if (userEmail) {
+    fetchUserMessageCount(userEmail);
+  }
+});
+
+// Click to go to inbox
+document.getElementById('userMessagesIcon').addEventListener('click', () => {
+  window.location.href = 'myMessages.html';
+});
 
 
 
