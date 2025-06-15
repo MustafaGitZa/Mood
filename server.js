@@ -11,6 +11,7 @@ const router = express.Router();
 const fs = require("fs");
 const https = require('https');
 const ExcelJS = require('exceljs');
+const { Document, Packer, Paragraph, Table, TableRow, TableCell, WidthType, BorderStyle, TextRun } = require('docx');
 
 
 
@@ -1951,13 +1952,39 @@ app.get('/admin/export-user-report/:userId/excel', checkDbConnection, (req, res)
       const workbook = new ExcelJS.Workbook();
       const sheet = workbook.addWorksheet('User Report');
 
-      sheet.addRow(['Name', 'Surname', 'Username', 'Email', 'Last Login']);
-      sheet.addRow([user.name, user.surname, user.username, user.email, user.last_login]);
+      // Header row
+      const headerRow = sheet.addRow(['Name', 'Surname', 'Username', 'Email', 'Last Login']);
+      headerRow.eachCell(cell => {
+        cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'DF3952' } };
+        cell.alignment = { horizontal: 'left', vertical: 'middle' };
+        cell.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
+      });
 
+      // User data row
+      const userRow = sheet.addRow([user.name, user.surname, user.username, user.email, user.last_login]);
+      userRow.eachCell(cell => {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'F9F9F9' } };
+        cell.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
+      });
+
+      // Space then Mood Logs header
       sheet.addRow([]);
-      sheet.addRow(['Logged Mood', 'Date']);
-      moodResults.forEach(m => {
-        sheet.addRow([m.logged_mood, m.log_date]);
+      const moodHeader = sheet.addRow(['Logged Mood', 'Date']);
+      moodHeader.eachCell(cell => {
+        cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'DF3952' } };
+        cell.alignment = { horizontal: 'left', vertical: 'middle' };
+        cell.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
+      });
+
+      // Mood log rows
+      moodResults.forEach((mood, index) => {
+        const row = sheet.addRow([mood.logged_mood, mood.log_date]);
+        row.eachCell(cell => {
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: (index % 2 === 0) ? 'F9F9F9' : 'FFFFFF' } };
+          cell.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
+        });
       });
 
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -1984,24 +2011,64 @@ app.get('/admin/export-user-report/:userId/pdf', checkDbConnection, (req, res) =
     db.query(moodQuery, [userId], (err, moodResults) => {
       if (err) return res.status(500).send('Error fetching moods');
 
-      const doc = new PDFDocument();
+      const doc = new PDFDocument({ margin: 30 });
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename="user-report-${userId}.pdf"`);
 
       doc.pipe(res);
+
       doc.fontSize(18).text('User Report', { align: 'center' });
       doc.moveDown();
 
-      doc.fontSize(12).text(`Name: ${user.name}`);
-      doc.text(`Surname: ${user.surname}`);
-      doc.text(`Username: ${user.username}`);
-      doc.text(`Email: ${user.email}`);
-      doc.text(`Last Login: ${user.last_login}`);
-      doc.moveDown();
+      // User Info Table header style
+      const headerBgColor = '#df3952';
+      const altRowColor = '#f9f9f9';
 
-      doc.fontSize(14).text('Mood Logs:');
-      moodResults.forEach(m => {
-        doc.fontSize(12).text(`${m.logged_mood} - ${m.log_date}`);
+      const tableX = doc.x;
+      const tableY = doc.y;
+      const colWidths = [80, 80, 80, 140, 100];
+
+      // Draw User Info header
+      doc.rect(tableX, tableY, colWidths.reduce((a, b) => a + b), 20).fill(headerBgColor);
+      doc.fillColor('white').fontSize(10);
+      let x = tableX;
+      ['Name', 'Surname', 'Username', 'Email', 'Last Login'].forEach((header, i) => {
+        doc.text(header, x + 4, tableY + 5, { width: colWidths[i], align: 'left' });
+        x += colWidths[i];
+      });
+
+      // Draw User Info row
+      doc.fillColor('black').fontSize(9);
+      doc.rect(tableX, tableY + 20, colWidths.reduce((a, b) => a + b), 20).fill(altRowColor);
+      x = tableX;
+      [user.name, user.surname, user.username, user.email, user.last_login].forEach((value, i) => {
+        doc.text(String(value), x + 4, tableY + 25, { width: colWidths[i], align: 'left' });
+        x += colWidths[i];
+      });
+
+      let currentY = tableY + 45;
+
+      // Mood Logs Table Header
+      doc.moveDown().moveDown(0.5);
+      doc.fillColor('black').fontSize(14).text('Mood Logs', { align: 'left' });
+      currentY += 30;
+
+      // Mood Logs Header Row
+      doc.rect(tableX, currentY, 220, 20).fill(headerBgColor);
+      doc.fillColor('white').fontSize(10);
+      doc.text('Logged Mood', tableX + 4, currentY + 5, { width: 110, align: 'left' });
+      doc.text('Date', tableX + 114, currentY + 5, { width: 106, align: 'left' });
+
+      currentY += 20;
+
+      // Mood Logs Data Rows
+      moodResults.forEach((m, index) => {
+        const rowColor = (index % 2 === 0) ? altRowColor : 'white';
+        doc.rect(tableX, currentY, 220, 20).fill(rowColor);
+        doc.fillColor('black').fontSize(9);
+        doc.text(m.logged_mood, tableX + 4, currentY + 5, { width: 110, align: 'left' });
+        doc.text(m.log_date, tableX + 114, currentY + 5, { width: 106, align: 'left' });
+        currentY += 20;
       });
 
       doc.end();
@@ -2009,7 +2076,6 @@ app.get('/admin/export-user-report/:userId/pdf', checkDbConnection, (req, res) =
   });
 });
 
-const { Document, Packer, Paragraph, TextRun } = require('docx');
 
 app.get('/admin/export-user-report/:userId/word', checkDbConnection, (req, res) => {
   const userId = req.params.userId;
@@ -2024,22 +2090,80 @@ app.get('/admin/export-user-report/:userId/word', checkDbConnection, (req, res) 
     db.query(moodQuery, [userId], async (err, moodResults) => {
       if (err) return res.status(500).send('Error fetching moods');
 
-      const doc = new Document({
-        sections: [
-          {
-            children: [
-              new Paragraph({ text: 'User Report', heading: 'Title' }),
-              new Paragraph(`Name: ${user.name}`),
-              new Paragraph(`Surname: ${user.surname}`),
-              new Paragraph(`Username: ${user.username}`),
-              new Paragraph(`Email: ${user.email}`),
-              new Paragraph(`Last Login: ${user.last_login}`),
-              new Paragraph(''),
-              new Paragraph({ text: 'Mood Logs:', heading: 'Heading1' }),
-              ...moodResults.map(m => new Paragraph(`${m.logged_mood} - ${m.log_date}`)),
-            ],
-          },
+      const userTable = new Table({
+        rows: [
+          new TableRow({
+            children: ['Name', 'Surname', 'Username', 'Email', 'Last Login'].map(text =>
+              new TableCell({
+                children: [new Paragraph({ children: [new TextRun({ text, color: 'FFFFFF', bold: true })] })],
+                shading: { fill: 'DF3952' },
+              })
+            ),
+          }),
+          new TableRow({
+            children: [user.name, user.surname, user.username, user.email, user.last_login].map(text =>
+              new TableCell({
+                children: [new Paragraph(String(text))],
+                shading: { fill: 'F9F9F9' },
+              })
+            ),
+          }),
         ],
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        borders: {
+          top: { style: BorderStyle.SINGLE, size: 1 },
+          bottom: { style: BorderStyle.SINGLE, size: 1 },
+          left: { style: BorderStyle.SINGLE, size: 1 },
+          right: { style: BorderStyle.SINGLE, size: 1 },
+          insideHorizontal: { style: BorderStyle.SINGLE, size: 1 },
+          insideVertical: { style: BorderStyle.SINGLE, size: 1 },
+        },
+      });
+
+      const moodTable = new Table({
+        rows: [
+          new TableRow({
+            children: ['Logged Mood', 'Date'].map(text =>
+              new TableCell({
+                children: [new Paragraph({ children: [new TextRun({ text, color: 'FFFFFF', bold: true })] })],
+                shading: { fill: 'DF3952' },
+              })
+            ),
+          }),
+          ...moodResults.map((mood, index) =>
+            new TableRow({
+              children: [mood.logged_mood, mood.log_date].map(text =>
+                new TableCell({
+                  children: [new Paragraph(String(text))],
+                  shading: { fill: (index % 2 === 0) ? 'F9F9F9' : 'FFFFFF' },
+                })
+              ),
+            })
+          ),
+        ],
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        borders: {
+          top: { style: BorderStyle.SINGLE, size: 1 },
+          bottom: { style: BorderStyle.SINGLE, size: 1 },
+          left: { style: BorderStyle.SINGLE, size: 1 },
+          right: { style: BorderStyle.SINGLE, size: 1 },
+          insideHorizontal: { style: BorderStyle.SINGLE, size: 1 },
+          insideVertical: { style: BorderStyle.SINGLE, size: 1 },
+        },
+      });
+
+      const doc = new Document({
+        sections: [{
+          children: [
+            new Paragraph({ text: 'User Report', heading: 'Title' }),
+            new Paragraph(''),
+            userTable,
+            new Paragraph(''),
+            new Paragraph({ text: 'Mood Logs', heading: 'Heading1' }),
+            new Paragraph(''),
+            moodTable,
+          ],
+        }],
       });
 
       const buffer = await Packer.toBuffer(doc);
@@ -2050,7 +2174,6 @@ app.get('/admin/export-user-report/:userId/word', checkDbConnection, (req, res) 
     });
   });
 });
-
 
 
 
