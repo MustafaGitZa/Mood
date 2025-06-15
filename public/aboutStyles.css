@@ -1,0 +1,174 @@
+/* Global Page Styling */
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #e1c3ad, #e3c7ce);
+    min-height: 100vh;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    animation: gradientBackground 10s ease infinite;
+}
+
+@keyframes gradientBackground {
+    0%, 100% {
+        background: linear-gradient(135deg, #e3c1a8, #f7c8d3);
+    }
+    50% {
+        background: linear-gradient(135deg, #f7d4e5, #ffe7ca);
+    }
+}
+
+/* Navigation Styling */
+.navbar {
+    background-color: #9f2d2d;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nav-menu {
+    display: flex;
+    gap: 16px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-menu a {
+    color: white;
+    text-decoration: none;
+    font-size: 0.9em;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.nav-menu a:hover {
+    background-color: #f7c8d3;
+    color: #333;
+}
+
+/* Profile Icon and Dropdown Menu */
+.profile-container {
+    position: relative;
+}
+
+.profile-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.profile-menu {
+    display: none;
+    position: absolute;
+    top: 45px;
+    right: 0;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 6px;
+    overflow: hidden;
+    z-index: 999;
+}
+
+.profile-menu a {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+    font-size: 0.9em;
+}
+
+.profile-menu a:hover {
+    background: #f7c8d3;
+    color: #333;
+}
+
+/* About Page Grid Layout */
+.about-grid {
+    display: grid;
+    gap: 25px;
+    padding: 70px 20px 30px 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* About Page Main Container */
+.about-container {
+    background: #fff;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.about-container h1 {
+    color: #f167a1;
+    font-size: 2.8em;
+    margin-bottom: 15px;
+}
+
+.about-container p {
+    color: #555;
+    line-height: 1.6;
+    font-size: 1.05em;
+}
+
+/* Individual About Cards */
+.about-card {
+    background: #fff;
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    border: 1px solid #ddd;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.about-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+
+.about-card h2 {
+    color: #333;
+    font-size: 1.6em;
+    margin-bottom: 15px;
+}
+
+.about-card p, 
+.about-card ul {
+    color: #555;
+    line-height: 1.6;
+    font-size: 0.98em;
+}
+
+/* List Styling */
+.about-card ul {
+    padding-left: 20px;
+    margin: 10px 0 0 0;
+}
+
+.about-card li {
+    margin-bottom: 8px;
+}
+
+/* Responsive Styling */
+@media (max-width: 768px) {
+    .about-grid {
+        padding: 70px 10px 20px 10px;
+    }
+
+    .nav-menu {
+        gap: 10px;
+    }
+
+    .about-container h1 {
+        font-size: 2.2em;
+    }
+}
