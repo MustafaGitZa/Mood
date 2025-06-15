@@ -117,7 +117,6 @@ document.addEventListener('DOMContentLoaded', () => {
         <td>${user.username}</td>
         <td>${user.email}</td>
         <td>${new Date(user.last_login).toLocaleString()}</td>
-        <td>${user.reports_count}</td>
         <td>
           <div class="dropdown">
             <button class="dropbtn">📥</button>
