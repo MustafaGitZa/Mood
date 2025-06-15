@@ -344,50 +344,96 @@ body {
   background-color: #d00602;
 }
 
+/* Sidebar Styles */
+.sidebar {
+  position: fixed;
+  top: 50px; /* below navbar */
+  left: -260px; /* hidden by default */
+  width: 240px;
+  height: calc(100vh - 50px);
+  background: linear-gradient(135deg, #f7c8d3, #e3c1a8);
+  padding: 20px;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  transition: left 0.3s ease;
+  z-index: 999;
+  border-top-right-radius: 12px;
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+.sidebar-header h2 {
+  color: #9f2d2d;
+  margin-bottom: 20px;
+  font-size: 1.3em;
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar-menu li {
+  margin-bottom: 15px;
+}
+
+.sidebar-menu a {
+  color: #333;
+  text-decoration: none;
+  font-size: 1em;
+  padding: 10px 12px;
+  display: block;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.sidebar-menu a:hover {
+  background-color: #f7c8d3;
+  color: #9f2d2d;
+}
+
+/* Hamburger Menu Icon */
+.hamburger {
+  font-size: 26px;
+  color: white;
+  cursor: pointer;
+  display: block;
+}
 
   </style>
   <script src="https://kit.fontawesome.com/yourkitcode.js" crossorigin="anonymous"></script>
 </head>
 <body>
 <nav class="navbar">
-  <div class="nav-left">
-    <div class="hamburger" id="hamburger">&#9776;</div>
-
-    <div class="nav-menu">
-        <a href="home.html">Home</a>
-       <a href="contact.html">Contact</a>
-        <a href="about.html">About</a>
-    </div>
-  </div>
-<div class="nav-right">
-  <div class="message-icon-container" id="messageIconContainer">
-    <i class="fas fa-envelope fa-lg"></i>
-    <span class="message-badge" id="messageBadge">0</span>
-  </div>
-
-  
-    <div class="profile-icon" id="profileIcon">
-        <img id="defaultProfileIcon" src="/assets/boy.png" alt="Default User" style="display: none;">
-        <img id="navProfileAvatar" src="" alt="User Avatar" style="display: none;">
-    </div>
-    <div class="profile-expanded-menu" id="profileExpandedMenu">
-        <div class="avatar-section">
-            <div class="avatar-placeholder">
-                <div class="profile-initials" id="profileInitials"></div>
-                <img src="/assets/default-avatar.png" alt="User Avatar" class="profile-avatar" id="profileAvatar">
+        <ul class="nav-menu">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="contact.html">Contact</a>
+            <a href="moodRoom.html">Mood Room</a>
+        </ul>
+        <div class="profile-container">
+            <div class="profile-icon" id="profileIcon">
+                <img id="defaultProfileIcon" src="/assets/boy.png" alt="Default User" style="display: none;">
+                <img id="navProfileAvatar" src="" alt="User Avatar" style="display: none;">
             </div>
-            <div class="user-info">
-                <span id="userFullName"></span>
+            <div class="profile-expanded-menu" id="profileExpandedMenu">
+                <div class="avatar-section">
+                    <div class="avatar-placeholder">
+                        <div class="profile-initials" id="profileInitials"></div>
+                        <img src="default-avatar.png" alt="User Avatar" class="profile-avatar" id="profileAvatar">
+                    </div>
+                    <div class="user-info">
+                        <span id="userFullName"></span>
+                    </div>
+                </div>
+                <div class="menu-options">
+                    <a href="edit-profile.html">Edit Profile</a>
+                    <a href="login.html">Logout</a>
+                </div>
             </div>
         </div>
-        <div class="menu-options">
-            <a href="edit-profile.html">Edit Profile</a>
-            <a href="login.html">Logout</a>
-        </div>
-    </div>
-</div>
-</div>
-</nav>
+    </nav>
 <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
