@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Messages</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+  <style>
+    .ack-btn {
+  background: #fdb516;
+  color: #130f09;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.ack-btn:hover {
+  background: #e6a313;
+}
+
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <ul class="nav-menu">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="contact.html">Contact</a>
+  </ul>
+  <div class="nav-right">
+    <a href="myMessages.html" class="user-messages-icon" id="userMessagesIcon">
+      <i class="fas fa-envelope"></i>
+      <span id="userMessageCount">0</span>
+    </a>
+    <div class="profile-container">
+      <div class="profile-icon" id="profileIcon">
+        <img id="defaultProfileIcon" src="/assets/boy.png" alt="Default User">
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="messages-container">
+  <h2>My Messages</h2>
+  <table id="userMessagesTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Subject</th>
+        <th>Message</th>
+        <th>Status</th>
+        <th>Received At</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- JS will fill this -->
+    </tbody>
+  </table>
+</div>
+
+<script src="myMessages.js"></script>
+</body>
+</html>
