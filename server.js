@@ -155,26 +155,26 @@ app.post("/facialRecognition", checkDbConnection, (req, res) => {
   const { moodName, moodType } = req.body;
   const userId = req.session?.userId || 1;
 
-  // Log request data for debugging
   console.log("Request Data Received:", req.body);
 
   if (!userId || !moodName || !moodType) {
-      return res.status(400).json({ message: "User ID, mood name, and mood type are required." });
+    return res.status(400).json({ message: "User ID, mood name, and mood type are required." });
   }
 
   const query = `
-    INSERT INTO moodlogs (user_id, type_id, logged_mood, log_date) 
-    VALUES (?, (SELECT type_id FROM moodlog_types WHERE type_name = ?), ?, NOW())
+    INSERT INTO moodlogs (user_id, type, logged_mood, log_date)
+    VALUES (?, ?, ?, NOW())
   `;
-  
+
   db.query(query, [userId, moodType, moodName], (err, result) => {
     if (err) {
-        console.error("Database Error:", err);
-        return res.status(500).json({ message: "Error saving mood data. Please try again later." });
+      console.error("Database Error:", err);
+      return res.status(500).json({ message: "Error saving mood data. Please try again later." });
     }
     res.status(201).json({ message: "Mood data saved successfully!" });
   });
 });
+
 
 // Save Emoji Mood Data Route (POST) - with DB check
 app.post("/save-emoji", checkDbConnection, (req, res) => {
@@ -193,8 +193,8 @@ app.post("/save-emoji", checkDbConnection, (req, res) => {
   }
 
   const query = `
-      INSERT INTO moodlogs (user_id, type_id, logged_mood, log_date) 
-      VALUES (?, (SELECT type_id FROM moodlog_types WHERE type_name = ?), ?, NOW())
+    INSERT INTO moodlogs (user_id, type, logged_mood, log_date)
+    VALUES (?, ?, ?, NOW())
   `;
 
   db.query(query, [userId, moodType, moodName], (err, result) => {
