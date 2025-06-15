@@ -2024,7 +2024,8 @@ app.get('/admin/export-user-report/:userId/word', checkDbConnection, (req, res) 
     db.query(moodQuery, [userId], async (err, moodResults) => {
       if (err) return res.status(500).send('Error fetching moods');
 
-      const doc = new Document();
+     const doc = new Document({});
+
 
       doc.addSection({
         children: [
