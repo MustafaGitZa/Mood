@@ -175,6 +175,12 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchActiveUsers();
 });
 
+function downloadReport(userId, format) {
+  const url = `/admin/download-report?userId=${userId}&format=${format}`;
+  window.open(url, '_blank');
+}
+
+
   
   document.addEventListener("DOMContentLoaded", async () => {
     const spotifyPlaylistTableBody = document.querySelector("#spotifyPlaylistTable tbody");
