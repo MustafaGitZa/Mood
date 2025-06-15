@@ -1778,9 +1778,9 @@ app.get('/api/mood-trends', (req, res) => {
 
 app.get("/mood-posts", (req, res) => {
   const query = `
-    SELECT mood_post.*, users.username 
+    SELECT mood_post.*, user.username 
     FROM mood_post 
-    INNER JOIN user ON mood_post.user_id = users.user_id
+    INNER JOIN user ON mood_post.user_id = user.user_id
     ORDER BY post_date DESC
     LIMIT 5
   `;
