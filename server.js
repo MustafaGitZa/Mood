@@ -2175,7 +2175,56 @@ app.get('/admin/export-user-report/:userId/word', checkDbConnection, (req, res) 
   });
 });
 
+// Submit contact form
+app.post('/api/contact', (req, res) => {
+  const userId = req.session.userId;
+  const { subject, message } = req.body;
 
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized: no active session" });
+  }
+
+  if (!message || message.trim() === "") {
+    return res.status(400).json({ error: "Message cannot be empty." });
+  }
+
+  const sql = `INSERT INTO contact_messages (user_id, subject, message) VALUES (?, ?, ?)`;
+  db.query(sql, [userId, subject, message], (err, result) => {
+    if (err) {
+      console.error("Database error adding contact message:", err);
+      return res.status(500).json({ error: "Failed to submit message." });
+    }
+
+    res.json({ message: "Your message has been sent successfully!" });
+  });
+});
+
+// Fetch all contact messages (for admin)
+app.get('/api/contact-messages', (req, res) => {
+  const userId = req.session.userId;
+  const userRole = req.session.role;
+
+  if (!userId || userRole !== 'admin') {
+    return res.status(403).json({ error: "Forbidden: admin only" });
+  }
+
+  const sql = `
+    SELECT 
+      cm.message_id, u.name, u.email, cm.subject, cm.message, cm.sent_at
+    FROM contact_messages cm
+    JOIN user u ON cm.user_id = u.user_id
+    ORDER BY cm.sent_at DESC
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Database error fetching contact messages:", err);
+      return res.status(500).json({ error: "Failed to fetch messages." });
+    }
+
+    res.json({ messages: results });
+  });
+});
 
 const PORT = process.env.PORT || 3000;
 
