@@ -493,5 +493,83 @@ function downloadReport(userId, format) {
   
    
   });
+
+  document.addEventListener('DOMContentLoaded', function () {
+  const messageBadge = document.getElementById('messageBadge');
+  const messageIcon = document.getElementById('messageIconContainer');
+
+  document.addEventListener('DOMContentLoaded', () => {
+  const tableBody = document.querySelector('#messagesTable tbody');
+
+  fetch('/api/messages/all')
+    .then(res => res.json())
+    .then(data => {
+      data.messages.forEach(msg => {
+        const tr = document.createElement('tr');
+
+        tr.innerHTML = `
+          <td>${msg.name} ${msg.surname}</td>
+          <td>${msg.subject}</td>
+          <td>${new Date(msg.created_at).toLocaleString()}</td>
+          <td>${msg.status}</td>
+          <td>
+            <button class="view-btn" data-id="${msg.message_id}">View</button>
+          </td>
+        `;
+
+        tableBody.appendChild(tr);
+      });
+
+      document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const messageId = btn.getAttribute('data-id');
+          window.location.href = `viewMessage.html?id=${messageId}`;
+        });
+      });
+    })
+    .catch(err => console.error('Error loading messages:', err));
+});
+
+
+  // Load message count
+  fetch('/api/messages/count')
+    .then(res => res.json())
+    .then(data => {
+      if (data.unreadCount > 0) {
+        messageBadge.style.display = 'inline';
+        messageBadge.textContent = data.unreadCount;
+      }
+    })
+    .catch(err => console.error('Failed to load message count', err));
+
+  // Redirect to messages page on icon click
+  if (messageIcon) {
+    messageIcon.addEventListener('click', () => {
+      window.location.href = 'adminMessages.html';
+    });
+  }
+});
+
   
-  
+  document.addEventListener('DOMContentLoaded', function () {
+  const messageBadge = document.getElementById('messageBadge');
+  const messageIcon = document.getElementById('messageIconContainer');
+
+  // Load message count
+  fetch('/api/messages/count')
+    .then(res => res.json())
+    .then(data => {
+      if (data.unreadCount > 0) {
+        messageBadge.style.display = 'inline';
+        messageBadge.textContent = data.unreadCount;
+      }
+    })
+    .catch(err => console.error('Failed to load message count', err));
+
+  // Redirect to messages page on icon click
+  if (messageIcon) {
+    messageIcon.addEventListener('click', () => {
+      window.location.href = 'adminMessages.html';
+    });
+  }
+});

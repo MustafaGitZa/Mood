@@ -770,3 +770,27 @@ h1 {
     background-color: #d83a7c;
 }
 
+.message-icon-container {
+  position: relative;
+  margin-right: 18px;
+  cursor: pointer;
+  color: #f167a1;
+  display: flex;
+  align-items: center;
+}
+
+.message-icon-container i {
+  font-size: 22px;
+}
+
+.message-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background-color: #f167a1;
+  color: #fff;
+  font-size: 11px;
+  padding: 3px 6px;
+  border-radius: 50%;
+  display: none;
+}
