@@ -237,41 +237,70 @@ app.post("/save-emoji", checkDbConnection, (req, res) => {
 
 // Register Route (POST) - with DB check
 app.post("/register", checkDbConnection, upload.single("profile_picture"), async (req, res) => {
-  console.log("Register request received");
+  console.log("📩 Register request received");
 
-  const { username, password, email, name, surname, dob } = req.body; // Include dob from the form
-  console.log("Received user details:", { username, email, name, surname, dob });
+  const { username, password, email, name, surname, dob } = req.body;
+  console.log("✅ Received user details:", { username, email, name, surname, dob });
 
   let profile_picture = null;
 
+  // Handle profile picture or avatar selection
   if (req.file) {
     console.log("📸 Profile picture received:", req.file.filename);
     profile_picture = `/uploads/${req.file.filename}`;
   } else if (req.body.avatar_path) {
-    console.log("Avatar path received:", req.body.avatar_path);
+    console.log("🎨 Avatar path received:", req.body.avatar_path);
     profile_picture = req.body.avatar_path;
+  }
+
+  // 🔒 Server-side Validation Patterns
+  const nameRegex = /^[a-zA-Z\s]+$/;
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+  const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+  const dobRegex = /^\d{4}-\d{2}-\d{2}$/;
+
+  // 🔒 Validate required fields
+  if (!username || !password || !email || !name || !surname || !dob) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
+
+  if (!nameRegex.test(name)) {
+    return res.status(400).json({ field: "name", message: "Name can only contain letters and spaces." });
+  }
+
+  if (!nameRegex.test(surname)) {
+    return res.status(400).json({ field: "surname", message: "Surname can only contain letters and spaces." });
+  }
+
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ field: "email", message: "Please enter a valid Gmail address." });
+  }
+
+  if (!passwordRegex.test(password)) {
+    return res.status(400).json({
+      field: "password",
+      message: "Password must be at least 8 characters, include one number and one special character."
+    });
+  }
+
+  if (!dobRegex.test(dob)) {
+    return res.status(400).json({ field: "dob", message: "Invalid date format. Use YYYY-MM-DD." });
   }
 
   // ✅ Calculate age from dob
   let calculatedAge = null;
-  if (dob) {
-    try {
-      const normalizedDOB = dob.replace(/\//g, '-'); // Convert YYYY/MM/DD to YYYY-MM-DD
-      const birthDate = new Date(normalizedDOB);
-      const today = new Date();
-      calculatedAge = today.getFullYear() - birthDate.getFullYear();
-      const m = today.getMonth() - birthDate.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-        calculatedAge--;
-      }
-      console.log("Calculated age:", calculatedAge);
-    } catch (error) {
-      console.error("Invalid DOB format:", dob);
+  try {
+    const birthDate = new Date(dob);
+    const today = new Date();
+    calculatedAge = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      calculatedAge--;
     }
-  }
-
-  if (!username || !password || !email) {
-    return res.status(400).json({ message: "Username, password, and email are required." });
+    console.log("🎂 Calculated age:", calculatedAge);
+  } catch (error) {
+    console.error("❌ Invalid DOB format:", dob);
+    return res.status(400).json({ field: "dob", message: "Invalid date of birth." });
   }
 
   try {
@@ -288,18 +317,20 @@ app.post("/register", checkDbConnection, upload.single("profile_picture"), async
       (err, result) => {
         if (err) {
           if (err.code === "ER_DUP_ENTRY") {
+            console.warn("⚠️ Duplicate username or email detected.");
             res.status(400).json({ message: "Username or email already exists!" });
           } else {
-            console.error("Error during registration:", err);
+            console.error("❌ Error during registration:", err);
             res.status(500).json({ message: "Error during registration. Please try again later." });
           }
         } else {
+          console.log("✅ User registered successfully:", result);
           res.status(201).json({ message: `User registered successfully! Welcome, ${name}` });
         }
       }
     );
   } catch (error) {
-    console.error("Error hashing password:", error);
+    console.error("❌ Error hashing password:", error);
     res.status(500).json({ message: "Internal server error." });
   }
 });
