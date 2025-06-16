@@ -118,7 +118,6 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     formData.append("username", document.getElementById('registerUsername').value);
     formData.append("email", email);
     formData.append("password", password);
-    formData.append("dob", document.getElementById("dob").value);
 
     const selectedAvatar = document.getElementById('selectedAvatar').value;
     if (selectedAvatar) {
