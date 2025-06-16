@@ -10,23 +10,30 @@
           margin-bottom: 10px;
         }
         
-        .card {
-          background: #fff;
-          padding: 20px;
-          border-radius: 12px;
-          box-shadow: 0 0 8px rgba(0,0,0,0.15);
-          margin-bottom: 20px;
-        }
-        
-        .card h3 {
-          margin-bottom: 12px;
-          color: #104c90;
-        }
-        
-        canvas {
-          max-width: 100%;
-          height: auto;
-        }
+           .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.15);
+      margin-bottom: 0; /* remove if using grid */
+    }
+    
+    .card h3 {
+      margin-bottom: 12px;
+      color: #104c90;
+    }
+    
+    canvas {
+      max-width: 100%;
+      height: auto;
+    }
+
         .mood-by-age.card {
   background: #fff;
   padding: 20px;
@@ -101,21 +108,23 @@
                 <h1>Statistics Dashboard</h1>
                 <p>Welcome to the Statistics dashboard.</p>
             </div>
-            <div id="mood-by-age" class="mood-by-age card">
-              <h3>Mood Trends by Age Group</h3>
-              <canvas id="moodByAgeChart" width="400" height="200"></canvas>
-            </div>
+                   <div class="cards-grid">
+          <div id="stats" class="mood-stats card">
+            <h3>Mood Statistics (All Users)</h3>
+            <canvas id="moodStatsChart" width="400" height="200"></canvas>
+          </div>
+        
+          <div id="platform-popularity" class="platform-popularity card">
+            <h3>Platform Popularity (All Users)</h3>
+            <canvas id="platformPopularityChart" width="400" height="200"></canvas>
+          </div>
+        
+          <div class="mood-by-age card">
+            <h3>Mood Trends by Age</h3>
+            <canvas id="moodByAgeChart" width="400" height="200"></canvas>
+          </div>
+        </div>
 
-            <!-- Mood Stats Card -->
-            <div id="stats" class="mood-stats card">
-                <h3>Mood Statistics (All Users)</h3>
-                <canvas id="moodStatsChart" width="400" height="200"></canvas>
-            </div>
-
-            <div id="platform-popularity" class="platform-popularity card">
-                <h3>Platform Popularity (All Users)</h3>
-                <canvas id="platformPopularityChart" width="400" height="200"></canvas>
-            </div>
         </div>
     </div>
 <script>
