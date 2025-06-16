@@ -578,12 +578,4 @@ document.getElementById('messageIconContainer').addEventListener('click', () => 
   }
 });
 
-fetch('/admin/stats')
-  .then(response => response.json())
-  .then(data => {
-    document.getElementById('registeredUsers').textContent = data.registeredUsers;
-    document.getElementById('activeUsers').textContent = data.activeUsers;
-    document.getElementById('totalPlaylists').textContent = data.totalPlaylists;
-    document.getElementById('ebooks').textContent = data.ebooks;
-  })
-  .catch(error => console.error('Error fetching stats:', error));
+

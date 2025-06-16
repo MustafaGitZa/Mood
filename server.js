@@ -1972,32 +1972,34 @@ app.post('/mood-posts/:id/comment', (req, res) => {
 });
 
 
-app.get('/admin/stats', checkDbConnection, (req, res) => {
-  const stats = {};
-
-  const queries = [
-    { key: 'registeredUsers', query: 'SELECT COUNT(*) AS count FROM user' },
-    { key: 'activeUsers', query: 'SELECT COUNT(*) AS count FROM user WHERE last_login IS NOT NULL' },
-    { key: 'totalPlaylists', query: 'SELECT COUNT(*) AS count FROM mood_playlist' },
-    { key: 'ebooks', query: 'SELECT COUNT(*) AS count FROM mood_ebook_audio' },
-  ];
-
-  let completed = 0;
-
-  queries.forEach(({ key, query }) => {
-    db.query(query, (err, results) => {
-      if (err) {
-        return res.status(500).json({ error: 'Database error' });
-      }
-      stats[key] = results[0].count;
-      completed++;
-
-      if (completed === queries.length) {
-        res.json(stats);
-      }
-    });
+app.get('/admin/registered-users', (req, res) => {
+  db.query('SELECT COUNT(*) AS count FROM user', (err, results) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    res.json({ count: results[0].count });
   });
 });
+
+app.get('/admin/active-users', (req, res) => {
+  db.query('SELECT COUNT(*) AS count FROM user WHERE last_login IS NOT NULL', (err, results) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    res.json({ count: results[0].count });
+  });
+});
+
+app.get('/admin/total-playlists', (req, res) => {
+  db.query('SELECT COUNT(*) AS count FROM mood_playlist', (err, results) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    res.json({ count: results[0].count });
+  });
+});
+
+app.get('/admin/total-ebooks', (req, res) => {
+  db.query('SELECT COUNT(*) AS count FROM mood_ebook_audio', (err, results) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    res.json({ count: results[0].count });
+  });
+});
+
 
 
 

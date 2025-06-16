@@ -172,6 +172,21 @@
         profileMenu.classList.remove('open');
       }
     });
+
+    function fetchStat(endpoint, elementId) {
+        fetch(endpoint)
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById(elementId).textContent = data.count;
+          })
+          .catch(error => console.error(`Error fetching ${elementId}:`, error));
+      }
+
+      fetchStat('/admin/registered-users', 'registeredUsers');
+      fetchStat('/admin/active-users', 'activeUsers');
+      fetchStat('/admin/total-playlists', 'totalPlaylists');
+      fetchStat('/admin/total-ebooks', 'ebooks');
+
   </script>
    
 </body>
