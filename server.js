@@ -2331,11 +2331,17 @@ app.post('/respond-to-message', (req, res) => {
 // Fetch messages for a specific user by user_id
 app.get('/my-messages', (req, res) => {
   const { user_id } = req.query;
+  console.log("Fetching messages for user_id:", user_id);
+
   if (!user_id) return res.status(400).json({ error: 'Missing user_id' });
 
-  const sql = 'SELECT message_id AS id, subject, message, status, created_at FROM contact_message WHERE user_id = ? ORDER BY created_at DESC';
+  const sql = 'SELECT id, subject, message, status, created_at FROM contact_message WHERE user_id = ? ORDER BY created_at DESC';
   db.query(sql, [user_id], (err, results) => {
-    if (err) return res.status(500).json({ error: 'Failed to fetch messages' });
+    if (err) {
+      console.error("DB query error:", err);
+      return res.status(500).json({ error: 'Failed to fetch messages' });
+    }
+    console.log("Fetched messages:", results);
     res.json(results);
   });
 });
