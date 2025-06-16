@@ -77,25 +77,24 @@
             </div>
 
         <!-- Stat Cards -->
-        <div class="stats-grid">
-          <div class="stat-card">
-            <h3>Registered Users</h3>
-            <p id="registeredUsers">0</p>
-          </div>
-          <div class="stat-card">
-            <h3>Active Users</h3>
-            <p id="activeUsers">0</p>
-          </div>
-          <div class="stat-card">
-            <h3>Total Playlists</h3>
-            <p id="totalPlaylists">0</p>
-          </div>
-          <div class="stat-card">
-            <h3>Ebooks</h3>
-            <p id="ebooks">0</p>
-          </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Registered Users</h3>
+          <p id="registeredUsersCount">0</p>
         </div>
-
+        <div class="stat-card">
+          <h3>Active Users</h3>
+          <p id="activeUsersCount">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Total Playlists</h3>
+          <p id="totalPlaylistsCount">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Ebooks</h3>
+          <p id="ebooksCount">0</p>
+        </div>
+      </div>
 
        <!-- Data Tables Row -->
 <div class="data-tables-row">
@@ -182,10 +181,11 @@
           .catch(error => console.error(`Error fetching ${elementId}:`, error));
       }
 
-      fetchStat('/admin/registered-users', 'registeredUsers');
-      fetchStat('/admin/active-users', 'activeUsers');
-      fetchStat('/admin/total-playlists', 'totalPlaylists');
-      fetchStat('/admin/total-ebooks', 'ebooks');
+  fetchStat('/admin/registered-users', 'registeredUsersCount');
+  fetchStat('/admin/active-users', 'activeUsersCount');
+  fetchStat('/admin/total-playlists', 'totalPlaylistsCount');
+  fetchStat('/admin/total-ebooks', 'ebooksCount');
+
 
   </script>
    
