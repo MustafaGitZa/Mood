@@ -5,6 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Statistics Dashboard</title>
     <link rel="stylesheet" href="adminStyles.css">
+    <style>
+                .admin-dashboard-container h1 {
+          margin-bottom: 10px;
+        }
+        
+        .card {
+          background: #fff;
+          padding: 20px;
+          border-radius: 12px;
+          box-shadow: 0 0 8px rgba(0,0,0,0.15);
+          margin-bottom: 20px;
+        }
+        
+        .card h3 {
+          margin-bottom: 12px;
+          color: #104c90;
+        }
+        
+        canvas {
+          max-width: 100%;
+          height: auto;
+        }
+        .mood-by-age.card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.15);
+  margin-bottom: 20px;
+}
+
+.mood-by-age h3 {
+  margin-bottom: 12px;
+  color: #104c90;
+}
+
+
+    </style>
 </head>
 <body>
       <!-- Navbar -->
@@ -64,6 +101,11 @@
                 <h1>Statistics Dashboard</h1>
                 <p>Welcome to the Statistics dashboard.</p>
             </div>
+            <div id="mood-by-age" class="mood-by-age card">
+              <h3>Mood Trends by Age Group</h3>
+              <canvas id="moodByAgeChart" width="400" height="200"></canvas>
+            </div>
+
             <!-- Mood Stats Card -->
             <div id="stats" class="mood-stats card">
                 <h3>Mood Statistics (All Users)</h3>
@@ -101,6 +143,145 @@
         profileMenu.classList.remove('open');
       }
     });
+
+    document.addEventListener('DOMContentLoaded', () => {
+  fetchMoodStats();
+  fetchPlatformStats();
+});
+
+// Fetch Mood Stats
+function fetchMoodStats() {
+  fetch('/api/mood-stats')
+    .then(response => response.json())
+    .then(data => {
+      const labels = data.map(item => item.logged_mood);
+      const counts = data.map(item => item.count);
+      renderMoodStatsChart(labels, counts);
+    })
+    .catch(err => console.error('Failed to fetch mood stats:', err));
+}
+
+// Fetch Platform Stats
+function fetchPlatformStats() {
+  fetch('/api/platform-popularity')
+    .then(response => response.json())
+    .then(data => {
+      const labels = data.map(item => item.type);
+      const counts = data.map(item => item.count);
+      renderPlatformStatsChart(labels, counts);
+    })
+    .catch(err => console.error('Failed to fetch platform stats:', err));
+}
+
+// Render Mood Chart
+function renderMoodStatsChart(labels, counts) {
+  const ctx = document.getElementById('moodStatsChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Mood Count',
+        data: counts,
+        backgroundColor: ['#007b4e', '#fa0803', '#104c90', '#fdb516', '#4A5568'],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: 'Mood Statistics' }
+      }
+    }
+  });
+}
+
+// Render Platform Chart
+function renderPlatformStatsChart(labels, counts) {
+  const ctx = document.getElementById('platformPopularityChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Platform Usage',
+        data: counts,
+        backgroundColor: ['#104c90', '#fdb516'],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom' },
+        title: { display: true, text: 'Platform Popularity' }
+      }
+    }
+  });
+}
+    document.addEventListener('DOMContentLoaded', () => {
+  fetchMoodByAgeGroup();
+});
+
+// Fetch Mood By Age Group Stats
+function fetchMoodByAgeGroup() {
+  fetch('/api/mood-by-age-group')
+    .then(response => response.json())
+    .then(data => {
+      // Transform data to grouped structure
+      const ageGroups = [...new Set(data.map(item => item.age_group))];
+      const moods = [...new Set(data.map(item => item.logged_mood))];
+      
+      const datasets = moods.map(mood => {
+        return {
+          label: mood,
+          data: ageGroups.map(group => {
+            const record = data.find(item => item.age_group === group && item.logged_mood === mood);
+            return record ? record.count : 0;
+          }),
+          backgroundColor: getRandomColor()
+        };
+      });
+
+      renderMoodByAgeChart(ageGroups, datasets);
+    })
+    .catch(err => console.error('Failed to fetch mood by age group:', err));
+}
+
+// Render Chart
+function renderMoodByAgeChart(labels, datasets) {
+  const ctx = document.getElementById('moodByAgeChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: { display: true, text: 'Mood Trends by Age Group' },
+        legend: { position: 'bottom' }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+}
+
+// Random color generator
+function getRandomColor() {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
+
   </script>
     <script src="statsScript.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
