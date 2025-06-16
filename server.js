@@ -2467,7 +2467,7 @@ app.get('/admin/total-ebooks', (req, res) => {
   });
 });
 
-/ Get overall mood counts
+// Get overall mood counts
 app.get('/api/mood-stats', (req, res) => {
   const sql = `SELECT logged_mood, COUNT(*) as count FROM moodlog GROUP BY logged_mood`;
   db.query(sql, (err, results) => {
