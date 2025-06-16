@@ -2335,7 +2335,8 @@ app.get('/my-messages', (req, res) => {
 
   if (!user_id) return res.status(400).json({ error: 'Missing user_id' });
 
-  const sql = 'SELECT id, subject, message, status, created_at FROM contact_message WHERE user_id = ? ORDER BY created_at DESC';
+  const sql = 'SELECT id, subject, message, response, status, created_at FROM contact_message WHERE user_id = ? ORDER BY created_at DESC';
+
   db.query(sql, [user_id], (err, results) => {
     if (err) {
       console.error("DB query error:", err);
