@@ -172,20 +172,28 @@
       }
     });
 
-    function fetchStat(endpoint, elementId) {
-        fetch(endpoint)
-          .then(response => response.json())
-          .then(data => {
-            document.getElementById(elementId).textContent = data.count;
-          })
-          .catch(error => console.error(`Error fetching ${elementId}:`, error));
+    // Fetch registered users and update count
+  fetch('/admin/registered-users')
+    .then(response => response.json())
+    .then(users => {
+      const registeredUsersCount = document.getElementById('registeredUsersCount');
+      if (registeredUsersCount) {
+        registeredUsersCount.textContent = users.length;
       }
+    })
+    .catch(error => console.error("Error fetching registered users:", error));
 
-      // Fetch each stat value and update its card
-      fetchStat('/admin/registered-users', 'registeredUsersCount');
-      fetchStat('/admin/active-users', 'activeUsersCount');
-      fetchStat('/admin/total-playlists', 'totalPlaylistsCount');
-      fetchStat('/admin/total-ebooks', 'ebooksCount');
+  // Fetch active users and update count
+  fetch('/admin/active-users')
+    .then(response => response.json())
+    .then(activeUsers => {
+      const activeUsersCount = document.getElementById('activeUsersCount');
+      if (activeUsersCount) {
+        activeUsersCount.textContent = activeUsers.length;
+      }
+    })
+    .catch(error => console.error("Error fetching active users:", error));
+
 
 
 
