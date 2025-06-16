@@ -117,6 +117,8 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     formData.append("surname", surname);
     formData.append("username", document.getElementById('registerUsername').value);
     formData.append("email", email);
+    const dob = document.getElementById('registerDOB').value;
+    formData.append("dob", dob);
     formData.append("password", password);
 
     const selectedAvatar = document.getElementById('selectedAvatar').value;
