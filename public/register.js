@@ -46,7 +46,7 @@ document.getElementById('registerForm').addEventListener('submit', async functio
 
     const email = document.getElementById('registerEmail').value;
     const password = document.getElementById('registerPassword').value;
-    const dob = document.getElementById('dob').value;
+    const dob = document.getElementById('registerDOB').value; // ✅ Corrected
 
     const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
     const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,}$/;
@@ -78,26 +78,28 @@ document.getElementById('registerForm').addEventListener('submit', async functio
         hasError = true;
     }
 
-    if (hasError) return;
+    if (!hasError) {
+        try {
+            const emailCheckResponse = await fetch('/check-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
 
-    try {
-        const emailCheckResponse = await fetch('/check-email', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
-        });
-
-        const emailCheckData = await emailCheckResponse.json();
-        if (emailCheckData.exists) {
-            displayError('email', 'Email already exists. Please use a different one.');
-            focusOnInvalidField('email');
+            const emailCheckData = await emailCheckResponse.json();
+            if (emailCheckData.exists) {
+                displayError('email', 'Email already exists. Please use a different one.');
+                focusOnInvalidField('email');
+                return;
+            }
+        } catch (error) {
+            console.error('Error checking email:', error);
+            alert('Error checking email. Please try again.');
             return;
         }
-    } catch (error) {
-        console.error('Error checking email:', error);
-        alert('Error checking email. Please try again.');
-        return;
     }
+
+    if (hasError) return;
 
     const formData = new FormData();
     formData.append("name", document.getElementById('registerName').value);
@@ -105,7 +107,7 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     formData.append("username", document.getElementById('registerUsername').value);
     formData.append("email", email);
     formData.append("password", password);
-    formData.append("dob", dob);  // ✅ Only sending dob, no age
+    formData.append("dob", dob); // Server will compute final age from this
 
     const selectedAvatar = document.getElementById('selectedAvatar').value;
     if (selectedAvatar) {
