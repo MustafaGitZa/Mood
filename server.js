@@ -1972,19 +1972,31 @@ app.post('/mood-posts/:id/comment', (req, res) => {
 });
 
 
+// Total registered users
 app.get('/admin/registered-users', (req, res) => {
   db.query('SELECT COUNT(*) AS count FROM user', (err, results) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
+    if (err) {
+      console.error('Registered Users API Error:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
     res.json({ count: results[0].count });
   });
 });
 
+// Active users (last 7 days)
 app.get('/admin/active-users', (req, res) => {
-  db.query('SELECT COUNT(*) AS count FROM user WHERE last_login IS NOT NULL', (err, results) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
-    res.json({ count: results[0].count });
-  });
+  db.query(
+    "SELECT COUNT(*) AS count FROM user WHERE last_login >= DATE_SUB(NOW(), INTERVAL 7 DAY)",
+    (err, results) => {
+      if (err) {
+        console.error('Active Users API Error:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      res.json({ count: results[0].count });
+    }
+  );
 });
+
 
 app.get('/admin/total-playlists', (req, res) => {
   db.query('SELECT COUNT(*) AS count FROM mood_playlist', (err, results) => {
