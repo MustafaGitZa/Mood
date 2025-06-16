@@ -1,31 +1,29 @@
 document.addEventListener("DOMContentLoaded", async function () {
     const userId = localStorage.getItem("userId");
-    console.log("Retrieved userId from localStorage:", userId); // Log userId from storage
     if (!userId) {
         alert("User not logged in.");
-        window.location.href = "/login.html"; // Redirect to login if userId is missing
+        window.location.href = "/login.html";
         return;
     }
 
+    // === Fetch and populate profile ===
     try {
-        console.log("Fetching profile with userId:", userId); // Log userId before sending request
         const response = await fetch(`/get-profile?userId=${userId}`);
         const data = await response.json();
 
-        console.log("Profile Response:", data); // Log received profile data
         if (response.ok) {
-            document.getElementById("name").value = data.name;
-            document.getElementById("surname").value = data.surname;
-            document.getElementById("email").value = data.email;
-            document.getElementById("username").value = data.username;
+            document.getElementById("name").value = data.name || "";
+            document.getElementById("surname").value = data.surname || "";
+            document.getElementById("email").value = data.email || "";
+            document.getElementById("email").dataset.current = data.email || "";
+            document.getElementById("username").value = data.username || "";
+            document.getElementById("username").dataset.current = data.username || "";
+            document.getElementById("selectedAvatar").value = data.avatar || "";
 
-            // Load avatar or profile picture if available
-            if (data.profile_picture) {
-                document.getElementById("selectedAvatar").value = data.profile_picture;
-                document.getElementById("selectedAvatarDisplay").src = data.profile_picture;
-                document.getElementById("selectedAvatarDisplay").style.display = "block";
-                document.querySelector(".avatar-options-container").style.display = "none"; // Hide avatar options
-                document.getElementById("chooseAvatarLabel").textContent = "Selected Avatar:";
+            if (data.avatar) {
+                const display = document.getElementById("selectedAvatarDisplay");
+                display.src = data.avatar;
+                display.style.display = "inline-block";
             }
         } else {
             alert("Failed to load profile details.");
@@ -35,213 +33,158 @@ document.addEventListener("DOMContentLoaded", async function () {
         alert("An error occurred while loading profile details.");
     }
 
-    // Avatar selection logic
-    const avatarOptions = document.querySelectorAll(".avatar-option");
-    const selectedAvatarInput = document.getElementById("selectedAvatar");
-    const selectedAvatarDisplay = document.getElementById("selectedAvatarDisplay");
-    const avatarOptionsContainer = document.querySelector(".avatar-options-container");
-    const chooseAvatarLabel = document.getElementById("chooseAvatarLabel");
-    const fileInput = document.getElementById("profilePicture");
+    // === Avatar selection ===
+    document.querySelectorAll(".avatar-option").forEach(img => {
+        img.addEventListener("click", () => {
+            const selectedAvatar = img.getAttribute("data-avatar");
+            document.getElementById("selectedAvatar").value = selectedAvatar;
 
-    function resetAvatarSelection() {
-        avatarOptions.forEach(opt => opt.classList.remove("selected")); // Clear previous selections
-        selectedAvatarInput.value = ""; // Clear avatar path input
-        selectedAvatarDisplay.style.display = "none"; // Hide avatar preview
-        avatarOptionsContainer.style.display = "flex"; // Re-display avatar options
-        chooseAvatarLabel.textContent = "Choose an Avatar (Optional)";
-    }
-
-    avatarOptions.forEach(avatar => {
-        avatar.addEventListener("click", function () {
-            avatarOptions.forEach(opt => opt.classList.remove("selected")); // Clear selections
-            this.classList.add("selected");
-            selectedAvatarInput.value = this.dataset.avatar; // Store selected avatar
-            selectedAvatarDisplay.src = this.src; // Update preview
-            selectedAvatarDisplay.style.display = "block";
-            avatarOptionsContainer.style.display = "none"; // Hide avatar options
-            chooseAvatarLabel.textContent = "Selected Avatar:";
-            fileInput.value = ""; // Clear file input if an avatar is selected
+            const display = document.getElementById("selectedAvatarDisplay");
+            display.src = selectedAvatar;
+            display.style.display = "inline-block";
         });
     });
 
-    // Add event listener to allow re-selecting an avatar by clicking on the displayed avatar
-    selectedAvatarDisplay.addEventListener("click", () => {
-        resetAvatarSelection(); // Reset avatar selection and re-display options
-    });
-
-    // Clear selected avatar if a file is chosen
-    fileInput.addEventListener("change", () => {
-        resetAvatarSelection();
-    });
-});
-document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("editProfileForm");
-
-    // Set the current email in data-current
-    const emailInput = document.getElementById("email");
-    const currentEmail = "user@example.com"; // Get this dynamically from backend or localStorage
-    emailInput.dataset.current = currentEmail;
-
-    form.addEventListener("submit", async function (event) {
+    // === Handle form submission (edit profile) ===
+    document.getElementById("editProfileForm").addEventListener("submit", async function (event) {
         event.preventDefault();
 
-        const userId = localStorage.getItem("userId");
-        if (!userId) {
-            alert("User not logged in.");
-            return;
+        // Clear previous errors
+        document.querySelectorAll("span.text-red-500").forEach(span => span.textContent = "");
+
+        const name = document.getElementById("name").value.trim();
+        const surname = document.getElementById("surname").value.trim();
+        const username = document.getElementById("username").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const avatar = document.getElementById("selectedAvatar").value;
+        const currentEmail = document.getElementById("email").dataset.current || "";
+
+        let isValid = true;
+
+        // === Validation ===
+        if (!name || !/^[A-Za-z\s]+$/.test(name)) {
+            document.getElementById("nameError").textContent = "Enter a valid name (letters only).";
+            isValid = false;
         }
 
-        const email = emailInput.value.trim();
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const emailError = document.getElementById("emailError");
-        emailError.textContent = ""; // Clear any previous error
-
-        // ✅ Format check
-        if (!emailPattern.test(email)) {
-            emailError.textContent = "Please enter a valid email address.";
-            return;
+        if (!surname || !/^[A-Za-z\s]+$/.test(surname)) {
+            document.getElementById("surnameError").textContent = "Enter a valid surname (letters only).";
+            isValid = false;
         }
 
-        // ✅ Check for duplicate email if changed
-        const currentEmail = emailInput.dataset.current;
+        if (!username || !/^\w{3,}$/.test(username)) {
+            document.getElementById("usernameError").textContent = "Username must be 3+ characters, letters/numbers only.";
+            isValid = false;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email || !emailRegex.test(email)) {
+            document.getElementById("emailError").textContent = "Enter a valid email address.";
+            isValid = false;
+        }
+        if (email.endsWith(".co")) {
+            document.getElementById("emailError").textContent = "Emails ending in '.co' are not allowed.";
+            return;
+     }
+
+        if (!isValid) return;
+
+        // === Email uniqueness check ===
         if (email !== currentEmail) {
             try {
-                const res = await fetch("/validate-email", {
+                const checkEmailRes = await fetch("/check-email", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email,userId })
+                    body: JSON.stringify({ email })
                 });
 
-                // Debugging: Log the response status and body
-                const result = await res.json();
-                if (res.ok && result.exists) {
-                    emailError.textContent = "This email is already taken.";
-                    return;
-                } else if (!res.ok) {
-                    emailError.textContent = `Error: ${res.status} - ${result.error || "Failed to validate email."}`;
+                const checkEmailData = await checkEmailRes.json();
+                if (checkEmailRes.ok && checkEmailData.exists) {
+                    document.getElementById("emailError").textContent = "Email already in use.";
+                    document.getElementById("email").focus();
                     return;
                 }
-            } catch (err) {
-                console.error("Email validation error:", err);
-                emailError.textContent = "Could not validate email. Please try again.";
+            } catch (e) {
+                console.error("Email check error:", e);
+                document.getElementById("emailError").textContent = "Could not verify email.";
                 return;
             }
         }
-        
 
-        const formData = new FormData();
-        formData.append("userId", userId);
-        formData.append("name", document.getElementById("name").value);
-        formData.append("surname", document.getElementById("surname").value);
-        formData.append("username", document.getElementById("username").value);
-        formData.append("email", email);
-
-        const selectedAvatarPath = document.getElementById("selectedAvatar").value;
-        const fileInput = document.getElementById("profilePicture");
-        const uploadedFile = fileInput && fileInput.files.length > 0 ? fileInput.files[0] : null;
-
-        if (uploadedFile) {
-            formData.append("profile_picture", uploadedFile);
-        } else if (selectedAvatarPath) {
-            formData.append("profile_picture", selectedAvatarPath);
-        }
-
+        // === Submit profile update ===
         try {
             const response = await fetch("/update-profile", {
                 method: "POST",
-                body: formData,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId, name, surname, username, email, avatar })
             });
 
             const data = await response.json();
-            console.log("Update response:", data);
 
             if (response.ok) {
-                showSuccessModal(data.message);
+                // Show success modal
+                const successModal = document.getElementById("successModal");
+                const successMsg = document.getElementById("successMessageText");
+                successMsg.textContent = data.message || "Profile updated successfully!";
+                successModal.classList.remove("hidden");
+
+                document.getElementById("successModalCloseBtn").addEventListener("click", () => {
+                    successModal.classList.add("hidden");
+                    window.location.href = "/dashboard";
+                });
             } else {
-                showErrorModal(data.message);
+                if (data.field && data.message) {
+                    const errorSpan = document.getElementById(`${data.field}Error`);
+                    if (errorSpan) {
+                        errorSpan.textContent = data.message;
+                    } else {
+                        alert(data.message);
+                    }
+                } else {
+                    alert(data.message || "An unknown error occurred.");
+                }
             }
         } catch (error) {
-            console.error("Error:", error);
-            showErrorModal("An error occurred. Please try again.");
+            console.error("Error updating profile:", error);
+            alert("An error occurred. Please try again.");
         }
     });
 
-    // Success modal logic
-    const successModal = document.getElementById("successModal");
-    const successMessageText = document.getElementById("successMessageText");
-    const successModalCloseBtn = document.getElementById("successModalCloseBtn");
+    // === Delete Profile Button & Modal Logic ===
+    const deleteBtn = document.getElementById("deleteProfileBtn");
+    const modal = document.getElementById("confirmDeleteModal");
+    const confirmDelete = document.getElementById("confirmDeleteBtn");
+    const cancelDelete = document.getElementById("cancelDeleteBtn");
 
-    function showSuccessModal(message) {
-        successMessageText.textContent = message;
-        successModal.classList.remove("hidden");
+    deleteBtn.addEventListener("click", () => {
+        modal.classList.remove("hidden");
+    });
 
-        successModalCloseBtn.addEventListener("click", () => {
-            successModal.classList.add("hidden");
-            window.location.href = "/dashboard";
-        });
-    }
+    cancelDelete.addEventListener("click", () => {
+        modal.classList.add("hidden");
+    });
 
-    // Error modal logic
-    const errorModal = document.getElementById("errorModal");
-    const errorMessageText = document.getElementById("errorMessageText");
-    const errorModalCloseBtn = document.getElementById("errorModalCloseBtn");
+    confirmDelete.addEventListener("click", async () => {
+        try {
+            const response = await fetch("/delete-profile", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId })
+            });
 
-    function showErrorModal(message) {
-        errorMessageText.textContent = message;
-        errorModal.classList.remove("hidden");
-
-        errorModalCloseBtn.addEventListener("click", () => {
-            errorModal.classList.add("hidden");
-        });
-    }
+            const data = await response.json();
+            if (response.ok) {
+                alert(data.message);
+                localStorage.removeItem("userId");
+                window.location.href = "/login.html";
+            } else {
+                alert(data.message || "Failed to delete profile.");
+            }
+        } catch (error) {
+            console.error("Error deleting profile:", error);
+            alert("An error occurred. Please try again.");
+        }
+    });
 });
 
 
-
-
-document.addEventListener("DOMContentLoaded", function () {
-    const deleteBtn = document.getElementById("deleteProfileBtn");
-    const modal = document.getElementById("confirmDeleteModal");
-    const confirmBtn = document.getElementById("confirmDeleteBtn");
-    const cancelBtn = document.getElementById("cancelDeleteBtn");
-  
-    deleteBtn.addEventListener("click", () => {
-      modal.classList.remove("hidden"); // Show modal
-    });
-  
-    cancelBtn.addEventListener("click", () => {
-      modal.classList.add("hidden"); // Hide modal
-    });
-  
-    confirmBtn.addEventListener("click", async () => {
-      const userId = localStorage.getItem("userId");
-      if (!userId) {
-        alert("User not logged in.");
-        return;
-      }
-  
-      try {
-        const response = await fetch("/delete-profile", {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId }),
-        });
-  
-        const data = await response.json();
-  
-        if (response.ok) {
-          alert(data.message);
-          localStorage.removeItem("userId");
-          window.location.href = "/login.html";
-        } else {
-          alert(data.message);
-        }
-      } catch (error) {
-        console.error("Error deleting profile:", error);
-        alert("An error occurred. Please try again.");
-      }
-  
-      modal.classList.add("hidden"); // Hide modal
-    });
-  });
-  
