@@ -181,10 +181,12 @@
           .catch(error => console.error(`Error fetching ${elementId}:`, error));
       }
 
-  fetchStat('/admin/registered-users', 'registeredUsersCount');
-  fetchStat('/admin/active-users', 'activeUsersCount');
-  fetchStat('/admin/total-playlists', 'totalPlaylistsCount');
-  fetchStat('/admin/total-ebooks', 'ebooksCount');
+      // Fetch each stat value and update its card
+      fetchStat('/admin/registered-users', 'registeredUsersCount');
+      fetchStat('/admin/active-users', 'activeUsersCount');
+      fetchStat('/admin/total-playlists', 'totalPlaylistsCount');
+      fetchStat('/admin/total-ebooks', 'ebooksCount');
+
 
 
   </script>
