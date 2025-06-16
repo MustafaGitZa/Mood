@@ -270,12 +270,12 @@ function initializeChart(moodCounts) {
       label: 'Mood Count',
       data: Object.values(moodCounts).map(Number),
       backgroundColor: [
-        '#FFD700', // happy
-        '#1E90FF', // sad
-        '#FF6347', // angry
-        '#32CD32', // excited
-        '#D3D3D3', // neutral
-        '#800080'  // surprised
+       '#4CAF50', // happy
+        '#FFEB3B', // sad
+        '#FF5722', // angry
+        '#2196F3', // excited
+        '#9E9E9E', // neutral
+        '#9C27B0'  // surprised
       ],
       borderWidth: 1
     }]

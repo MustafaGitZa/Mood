@@ -27,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     selectedAvatarDisplay.addEventListener('click', resetAvatarSelection);
 });
-
 document.getElementById('registerForm').addEventListener('submit', async function(event) {
     event.preventDefault();
 
@@ -44,25 +43,49 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     clearErrorMessages();
     clearInvalidFields();
 
-    const email = document.getElementById('registerEmail').value;
+    const name = document.getElementById('registerName').value.trim();
+    const surname = document.getElementById('registerSurname').value.trim();
+    const email = document.getElementById('registerEmail').value.trim();
     const password = document.getElementById('registerPassword').value;
+
     const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
     const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,}$/;
 
     let hasError = false;
 
+    // Validate Name - must not be empty and only letters and spaces allowed
+    if (!name) {
+        displayError('name', 'Please enter your name.');
+        focusOnInvalidField('name');
+        hasError = true;
+    } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+        displayError('name', 'Name can only contain letters and spaces.');
+        focusOnInvalidField('name');
+        hasError = true;
+    }
+
+    // Validate Surname - must not be empty and only letters and spaces allowed
+    if (!surname) {
+        displayError('surname', 'Please enter your surname.');
+        if (!hasError) focusOnInvalidField('surname');
+        hasError = true;
+    } else if (!/^[a-zA-Z\s]+$/.test(surname)) {
+        displayError('surname', 'Surname can only contain letters and spaces.');
+        if (!hasError) focusOnInvalidField('surname');
+        hasError = true;
+    }
+
     if (!emailRegex.test(email)) {
         displayError('email', 'Please enter a valid email address.');
-        focusOnInvalidField('email');
+        if (!hasError) focusOnInvalidField('email');
         hasError = true;
     }
 
     if (!passwordRegex.test(password)) {
         displayError('password', 'Password must be at least 8 characters, include one number and one special character.');
-        focusOnInvalidField('password');
+        if (!hasError) focusOnInvalidField('password');
         hasError = true;
     }
-
 
     if (!hasError) {
         try {
@@ -73,7 +96,7 @@ document.getElementById('registerForm').addEventListener('submit', async functio
                 },
                 body: JSON.stringify({ email })
             });
-    
+
             const emailCheckData = await emailCheckResponse.json();
             if (emailCheckData.exists) {
                 displayError('email', 'Email already exists. Please use a different one.');
@@ -86,26 +109,21 @@ document.getElementById('registerForm').addEventListener('submit', async functio
             return;
         }
     }
-    
-
- 
-  
-    
 
     if (hasError) return; // If there's an error, stop the form submission
 
     const formData = new FormData();
-    formData.append("name", document.getElementById('registerName').value);
-    formData.append("surname", document.getElementById('registerSurname').value);
+    formData.append("name", name);
+    formData.append("surname", surname);
     formData.append("username", document.getElementById('registerUsername').value);
     formData.append("email", email);
     formData.append("password", password);
+    formData.append("dob", document.getElementById("dob").value);
 
     const selectedAvatar = document.getElementById('selectedAvatar').value;
     if (selectedAvatar) {
-        formData.append("avatar_path", selectedAvatar);  // ✅ Correct key for the backend
+        formData.append("avatar_path", selectedAvatar);
     }
-    
 
     const registerBtn = document.getElementById('registerBtn');
     registerBtn.disabled = true;
@@ -145,9 +163,9 @@ document.getElementById('registerForm').addEventListener('submit', async functio
 function clearErrorMessages() {
     ['email', 'password', 'username', 'name', 'surname'].forEach(id => {
         const errEl = document.getElementById(`${id}Error`);
-        if (errEl) errEl.textContent = '';  // Clear the error message
+        if (errEl) errEl.textContent = '';
         const inputEl = document.getElementById(`register${capitalizeFirstLetter(id)}`);
-        if (inputEl) inputEl.classList.remove('invalid');  // Remove the 'invalid' class
+        if (inputEl) inputEl.classList.remove('invalid');
     });
 }
 
@@ -159,16 +177,16 @@ function displayError(field, message) {
     const errorElement = document.getElementById(`${field}Error`);
     const inputElement = document.getElementById(`register${capitalizeFirstLetter(field)}`);
     if (errorElement && inputElement) {
-        errorElement.textContent = message;  // Set the error message text
-        errorElement.style.display = 'block';  // Make the error message visible
-        inputElement.classList.add('invalid');  // Highlight the input field
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+        inputElement.classList.add('invalid');
     }
 }
 
 function focusOnInvalidField(field) {
     const inputElement = document.getElementById(`register${capitalizeFirstLetter(field)}`);
     if (inputElement) {
-        inputElement.focus();  // Focus on the invalid input field
+        inputElement.focus();
     }
 }
 
@@ -182,16 +200,15 @@ window.addEventListener('load', function() {
         const successMessageContainer = document.getElementById('successMessageContainer');
         const successMessageElement = document.getElementById('successMessage');
         successMessageElement.textContent = successMessage;
-        successMessageContainer.style.display = 'block'; // Show the success message
+        successMessageContainer.style.display = 'block';
         sessionStorage.removeItem('successMessage');
     }
 
     document.getElementById('closeSuccess')?.addEventListener('click', () => {
         document.getElementById('successMessageContainer').style.display = 'none';
-        window.location.href = 'login.html'; // Redirect after closing
+        window.location.href = 'login.html';
     });
 });
-
 
   
 

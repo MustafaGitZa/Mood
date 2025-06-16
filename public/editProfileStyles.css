@@ -275,4 +275,22 @@ button:hover {
     margin-top: 0.25rem; /* mt-1 */
     display: block;
 }
+  #usernameError {
+    color: #dc2626; /* Tailwind red-600 */
+    font-size: 0.875rem; /* text-sm */
+    margin-top: 0.25rem; /* mt-1 */
+    display: block;
+}
 
+  #surnameError {
+    color: #dc2626; /* Tailwind red-600 */
+    font-size: 0.875rem; /* text-sm */
+    margin-top: 0.25rem; /* mt-1 */
+    display: block;
+}
+  #nameError {
+    color: #dc2626; /* Tailwind red-600 */
+    font-size: 0.875rem; /* text-sm */
+    margin-top: 0.25rem; /* mt-1 */
+    display: block;
+}

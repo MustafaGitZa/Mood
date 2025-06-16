@@ -324,6 +324,16 @@ window.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      const moodColors = {
+        happy: '#4CAF50',
+        sad: '#FFEB3B',
+        angry: '#FF5722',
+        excited: '#2196F3',
+        neutral: '#9E9E9E',
+        surprised: '#9C27B0'
+      };
+
+
       const ctx = document.getElementById("moodBreakdownChart").getContext("2d");
 
       new Chart(ctx, {
@@ -333,7 +343,7 @@ window.addEventListener("DOMContentLoaded", () => {
           datasets: [{
             label: 'Entries',
             data: trends.map(item => item.count),
-            backgroundColor: '#fa0803',
+            backgroundColor: trends.map(item => moodColors[item.logged_mood.toLowerCase()] || '#ccc'),
             borderRadius: 8,
           }]
         },
