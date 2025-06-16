@@ -1,21 +1,9 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const userId = localStorage.getItem('userId');
-  if (!userId) {
-    alert('You must be logged in to view your messages.');
-    window.location.href = 'login.html';
-    return;
-  }
-
-  fetchUserMessages(userId);
-  fetchUnreadCount(userId);
-});
-
 function fetchUserMessages(userId) {
-  fetch(`/my-messages?userId=${userId}`)
+  fetch(`/my-messages?user_id=${userId}`)
     .then(res => res.json())
     .then(data => {
       const tbody = document.querySelector('#userMessagesTable tbody');
-      tbody.innerHTML = ''; // clear existing rows
+      tbody.innerHTML = '';
 
       data.forEach(msg => {
         const row = document.createElement('tr');
@@ -38,20 +26,8 @@ function fetchUserMessages(userId) {
     .catch(err => console.error('Error fetching messages:', err));
 }
 
-function acknowledgeMessage(id, btn) {
-  fetch(`/acknowledge-message/${id}`, { method: 'PUT' })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        btn.outerHTML = '✓';
-        fetchUnreadCount(localStorage.getItem('userId')); // refresh icon count
-      }
-    })
-    .catch(err => console.error('Error acknowledging message:', err));
-}
-
 function fetchUnreadCount(userId) {
-  fetch(`/my-unread-messages-count?userId=${userId}`)
+  fetch(`/my-unread-messages-count?user_id=${userId}`)
     .then(res => res.json())
     .then(data => {
       const badge = document.getElementById('userMessageCount');
