@@ -1972,30 +1972,7 @@ app.post('/mood-posts/:id/comment', (req, res) => {
 });
 
 
-// Total registered users
-app.get('/admin/registered-users', (req, res) => {
-  db.query('SELECT COUNT(*) AS count FROM user', (err, results) => {
-    if (err) {
-      console.error('Registered Users API Error:', err);
-      return res.status(500).json({ error: 'Database error' });
-    }
-    res.json({ count: results[0].count });
-  });
-});
 
-// Active users (last 7 days)
-app.get('/admin/active-users', (req, res) => {
-  db.query(
-    "SELECT COUNT(*) AS count FROM user WHERE last_login >= DATE_SUB(NOW(), INTERVAL 7 DAY)",
-    (err, results) => {
-      if (err) {
-        console.error('Active Users API Error:', err);
-        return res.status(500).json({ error: 'Database error' });
-      }
-      res.json({ count: results[0].count });
-    }
-  );
-});
 
 
 app.get('/admin/total-playlists', (req, res) => {
@@ -2465,6 +2442,28 @@ app.get('/my-unread-messages-count', (req, res) => {
   db.query(sql, [user_id], (err, results) => {
     if (err) return res.status(500).json({ error: 'Failed to fetch count' });
     res.json(results[0]);
+  });
+});
+
+app.get('/admin/total-playlists', (req, res) => {
+  const query = 'SELECT COUNT(*) AS count FROM mood_playlist';
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching total playlists:", err);
+      return res.status(500).json({ message: "Error fetching total playlists." });
+    }
+    res.json({ count: results[0].count });
+  });
+});
+
+app.get('/admin/total-ebooks', (req, res) => {
+  const query = 'SELECT COUNT(*) AS count FROM mood_ebook_audio';
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching total ebooks:", err);
+      return res.status(500).json({ message: "Error fetching total ebooks." });
+    }
+    res.json({ count: results[0].count });
   });
 });
 
