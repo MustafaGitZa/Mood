@@ -2467,6 +2467,24 @@ app.get('/admin/total-ebooks', (req, res) => {
   });
 });
 
+/ Get overall mood counts
+app.get('/api/mood-stats', (req, res) => {
+  const sql = `SELECT logged_mood, COUNT(*) as count FROM moodlog GROUP BY logged_mood`;
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ error: 'Failed to fetch mood stats' });
+    res.json(results);
+  });
+});
+
+// Get platform popularity stats
+app.get('/api/platform-popularity', (req, res) => {
+  const sql = `SELECT type, COUNT(*) as count FROM moodlog GROUP BY type`;
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ error: 'Failed to fetch platform stats' });
+    res.json(results);
+  });
+});
+
 
 const PORT = process.env.PORT || 3000;
 
