@@ -445,35 +445,51 @@ h1 {
 }
 
 
-/* Horizontal scrolling stats grid */
 .stats-grid {
   display: flex;
+  justify-content: center;   /* Center the stat cards as a group */
   flex-wrap: nowrap;
   overflow-x: auto;
-  gap: 20px;
-  padding: 20px 0;
+  gap: 12px;                  /* Reduce the gap between cards */
+  padding: 10px 0;            /* Less vertical space */
+  margin: 0 auto;             /* Center within parent container */
+  max-width: 100%;
 }
-
 .stat-card {
   flex: 0 0 auto;
-  min-width: 220px;
+  min-width: 180px;           /* Slightly narrower cards */
   background: white;
-  padding: 20px;
+  padding: 16px;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
   text-align: center;
 }
-
 .stat-card h3 {
-  font-size: 1.2em;
+  font-size: 1.1em;
   color: #f167a1;
+  margin-bottom: 5px;
 }
 
 .stat-card p {
-  font-size: 2em;
-  margin: 10px 0 0;
+  font-size: 1.8em;
+  margin: 0;
   color: #333;
 }
+
+@media (max-width: 768px) {
+  .stats-grid {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .stat-card {
+    min-width: 140px;
+    padding: 12px;
+  }
+}
+
+
 /* Responsive sidebar handling */
 @media (max-width: 768px) {
   .sidebar {
