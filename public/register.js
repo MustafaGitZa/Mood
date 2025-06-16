@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     selectedAvatarDisplay.addEventListener('click', resetAvatarSelection);
 });
+
 document.getElementById('registerForm').addEventListener('submit', async function(event) {
     event.preventDefault();
 
@@ -43,83 +44,68 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     clearErrorMessages();
     clearInvalidFields();
 
-    const name = document.getElementById('registerName').value.trim();
-    const surname = document.getElementById('registerSurname').value.trim();
-    const email = document.getElementById('registerEmail').value.trim();
+    const email = document.getElementById('registerEmail').value;
     const password = document.getElementById('registerPassword').value;
+    const dob = document.getElementById('dob').value;
 
     const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
     const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,}$/;
 
     let hasError = false;
 
-    // Validate Name - must not be empty and only letters and spaces allowed
-    if (!name) {
-        displayError('name', 'Please enter your name.');
-        focusOnInvalidField('name');
-        hasError = true;
-    } else if (!/^[a-zA-Z\s]+$/.test(name)) {
-        displayError('name', 'Name can only contain letters and spaces.');
-        focusOnInvalidField('name');
-        hasError = true;
-    }
-
-    // Validate Surname - must not be empty and only letters and spaces allowed
-    if (!surname) {
-        displayError('surname', 'Please enter your surname.');
-        if (!hasError) focusOnInvalidField('surname');
-        hasError = true;
-    } else if (!/^[a-zA-Z\s]+$/.test(surname)) {
-        displayError('surname', 'Surname can only contain letters and spaces.');
-        if (!hasError) focusOnInvalidField('surname');
-        hasError = true;
-    }
-
     if (!emailRegex.test(email)) {
-        displayError('email', 'Please enter a valid email address.');
-        if (!hasError) focusOnInvalidField('email');
+        displayError('email', 'Please enter a valid Gmail address.');
+        focusOnInvalidField('email');
         hasError = true;
     }
 
     if (!passwordRegex.test(password)) {
         displayError('password', 'Password must be at least 8 characters, include one number and one special character.');
-        if (!hasError) focusOnInvalidField('password');
+        focusOnInvalidField('password');
         hasError = true;
     }
 
-    if (!hasError) {
-        try {
-            const emailCheckResponse = await fetch('/check-email', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email })
-            });
-
-            const emailCheckData = await emailCheckResponse.json();
-            if (emailCheckData.exists) {
-                displayError('email', 'Email already exists. Please use a different one.');
-                focusOnInvalidField('email');
-                hasError = true;
-            }
-        } catch (error) {
-            console.error('Error checking email availability:', error);
-            alert('An error occurred while checking the email. Please try again.');
-            return;
-        }
+    if (!dob) {
+        displayError('dob', 'Please select your date of birth.');
+        focusOnInvalidField('dob');
+        hasError = true;
     }
 
-    if (hasError) return; // If there's an error, stop the form submission
+    const age = calculateAge(dob);
+    if (age <= 0 || isNaN(age)) {
+        displayError('dob', 'Invalid date of birth.');
+        focusOnInvalidField('dob');
+        hasError = true;
+    }
+
+    if (hasError) return;
+
+    try {
+        const emailCheckResponse = await fetch('/check-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+
+        const emailCheckData = await emailCheckResponse.json();
+        if (emailCheckData.exists) {
+            displayError('email', 'Email already exists. Please use a different one.');
+            focusOnInvalidField('email');
+            return;
+        }
+    } catch (error) {
+        console.error('Error checking email:', error);
+        alert('Error checking email. Please try again.');
+        return;
+    }
 
     const formData = new FormData();
-    formData.append("name", name);
-    formData.append("surname", surname);
+    formData.append("name", document.getElementById('registerName').value);
+    formData.append("surname", document.getElementById('registerSurname').value);
     formData.append("username", document.getElementById('registerUsername').value);
     formData.append("email", email);
-    const dob = document.getElementById('registerDOB').value;
-    formData.append("dob", dob);
     formData.append("password", password);
+    formData.append("dob", dob);  // ✅ Only sending dob, no age
 
     const selectedAvatar = document.getElementById('selectedAvatar').value;
     if (selectedAvatar) {
@@ -161,8 +147,19 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     }
 });
 
+function calculateAge(dobString) {
+    const today = new Date();
+    const birthDate = new Date(dobString);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    return age;
+}
+
 function clearErrorMessages() {
-    ['email', 'password', 'username', 'name', 'surname'].forEach(id => {
+    ['email', 'password', 'username', 'name', 'surname', 'dob'].forEach(id => {
         const errEl = document.getElementById(`${id}Error`);
         if (errEl) errEl.textContent = '';
         const inputEl = document.getElementById(`register${capitalizeFirstLetter(id)}`);
@@ -195,7 +192,7 @@ function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-window.addEventListener('load', function() {
+window.addEventListener('load', function () {
     const successMessage = sessionStorage.getItem('successMessage');
     if (successMessage) {
         const successMessageContainer = document.getElementById('successMessageContainer');
@@ -210,7 +207,3 @@ window.addEventListener('load', function() {
         window.location.href = 'login.html';
     });
 });
-
-  
-
-
