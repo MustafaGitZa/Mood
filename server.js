@@ -15,7 +15,7 @@ const { Document, Packer, Paragraph, Table, TableRow, TableCell, WidthType, Bord
 
 
 
-
+module.exports = app;
 
 
 const resetTokens = {}; // { token: email }
