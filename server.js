@@ -2488,6 +2488,6 @@ app.get('/api/platform-popularity', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-server.listen(3000, () => {
+app.listen(3000, () => {
   console.log('Secure server running at https://localhost:3000');
 });
